@@ -1,6 +1,11 @@
 <!-- 
  Dashboard hit admin
 -->
+ <?php 
+ require_once "../php/admin_auth.php";
+ require_once "../php/config.php";
+ 
+ ?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -10,6 +15,10 @@
     <title>Dashboard</title>
 </head>
 <body>
+    <h1>Dashboard</h1>
+    <div>
+        <?php echo $admin_username ?>
+    </div>
     
 </body>
 </html>
