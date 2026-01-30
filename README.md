@@ -37,3 +37,11 @@ CREATE TABLE users (
 );
 
 ```
+
+## For Windows
+
+1.) Install MySql Server
+2.) Run the commands above(for linux) in cmd.
+
+
+# Running
