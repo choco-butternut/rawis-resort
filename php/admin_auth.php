@@ -2,8 +2,8 @@
 
 if(session_status()==PHP_SESSION_NONE)session_start();
 
-if(!isset($_SESSION["admin_logged_in"]) || $_SESSION["admin_logged_in"] !== true){
-    header("Location: index.php");
+if(!isset($_SESSION["admin_logged_in"]) && $_SESSION["admin_logged_in"] !== true){
+    header("Location: /admin/index.php");
     exit();
 }
 
@@ -12,7 +12,7 @@ $timeout_duration = 1800;
 if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) > $timeout_duration) {
     session_unset();
     session_destroy();
-    header("Location: index.php?timeout=1");
+    header("Location: /admin/index.php?timeout=1");
     exit();
 }
 

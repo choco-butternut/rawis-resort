@@ -19,6 +19,8 @@
     <div>
         <?php echo $admin_username ?>
     </div>
+
+    <a href="/admin/logout.php">Logout</a>
     
 </body>
 </html>

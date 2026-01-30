@@ -12,8 +12,8 @@ Login para hit admin page
 <?php
 session_start();
 
-if(isset($_SESSION["admin_logged_in"]) || $_SESSION["admin_logged_in"] === true){
-    header("Location: admin/dashboard.php");
+if(isset($_SESSION["admin_logged_in"]) && $_SESSION["admin_logged_in"] === true){
+    header("Location: /admin/dashboard.php");
     exit();
 }
 
@@ -48,7 +48,7 @@ if ($_SERVER["REQUEST_METHOD"]==="POST"){
 
             session_write_close();
             
-            header("Location: dashboard.php");
+            header("Location: /admin/dashboard.php");
             exit();
         }else{
             $error = "Invalid username or password";
