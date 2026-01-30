@@ -1,6 +1,10 @@
 
 <!-- 
- 
+ Sorry kathlyn, monica.
+ Kun mayko mahibubulig haiyo hit thesis
+ mabulig ak haiyo para makabawi. Sorry. 
+
+
 Login para hit admin page
 
 -->
