@@ -2,7 +2,7 @@
 <!-- 
  Sorry kathlyn, monica.
  Kun mayko mahibubulig haiyo hit thesis
- mabulig ak haiyo para makabawi. Sorry. 
+ mabulig ak haiyo. Sorry. 
 
 
 Login para hit admin page
