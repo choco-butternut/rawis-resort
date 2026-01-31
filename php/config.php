@@ -2,7 +2,7 @@
 
 define("DB_HOST","localhost");
 define("DB_USER","root");
-define("DB_PASS","gabmontes");
+define("DB_PASS","");
 define("DB_NAME","rawis_resort_db");
 
 

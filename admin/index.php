@@ -4,6 +4,8 @@
  Kun mayko mahibubulig haiyo hit thesis
  mabulig ak haiyo. Sorry. 
 
+ hahahahahahahahah overrrrrrr okay gadla bawo
+
 
 Login para hit admin page
 
@@ -66,20 +68,32 @@ if ($_SERVER["REQUEST_METHOD"]==="POST"){
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Login</title>
+    <link rel="stylesheet" href="../assets/css/base.css">
 </head>
 <body>
-    <form action="" method="post">
+    <div class="login-container">
+        <?php include '../php/logo.php'; ?>
 
-        <?php if(!empty($error)) :?>
-            <div>
-                <?php echo $error; ?>
+        <form action="" method="post">
+
+            <?php if(!empty($error)) :?>
+                <div class="error-message">
+                    <?php echo $error; ?>
+                </div>
+            <?php endif;?>
+
+            <div class="input-group">
+                <img src="../assets/profile.png" alt="Profile Icon" class="input-icon">
+                <input name="email" type="email" placeholder="Enter email">
             </div>
-        <?php endif;?>
 
-        <input name="email" type="email" placeholder="Enter email">
-        <input name="password" type="password" placeholder="Enter password">
+            <div class="input-group">
+                <img src="../assets/password.png" alt="Password Icon" class="input-icon">
+                <input name="password" type="password" placeholder="Enter password">
+            </div>
 
-        <button type="submit">Login</button>
-    </form>
+            <button type="submit" class="login-button">Login</button>
+        </form>
+    </div>
 </body>
 </html>
