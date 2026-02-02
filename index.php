@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rawis Resort Hotel</title>
+</head>
+<body>
+
+    <?php require_once __DIR__ . '/php/header.php'; ?>
+
+    <div class="hero">
+        <div class="hero-content">
+
+            <?php
+                $showImage = false;
+                $showText  = true;
+                include __DIR__ . '/php/logo.php';
+            ?>
+
+            <div class="tagline">
+                <p>Where the sun rises early, one and only spot in Borongan, Eastern Samar.
+                    LOREM IPSUM DHDSKFHKAJDFHKAJDHKJAH!!!!???
+                </p>
+            </div>
+
+            <div class="cta">
+                <button type="button">FIND ME A ROOM</button>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="room-cards">
+        <!-- cards -->
+    </div>
+
+    <?php require_once __DIR__ . '/php/footer.php'; ?> 
+
+</body>
+</html>
