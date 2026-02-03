@@ -76,6 +76,16 @@ CREATE TABLE users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     role ENUM('admin','guest') NOT NULL DEFAULT 'guest'
 );
+
+CREATE TABLE rooms (
+    room_id INT AUTO_INCREMENT PRIMARY KEY,
+    room_number VARCHAR(20) NOT NULL UNIQUE,
+    room_type VARCHAR(50) NOT NULL,
+    max_capacity INT NOT NULL,
+    price_per_night DECIMAL(10,2) NOT NULL,
+    room_status VARCHAR(20) NOT NULL
+);
+
 ```
 
 change necessary info on php/config.php
