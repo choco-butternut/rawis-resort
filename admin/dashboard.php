@@ -20,7 +20,10 @@
         <?php echo $admin_username ?>
     </div>
 
+    <a href="/admin/dashboard.php">Dashboard</a>
+    <a href="/admin/rooms.php">Rooms</a>
     <a href="/admin/logout.php">Logout</a>
+    
     
 </body>
 </html>
