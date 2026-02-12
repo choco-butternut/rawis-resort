@@ -25,7 +25,7 @@ if ($_SERVER["REQUEST_METHOD"]==="POST"){
     if($result->num_rows == 1){
         $user = $result->fetch_assoc();
 
-        if(md5($password)===$user["password"]){
+        if($password===$user["password"]){
             session_regenerate_id(true);
 
             $_SESSION["admin_role"] = $user["role"];
