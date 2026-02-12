@@ -14,7 +14,7 @@
         <nav class="nav-menu">
             <ul>
                 <li><a href="index.php">Home</a></li>
-                <li><a href="">Rooms</a></li>
+                <li><a href="rooms.php">Rooms</a></li>
                 <li><a href="">Facilities</a></li>
                 <li><a href="">Amenities</a></li>
             </ul>

@@ -10,6 +10,23 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $max_capacity    = (int) $_POST["max_capacity"];
     $price_per_night = (float) $_POST["price_per_night"];
     $room_status     = sanitize_input($_POST["room_status"]);
+    $image_path      = "";
+
+    if (isset($_FILES["room_image"]) && $_FILES["room_image"]["error"] === 0) {
+
+        $upload_dir = "../uploads/rooms/";
+        if (!is_dir($upload_dir)) {
+            mkdir($upload_dir, 0777, true);
+        }
+
+        $filename = time() . "_" . basename($_FILES["room_image"]["name"]);
+        $target_file = $upload_dir . $filename;
+
+        move_uploaded_file($_FILES["room_image"]["tmp_name"], $target_file);
+
+        $image_path = "uploads/rooms/" . $filename;
+    }
+
 
     
     if (!empty($_POST["room_id"])) {
@@ -35,16 +52,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     
     else {
         $stmt = $conn->prepare(
-            "INSERT INTO rooms (room_number, room_type, max_capacity, price_per_night, room_status)
-             VALUES (?,?,?,?,?)"
+            "INSERT INTO rooms (room_number, room_type, max_capacity, price_per_night, room_status, image_path)
+             VALUES (?,?,?,?,?,?)"
         );
         $stmt->bind_param(
-            "ssids",
+            "ssidss",
             $room_number,
             $room_type,
             $max_capacity,
             $price_per_night,
-            $room_status
+            $room_status,
+            $image_path
         );
         $stmt->execute();
         $stmt->close();
@@ -93,17 +111,23 @@ $rooms = $conn->query("SELECT * FROM rooms ORDER BY room_number ASC");
 <body>
     <a href="/admin/dashboard.php">Dashboard</a>
     <a href="/admin/rooms.php">Rooms</a>
+    <a href="/admin/reservation.php">Reservations</a>
+    <a href="/admin/amenities.php">Amenities</a>
     <a href="/admin/logout.php">Logout</a>
     <br>
     <h2><?= $edit_room ? "Edit Room" : "Add Room"; ?></h2>
 
-    <form method="POST">
+    <form method="POST" enctype="multipart/form-data">
         <?php if ($edit_room): ?>
             <input type="hidden" name="room_id" value="<?= $edit_room["room_id"]; ?>">
         <?php endif; ?>
 
         <input type="text" name="room_number" placeholder="Room Number"
             value="<?= $edit_room["room_number"] ?? ""; ?>" required>
+
+        <input type="file" name="room_image" accept="image/*"
+            value="<?= $edit_room["image_path"] ?? ""; ?>" required>
+
 
         <input type="text" name="room_type" placeholder="Room Type"
             value="<?= $edit_room["room_type"] ?? ""; ?>" required>

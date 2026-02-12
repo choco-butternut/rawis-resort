@@ -1,15 +1,4 @@
 
-<!-- 
- Sorry kathlyn, monica.
- Kun mayko mahibubulig haiyo hit thesis
- mabulig ak haiyo. Sorry. 
-
- hahahahahahahahah overrrrrrr okay gadla bawo
-
-
-Login para hit admin page
-
--->
 
 <?php
 session_start();
@@ -36,7 +25,7 @@ if ($_SERVER["REQUEST_METHOD"]==="POST"){
     if($result->num_rows == 1){
         $user = $result->fetch_assoc();
 
-        if($password===$user["password"]){
+        if(md5($password)===$user["password"]){
             session_regenerate_id(true);
 
             $_SESSION["admin_role"] = $user["role"];

@@ -1,3 +1,11 @@
+<?php
+require_once __DIR__ . '/php/config.php';
+
+$rooms = $conn->query("SELECT * FROM rooms WHERE room_status='available'");
+?>
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,6 +13,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rawis Resort Hotel</title>
 </head>
+
+
 <body>
 
     <?php require_once __DIR__ . '/php/header.php'; ?>
@@ -32,10 +42,12 @@
     </div>
 
     <div class="room-cards">
-        <!-- cards -->
+        
+
     </div>
 
     <?php require_once __DIR__ . '/php/footer.php'; ?> 
+    
 
 </body>
 </html>
