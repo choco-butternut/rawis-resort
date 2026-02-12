@@ -1,6 +1,6 @@
 <?php
-require_once "../php/config.php";
-require_once "../php/admin_auth.php";
+require_once __DIR__ . "/../php/config.php";
+require_once __DIR__ . "/../php/admin_auth.php";
 
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
@@ -81,11 +81,11 @@ $amenities = $conn->query("SELECT * FROM amenities ORDER BY amenity_name ASC");
     <title>Amenities</title>
 </head>
 <body>
-    <a href="/admin/dashboard.php">Dashboard</a>
-    <a href="/admin/rooms.php">Rooms</a>
-    <a href="/admin/reservation.php">Reservations</a>
-    <a href="/admin/amenities.php">Amenities</a>
-    <a href="/admin/logout.php">Logout</a>
+    <a href= dashboard.php>Dashboard</a>
+    <a href="rooms.php">Rooms</a>
+    <a href="reservation.php">Reservations</a>
+    <a href="amenities.php">Amenities</a>
+    <a href="logout.php">Logout</a>
     <br>
     <h2><?= $edit ? "Edit Amenity" : "Add Amenity"; ?></h2>
 
