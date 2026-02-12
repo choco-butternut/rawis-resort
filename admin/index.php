@@ -4,7 +4,7 @@
 session_start();
 
 if(isset($_SESSION["admin_logged_in"]) && $_SESSION["admin_logged_in"] === true){
-    header("Location: /admin/dashboard.php");
+    header("Location: dashboard.php");
     exit();
 }
 
