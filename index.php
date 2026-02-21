@@ -12,11 +12,11 @@ $rooms = $conn->query("SELECT * FROM rooms WHERE room_status='available'");
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rawis Resort Hotel</title>
+    <link rel="stylesheet" href="assets/css/base.css">
 </head>
 
 
-<body>
-
+<body class="customer-page">
     <?php require_once __DIR__ . '/php/header.php'; ?>
 
     <div class="hero">

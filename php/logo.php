@@ -7,7 +7,7 @@ $showText  = $showText  ?? true;
 <div class="logo">
 
     <?php if ($showImage): ?>
-        <img src="../assets/logo.png" alt="Rawis logo">
+        <img src="/rawis-resort/assets/logo.png" alt="Rawis logo">   
     <?php endif; ?>
 
     <?php if ($showText): ?>
