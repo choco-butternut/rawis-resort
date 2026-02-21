@@ -5,7 +5,7 @@
             <a href="index.php">
                 <?php
                     $showImage = true;
-                    $showText  = false;
+                    $showText  = true;
                     require_once __DIR__ . '/logo.php';
                 ?>
             </a>
