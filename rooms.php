@@ -65,6 +65,7 @@ $rooms = $conn->query("SELECT * FROM rooms WHERE room_status='available'");
     </div>
 </div>
 <body>
+    <?php require_once __DIR__ . '/php/header.php'; ?>
     <div class="room-cards">
         <?php while($room = $rooms->fetch_assoc()): ?>
             <div class="room-card">
@@ -79,6 +80,8 @@ $rooms = $conn->query("SELECT * FROM rooms WHERE room_status='available'");
             </div>
         <?php endwhile; ?>
     </div>
+
+    <?php require_once __DIR__ . '/php/footer.php'; ?>
 
     <script>
     function openModal(roomId){

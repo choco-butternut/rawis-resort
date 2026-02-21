@@ -88,32 +88,34 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <title>Payment</title>
 </head>
 <body>
+    <?php require_once __DIR__ . '/php/header.php'; ?>
 
-<h2>Reservation Payment</h2>
+    <h2>Reservation Payment</h2>
 
-<p><strong>Check-in:</strong> <?= $reservation["check_in_date"]; ?></p>
-<p><strong>Check-out:</strong> <?= $reservation["check_out_date"]; ?></p>
-<p><strong>Nights:</strong> <?= $nights; ?></p>
+    <p><strong>Check-in:</strong> <?= $reservation["check_in_date"]; ?></p>
+    <p><strong>Check-out:</strong> <?= $reservation["check_out_date"]; ?></p>
+    <p><strong>Nights:</strong> <?= $nights; ?></p>
 
-<h3>Total Amount: ₱<?= number_format($total,2); ?></h3>
+    <h3>Total Amount: ₱<?= number_format($total,2); ?></h3>
 
-<form method="POST">
-    <label>Payment Method:</label>
-    <select name="payment_method" required>
-        <option value="Cash">Cash</option>
-        <option value="GCash">GCash</option>
-        <option value="Card">Card</option>
-    </select>
+    <form method="POST">
+        <label>Payment Method:</label>
+        <select name="payment_method" required>
+            <option value="Cash">Cash</option>
+            <option value="GCash">GCash</option>
+            <option value="Card">Card</option>
+        </select>
 
-    <br><br>
+        <br><br>
 
-    <label>Reference Number:</label>
-    <input type="text" name="reference_number" placeholder="Optional">
+        <label>Reference Number:</label>
+        <input type="text" name="reference_number" placeholder="Optional">
 
-    <br><br>
+        <br><br>
 
-    <button type="submit">Pay Now</button>
-</form>
+        <button type="submit">Pay Now</button>
+    </form>
+    <?php require_once __DIR__ . '/php/footer.php'; ?>
 
 </body>
 </html>
