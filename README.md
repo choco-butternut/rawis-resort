@@ -71,6 +71,7 @@ CREATE TABLE amenities (
     amenity_name VARCHAR(100) NOT NULL,
     description TEXT,
     price DECIMAL(10,2) DEFAULT 0.00,
+    image_path TEXT,
     amenity_status ENUM('Available','Unavailable') DEFAULT 'Available',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
