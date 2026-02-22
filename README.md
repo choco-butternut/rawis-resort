@@ -48,7 +48,7 @@ CREATE TABLE rooms (
 
 CREATE TABLE reservations (
     reservation_id INT AUTO_INCREMENT PRIMARY KEY,
-    guest_id INT NOT NULL,
+    guest_id INT UNSIGNED NOT NULL,
     room_id INT NOT NULL,
     check_in_date DATE NOT NULL,
     check_out_date DATE NOT NULL,
