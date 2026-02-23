@@ -153,6 +153,7 @@ $rooms = $conn->query("SELECT * FROM rooms ORDER BY room_number ASC");
     <table  border="1" cellpadding="8">
         <tr>
             <th>Room #</th>
+            <th>Image</th>
             <th>Type</th>
             <th>Capacity</th>
             <th>Price</th>
@@ -162,6 +163,11 @@ $rooms = $conn->query("SELECT * FROM rooms ORDER BY room_number ASC");
 
         <?php while ($row = $rooms->fetch_assoc()): ?>
             <tr>
+                <td>
+                    <?php if (!empty($row["image_path"])): ?>
+                        <img src="../<?= $row["image_path"]; ?>" width="80">
+                    <?php endif; ?>
+                </td>
                 <td><?= htmlspecialchars($row["room_number"]); ?></td>
                 <td><?= htmlspecialchars($row["room_type"]); ?></td>
                 <td><?= $row["max_capacity"]; ?></td>
