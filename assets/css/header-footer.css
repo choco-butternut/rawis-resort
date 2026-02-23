@@ -286,12 +286,10 @@
     margin: 0;
 }
 
-/* Adjust body to account for fixed header */
 body {
     padding-top: 80px;
 }
 
-/* Home page specific styles - hide header background and logo */
 .customer-page .header {
     background: transparent;
     backdrop-filter: none;
