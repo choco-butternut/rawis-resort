@@ -15,8 +15,13 @@ $rooms = $conn->query("SELECT * FROM rooms WHERE room_status='available'");
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rooms</title>
+    <link rel="stylesheet" href="assets/css/base.css">
+    <link rel="stylesheet" href="assets/css/header-footer.css">
 </head>
-<div id="reserveModal" style="display:none;">
+<body>
+    <?php require_once __DIR__ . '/php/header.php'; ?>
+    
+    <div id="reserveModal" style="display:none;">
     <div class="modal-content">
         <form method="POST" action="/php/reserve.php">
             <input type="hidden" name="room_id" id="room_id">
@@ -64,9 +69,8 @@ $rooms = $conn->query("SELECT * FROM rooms WHERE room_status='available'");
         </form>
     </div>
 </div>
-<body>
-    <?php require_once __DIR__ . '/php/header.php'; ?>
-    <div class="room-cards">
+
+<div class="room-cards">
         <?php while($room = $rooms->fetch_assoc()): ?>
             <div class="room-card">
                 <img  src="<?php echo $room["image_path"] ?>" width="200" height="200"/>
@@ -95,4 +99,5 @@ $rooms = $conn->query("SELECT * FROM rooms WHERE room_status='available'");
     }
     </script>
 </body>
+</html>
 </html>

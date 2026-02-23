@@ -29,8 +29,9 @@ $rooms = $conn->query("SELECT * FROM rooms WHERE room_status='available'");
             ?>
 
             <div class="tagline">
-                <p>Where the sun rises early, one and only spot in Borongan, Eastern Samar.
-                    LOREM IPSUM DHDSKFHKAJDFHKAJDHKJAH!!!!???
+                <p>Located in Borongan City, Eastern Samar, 
+                    Rawis Resort Hotel welcomes guests to a place where the sun greets the shore, 
+                    creating a serene space for rest and relaxation.
                 </p>
             </div>
 
@@ -41,10 +42,7 @@ $rooms = $conn->query("SELECT * FROM rooms WHERE room_status='available'");
         </div>
     </div>
 
-    <div class="room-cards">
-        
 
-    </div>
 
     <?php require_once __DIR__ . '/php/footer.php'; ?> 
     

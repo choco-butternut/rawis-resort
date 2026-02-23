@@ -1,4 +1,5 @@
 <header class="header">
+    <link rel="stylesheet" href="assets/css/header-footer.css">
     <div class="header-inner">
 
         <div class="header-logo">

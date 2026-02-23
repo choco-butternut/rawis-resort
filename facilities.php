@@ -9,14 +9,10 @@ require_once "php/config.php";
     <title>Facilities | Rawis Resort</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/base.css">
+    <link rel="stylesheet" href="assets/css/header-footer.css">
 
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            background-color: #f8f9fa;
-        }
 
         .hero {
             background: url('assets/images/facilities-banner.jpg') center/cover no-repeat;
