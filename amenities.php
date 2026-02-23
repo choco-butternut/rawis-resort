@@ -22,6 +22,10 @@ $result = $conn->query($sql);
     <?php if ($result->num_rows > 0): ?>
         <?php while ($row = $result->fetch_assoc()): ?>
             <div>
+                <div>
+                    <img  src="<?php echo $row["image_path"] ?>" width="200" height="200"/>
+                </div>
+                
                 <div class="amenity-title">
                     <?php echo htmlspecialchars($row['amenity_name']); ?>
                 </div>

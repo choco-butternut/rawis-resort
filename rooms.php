@@ -69,6 +69,7 @@ $rooms = $conn->query("SELECT * FROM rooms WHERE room_status='available'");
     <div class="room-cards">
         <?php while($room = $rooms->fetch_assoc()): ?>
             <div class="room-card">
+                <img  src="<?php echo $room["image_path"] ?>" width="200" height="200"/>
                 <h3><?= htmlspecialchars($room["room_type"]); ?></h3>
                 <p>Room #: <?= htmlspecialchars($room["room_number"]); ?></p>
                 <p>Capacity: <?= $room["max_capacity"]; ?> guests</p>

@@ -15,7 +15,7 @@
             <ul>
                 <li><a href="index.php">Home</a></li>
                 <li><a href="rooms.php">Rooms</a></li>
-                <li><a href="">Facilities</a></li>
+                <li><a href="facilities.php">Facilities</a></li>
                 <li><a href="amenities.php">Amenities</a></li>
             </ul>
         </nav>
