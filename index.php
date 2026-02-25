@@ -16,7 +16,7 @@ $rooms = $conn->query("SELECT * FROM rooms WHERE room_status='available'");
 </head>
 
 
-<body class="customer-page">
+<body class="home-page">
     <?php require_once __DIR__ . '/php/header.php'; ?>
 
     <div class="hero">

@@ -85,38 +85,76 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Payment</title>
+    <link rel="stylesheet" href="assets/css/base.css">
+    <link rel="stylesheet" href="assets/css/header-footer.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
-<body>
-    <?php require_once __DIR__ . '/php/header.php'; ?>
+<body class="customer-page">
+    <div class="payment-page">
+        <?php require_once __DIR__ . '/php/header.php'; ?>
 
-    <h2>Reservation Payment</h2>
+        <div class="page-header">
+            <h1>Payment</h1>
+        </div>
 
-    <p><strong>Check-in:</strong> <?= $reservation["check_in_date"]; ?></p>
-    <p><strong>Check-out:</strong> <?= $reservation["check_out_date"]; ?></p>
-    <p><strong>Nights:</strong> <?= $nights; ?></p>
+        <div class="payment-container">
+            <div class="payment-summary">
+                <h2>Reservation Summary</h2>
+                
+                <div class="summary-details">
+                    <div class="detail-row">
+                        <span class="detail-label">Check-in:</span>
+                        <span class="detail-value"><?= $reservation["check_in_date"]; ?></span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Check-out:</span>
+                        <span class="detail-value"><?= $reservation["check_out_date"]; ?></span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Number of Nights:</span>
+                        <span class="detail-value"><?= $nights; ?></span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Room Cost:</span>
+                        <span class="detail-value">₱<?= number_format($reservation["price_per_night"] * $nights, 2); ?></span>
+                    </div>
+                </div>
 
-    <h3>Total Amount: ₱<?= number_format($total,2); ?></h3>
+                <div class="total-amount">
+                    <h3>Total Amount Due</h3>
+                    <p class="amount">₱<?= number_format($total, 2); ?></p>
+                </div>
+            </div>
 
-    <form method="POST">
-        <label>Payment Method:</label>
-        <select name="payment_method" required>
-            <option value="Cash">Cash</option>
-            <option value="GCash">GCash</option>
-            <option value="Card">Card</option>
-        </select>
+            <div class="payment-form-section">
+                <h2>Payment Information</h2>
+                
+                <form method="POST" class="payment-form">
+                    <div class="form-group">
+                        <label for="payment_method">Payment Method <span class="required">*</span></label>
+                        <select id="payment_method" name="payment_method" required>
+                            <option value="">Select a payment method</option>
+                            <option value="Cash">Cash</option>
+                            <option value="GCash">GCash</option>
+                            <option value="Card">Debit/Credit Card</option>
+                        </select>
+                    </div>
 
-        <br><br>
+                    <div class="form-group">
+                        <label for="reference_number">Reference Number</label>
+                        <input type="text" id="reference_number" name="reference_number" placeholder="Enter transaction reference (optional)">
+                    </div>
 
-        <label>Reference Number:</label>
-        <input type="text" name="reference_number" placeholder="Optional">
+                    <button type="submit" class="btn-pay">Pay Now</button>
+                </form>
+            </div>
+        </div>
 
-        <br><br>
-
-        <button type="submit">Pay Now</button>
-    </form>
-    <?php require_once __DIR__ . '/php/footer.php'; ?>
-
+        <?php require_once __DIR__ . '/php/footer.php'; ?>
+    </div>
 </body>
 </html>
 
