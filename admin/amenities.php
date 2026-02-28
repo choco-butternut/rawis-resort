@@ -111,12 +111,7 @@ $amenities = $conn->query("SELECT * FROM amenities ORDER BY amenity_name ASC");
     <title>Amenities</title>
 </head>
 <body>
-
-<a href="dashboard.php">Dashboard</a>
-<a href="rooms.php">Rooms</a>
-<a href="reservation.php">Reservations</a>
-<a href="amenities.php">Amenities</a>
-<a href="logout.php">Logout</a>
+<?php require_once __DIR__ . '/sidebar.php'; ?>
 
 <h2><?= $edit ? "Edit Amenity" : "Add Amenity"; ?></h2>
 

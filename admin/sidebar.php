@@ -22,8 +22,8 @@ $current_page = basename($_SERVER['PHP_SELF']);
             <li class="<?= ($current_page == 'dashboard.php') ? 'active' : ''; ?>">
                 <a href="dashboard.php"><i class="fas fa-th-large"></i> Dashboard</a>
             </li>
-            <li class="<?= ($current_page == 'reservations.php') ? 'active' : ''; ?>">
-                <a href="reservations.php"><i class="fas fa-calendar-check"></i> Reservations</a>
+            <li class="<?= ($current_page == 'reservation.php') ? 'active' : ''; ?>">
+                <a href="reservation.php"><i class="fas fa-calendar-check"></i> Reservations</a>
             </li>
             <li class="<?= ($current_page == 'rooms.php') ? 'active' : ''; ?>">
                 <a href="rooms.php"><i class="fas fa-bed"></i> Rooms</a>

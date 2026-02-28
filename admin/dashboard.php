@@ -2,38 +2,25 @@
 require_once __DIR__ . "/../php/config.php";
 require_once __DIR__ . "/../php/admin_auth.php";
 
-/* ===============================
-   DASHBOARD COUNTS
-=================================*/
-
-// Total rooms
 $rooms_count = $conn->query("SELECT COUNT(*) AS total FROM rooms")
                     ->fetch_assoc()["total"];
 
-// Total reservations
 $res_count = $conn->query("SELECT COUNT(*) AS total FROM reservations")
                   ->fetch_assoc()["total"];
 
-// Pending reservations
 $pending_count = $conn->query("SELECT COUNT(*) AS total FROM reservations WHERE reservation_status='Pending'")
                       ->fetch_assoc()["total"];
 
-// Confirmed reservations
 $confirmed_count = $conn->query("SELECT COUNT(*) AS total FROM reservations WHERE reservation_status='Confirmed'")
                         ->fetch_assoc()["total"];
 
-// Total amenities
 $amenities_count = $conn->query("SELECT COUNT(*) AS total FROM amenities")
                         ->fetch_assoc()["total"];
 
-// Total users
 $users_count = $conn->query("SELECT COUNT(*) AS total FROM users")
                     ->fetch_assoc()["total"];
 
-
-/* ===============================
-   RECENT RESERVATIONS
-=================================*/
+                    
 
 $recent_res = $conn->query("
     SELECT r.reservation_id, u.username, rm.room_type, 
@@ -55,84 +42,109 @@ $recent_res = $conn->query("
     <title>Dashboard</title>
 </head>
 <body>
-    <body>
-    <h1>Admin Dashboard</h1>
-    <p>Welcome, <strong><?php echo htmlspecialchars($admin_username); ?></strong></p>
-
-    <hr>
-
-    <h2>System Overview</h2>
-
-    <div style="display:flex; gap:20px; flex-wrap:wrap;">
-
-        <div style="border:1px solid #ccc; padding:15px; width:200px;">
-            <h3>Total Rooms</h3>
-            <p><?php echo $rooms_count; ?></p>
+    <?php require_once __DIR__ . '/sidebar.php'; ?>
+    <main class="main-content">
+        <div class="section-title">
+            <h1>DASHBOARD</h1>
+            <hr class="header-line">
         </div>
 
-        <div style="border:1px solid #ccc; padding:15px; width:200px;">
-            <h3>Total Reservations</h3>
-            <p><?php echo $res_count; ?></p>
+
+        <div class="dashboard-grid">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-sign-in-alt"></i></div>
+                <span class="stat-label">Arrivals Today</span>
+                <span class="stat-value">3</span> </div>
+
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-sign-out-alt"></i></div>
+                <span class="stat-label">Departures Today</span>
+                <span class="stat-value">4</span>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-clock"></i></div>
+                <span class="stat-label">Pending Reservations</span>
+                <span class="stat-value"><?php echo $pending_count; ?></span>
+            </div>
+
+            <div class="status-summary-card">
+                <h3>Room Status</h3>
+                <hr>
+                <ul>
+                    <li>Available Rooms: <strong><?php echo $rooms_count; ?></strong></li>
+                    <li>Occupied Rooms: <strong><?php echo $confirmed_count; ?></strong></li>
+                    <li>Cleaning: <strong>1</strong></li>
+                    <li>Maintenance: <strong>0</strong></li>
+                </ul>
+            </div>
         </div>
 
-        <div style="border:1px solid #ccc; padding:15px; width:200px;">
-            <h3>Pending Reservations</h3>
-            <p><?php echo $pending_count; ?></p>
+
+        <div class="dashboard-lower-section">
+            <div class="recent-res">
+                <h1 class="reservations-head">Reservations</h1>
+                <div class="search-add">
+                    <div class="search-bar">
+                        <input type="text" placeholder="Search">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <button class="btn-add"><i class="fas fa-plus"></i> Add</button>
+                </div>
+                <div class="table-header-row">
+                    <div class="status-filters">
+                        <a href="#" class="active">All</a>
+                        <a href="#">Arrivals</a>
+                        <a href="#">Departures</a>
+                    </div>
+                </div>
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>User</th>
+                            <th>Room</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php while($row = $recent_res->fetch_assoc()): ?>
+                        <tr>
+                            <td class="id-column">#<?php echo $row["reservation_id"]; ?></td>
+                            <td class="bold-text"><?php echo htmlspecialchars($row["username"]); ?></td>
+                            <td><?php echo htmlspecialchars($row["room_type"]); ?></td>
+                            <td><?php echo date("M d, Y", strtotime($row["check_in_date"])); ?></td>
+                            <td><span class="status-text <?php echo strtolower($row["reservation_status"]); ?>"><?php echo $row["reservation_status"]; ?></span></td>
+                        </tr>
+                        <?php endwhile; ?>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="sales-overview-card">
+                <div class="sales-header">
+                    <i class="fas fa-chart-line"></i>
+                    <h3>Sales Overview</h3>
+                    <p>Overview of current sales performance.</p>
+                </div>
+                <div class="sales-metrics">
+                    <div class="metric">
+                        <span>Today</span>
+                        <strong>₱15,200</strong>
+                    </div>
+                    <div class="metric">
+                        <span>This Week</span>
+                        <strong>₱82,300</strong>
+                    </div>
+                    <div class="metric">
+                        <span>This Month</span>
+                        <strong>₱210,450</strong>
+                    </div>
+                </div>
+            </div>
         </div>
+    </main>
 
-        <div style="border:1px solid #ccc; padding:15px; width:200px;">
-            <h3>Confirmed Reservations</h3>
-            <p><?php echo $confirmed_count; ?></p>
-        </div>
-
-        <div style="border:1px solid #ccc; padding:15px; width:200px;">
-            <h3>Total Amenities</h3>
-            <p><?php echo $amenities_count; ?></p>
-        </div>
-
-        <div style="border:1px solid #ccc; padding:15px; width:200px;">
-            <h3>Total Users</h3>
-            <p><?php echo $users_count; ?></p>
-        </div>
-
-    </div>
-
-    <hr>
-
-    <h2>Recent Reservations</h2>
-
-    <table border="1" cellpadding="8">
-        <tr>
-            <th>ID</th>
-            <th>User</th>
-            <th>Room</th>
-            <th>Check-in</th>
-            <th>Check-out</th>
-            <th>Status</th>
-        </tr>
-
-        <?php while($row = $recent_res->fetch_assoc()): ?>
-        <tr>
-            <td><?php echo $row["reservation_id"]; ?></td>
-            <td><?php echo htmlspecialchars($row["username"]); ?></td>
-            <td><?php echo htmlspecialchars($row["room_name"]); ?></td>
-            <td><?php echo $row["check_in_date"]; ?></td>
-            <td><?php echo $row["check_out_date"]; ?></td>
-            <td><?php echo $row["reservation_status"]; ?></td>
-        </tr>
-        <?php endwhile; ?>
-
-    </table>
-
-    <hr>
-
-    <a href="dashboard.php">Dashboard</a>
-    <a href="rooms.php">Rooms</a>
-    <a href="reservation.php">Reservations</a>
-    <a href="amenities.php">Amenities</a>
-    <a href="logout.php">Logout</a>
-
-</body>
-    
 </body>
 </html>
