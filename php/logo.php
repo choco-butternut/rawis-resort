@@ -6,8 +6,11 @@ $showText  = $showText  ?? true;
 
 <div class="logo">
 
-    <?php if ($showImage): ?>
-        <img src="/rawis-resort/assets/logo.png" alt="Rawis logo">   
+    <?php if ($showImage): 
+        $base = defined('BASE_URL') ? BASE_URL : '';
+        $logoSrc = ($base !== '' ? $base . '/assets/logo.png' : '/assets/logo.png');
+    ?>
+        <img src="<?= htmlspecialchars($logoSrc, ENT_QUOTES, 'UTF-8') ?>" alt="Rawis logo">
     <?php endif; ?>
 
     <?php if ($showText): ?>
