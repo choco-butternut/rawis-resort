@@ -125,8 +125,11 @@ $rooms = $conn->query("SELECT * FROM rooms ORDER BY room_number ASC");
                 <input type="text" name="room_number" placeholder="Room Number"
                     value="<?= $edit_room["room_number"] ?? ""; ?>" required>
 
-                <input type="file" name="room_image" accept="image/*"
+                
+                <?php if (!$edit_room): ?>
+                    <input type="file" name="room_image" accept="image/*"
                     value="<?= $edit_room["image_path"] ?? ""; ?>" required>
+                <?php endif; ?>
 
 
                 <input type="text" name="room_type" placeholder="Room Type"
@@ -242,7 +245,11 @@ $rooms = $conn->query("SELECT * FROM rooms ORDER BY room_number ASC");
 
     document.querySelector('.btn-add').addEventListener('click', function(e){
         e.preventDefault();
+        <?php if ($edit_room): ?>
+        window.location.href = 'rooms.php?add=1';
+        <?php else: ?>
         openRoomModal();
+        <?php endif; ?>
     });
 
     // close when clicking backdrop
@@ -259,6 +266,12 @@ $rooms = $conn->query("SELECT * FROM rooms ORDER BY room_number ASC");
         document.getElementById('modalTitle').textContent = 'Edit Room';
     });
     <?php endif; ?>
+
+    <?php if (isset($_GET['add'])): ?>
+        document.addEventListener('DOMContentLoaded', function(){
+            openRoomModal();
+        });
+        <?php endif; ?>
     </script>
 
 </body>
