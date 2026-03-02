@@ -126,11 +126,11 @@ $rooms = $conn->query("SELECT * FROM rooms ORDER BY room_number ASC");
                     value="<?= $edit_room["room_number"] ?? ""; ?>" required>
 
                 
+                
                 <?php if (!$edit_room): ?>
                     <input type="file" name="room_image" accept="image/*"
-                    value="<?= $edit_room["image_path"] ?? ""; ?>" required>
+                                    value="<?= $edit_room["image_path"] ?? ""; ?>" required>
                 <?php endif; ?>
-
 
                 <input type="text" name="room_type" placeholder="Room Type"
                     value="<?= $edit_room["room_type"] ?? ""; ?>" required>
@@ -224,7 +224,7 @@ $rooms = $conn->query("SELECT * FROM rooms ORDER BY room_number ASC");
                             <span class="status-pill <?= strtolower($row["room_status"]); ?>">
                                 <?= ucfirst($row["room_status"]); ?>
                             </span>
-                            <div class="card-actions" onclick="event.stopPropagation();">
+                            <div class="card-actions">
                                 <a href="#"><i class="fas fa-eye"></i></a>
                                 <a href="rooms.php?delete=<?= $row["room_id"]; ?>" onclick="return confirm('Delete?');"><i class="fas fa-trash"></i></a>
                                 <a href="rooms.php?edit=<?= $row["room_id"]; ?>"><i class="fas fa-edit"></i></a>
@@ -236,28 +236,37 @@ $rooms = $conn->query("SELECT * FROM rooms ORDER BY room_number ASC");
         </div>
     </main>
 
-    <!-- Room Detail Modal -->
-    <div id="roomDetailModal" class="modal">
+    <!-- Reservation Detail Modal -->
+     <!-- kaw na bahala here -->
+    <div id="reservationModal" class="modal">
         <div class="modal-content">
             <button type="button" class="modal-close" onclick="closeRoomDetailModal()">&times;</button>
-            <h2>Room Details</h2>
+            <h2>Reservation Details</h2>
             
             <div class="detail-grid">
                 <div class="detail-item">
-                    <label>Room Number</label>
-                    <p id="modalRoomNumber"></p>
+                    <label>Reservation ID</label>
+                    <p id="modalId"></p>
                 </div>
                 <div class="detail-item">
-                    <label>Room Type</label>
-                    <p id="modalRoomType"></p>
+                    <label>Guest Name</label>
+                    <p id="modalName"></p>
                 </div>
                 <div class="detail-item">
-                    <label>Max Capacity</label>
-                    <p id="modalCapacity"></p>
+                    <label>Contact</label>
+                    <p id="modalPhone"></p>
                 </div>
                 <div class="detail-item">
-                    <label>Price per Night</label>
-                    <p id="modalPrice"></p>
+                    <label>Room Details</label>
+                    <p id="modalRoom"></p>
+                </div>
+                <div class="detail-item">
+                    <label>Check-in Date</label>
+                    <p id="modalCheckIn"></p>
+                </div>
+                <div class="detail-item">
+                    <label>Check-out Date</label>
+                    <p id="modalCheckOut"></p>
                 </div>
                 <div class="detail-item">
                     <label>Status</label>
@@ -268,28 +277,71 @@ $rooms = $conn->query("SELECT * FROM rooms ORDER BY room_number ASC");
     </div>
 
     <script>
-    function openRoomDetailModal(event) {
-        const card = event.currentTarget;
-        
-        document.getElementById('modalRoomNumber').textContent = '#' + card.dataset.roomNumber;
-        document.getElementById('modalRoomType').textContent = card.dataset.roomType;
-        document.getElementById('modalCapacity').textContent = card.dataset.capacity + ' Guests';
-        document.getElementById('modalPrice').textContent = '₱' + card.dataset.price + ' /night';
-        document.getElementById('modalStatus').textContent = card.dataset.status.charAt(0).toUpperCase() + card.dataset.status.slice(1);
-        
-        document.getElementById('roomDetailModal').classList.add('show');
+        function openRoomDetailModal(event) {
+            // prevent triggering if clicking delete/edit/eye links
+            if (event.target.closest('a')) return;
+
+            const card = event.currentTarget;
+
+            document.getElementById('modalId').textContent = '#' + card.dataset.roomId;
+            document.getElementById('modalName').textContent = card.dataset.roomNumber;
+            document.getElementById('modalRoom').textContent = card.dataset.roomType;
+            document.getElementById('modalCheckIn').textContent = 'Max Capacity: ' + card.dataset.capacity;
+            document.getElementById('modalCheckOut').textContent = 'PHP ' + card.dataset.price + ' / night';
+            document.getElementById('modalStatus').textContent = card.dataset.status;
+            document.getElementById('modalPhone').textContent = '—';
+
+            document.getElementById('reservationModal').classList.add('show');
+        }
+        function closeRoomDetailModal() {
+            document.getElementById('reservationModal').classList.remove('show');
+        }
+    </script>
+
+    <script>
+
+    function openRoomModal() {
+        document.getElementById('roomModal').classList.add('show');
+    }
+    function closeRoomModal() {
+        document.getElementById('roomModal').classList.remove('show');
+        document.getElementById('roomForm').reset();
+        // remove hidden id input
+        const hid = document.querySelector('#roomForm input[name="room_id"]');
+        if(hid) hid.remove();
+        // reset modal title
+        document.getElementById('modalTitle').textContent = 'Add Room';
     }
 
-    function closeRoomDetailModal() {
-        document.getElementById('roomDetailModal').classList.remove('show');
-    }
+    document.querySelector('.btn-add').addEventListener('click', function(e){
+        e.preventDefault();
+        <?php if ($edit_room): ?>
+        window.location.href = 'rooms.php?add=1';
+        <?php else: ?>
+        openRoomModal();
+        <?php endif; ?>
+    });
 
-    // Close modal when clicking backdrop
-    document.getElementById('roomDetailModal').addEventListener('click', function(evt) {
+    // close when clicking backdrop
+    document.getElementById('roomModal').addEventListener('click', function(evt){
         if(evt.target === this) {
-            closeRoomDetailModal();
+            closeRoomModal();
         }
     });
+
+    <?php if ($edit_room): ?>
+    document.addEventListener('DOMContentLoaded', function(){
+        openRoomModal();
+        // populate fields already set by PHP in value attributes
+        document.getElementById('modalTitle').textContent = 'Edit Room';
+    });
+    <?php endif; ?>
+    
+    <?php if (isset($_GET['add'])): ?>
+        document.addEventListener('DOMContentLoaded', function(){
+            openRoomModal();
+        });
+        <?php endif; ?>
     </script>
 
 </body>
