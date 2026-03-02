@@ -19,4 +19,15 @@ function sanitize_input($input) {
     $input = htmlspecialchars($input);
     return $input;
 }
+
+// compute BASE_URL for web paths (empty when project is served from document root)
+$projectRoot = dirname(__DIR__);
+$docRoot = rtrim(str_replace('\\','/', $_SERVER['DOCUMENT_ROOT']), '/');
+$projectPath = str_replace($docRoot, '', str_replace('\\','/', $projectRoot));
+if ($projectPath === '') {
+    $baseUrl = '';
+} else {
+    $baseUrl = $projectPath[0] === '/' ? $projectPath : '/' . $projectPath;
+}
+define('BASE_URL', $baseUrl);
 ?>

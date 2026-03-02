@@ -56,33 +56,48 @@ if ($_SERVER["REQUEST_METHOD"]==="POST"){
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Login</title>
-    <link rel="stylesheet" href="../assets/css/base.css">
+    <title>Admin Login | Rawís Resort Hotel</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/admin.css">
 </head>
-<body>
+<body class="login">
     <div class="login-container">
-        <?php include '../php/logo.php'; ?>
+        <div class="logo-header">
+            <?php include '../php/logo.php'; ?>
+            <p class="subtitle">Please enter details below.</p>
+        </div>
 
         <form action="" method="post">
-
             <?php if(!empty($error)) :?>
-                <div class="error-message">
+                <div class="error-box">
                     <?php echo $error; ?>
                 </div>
             <?php endif;?>
 
             <div class="input-group">
-                <img src="../assets/profile.png" alt="Profile Icon" class="input-icon">
-                <input name="email" type="email" placeholder="Enter email">
+                <i class="fas fa-user icon"></i>
+                <div class="divider"></div>
+                <input name="email" type="email" placeholder="Username" required>
             </div>
 
             <div class="input-group">
-                <img src="../assets/password.png" alt="Password Icon" class="input-icon">
-                <input name="password" type="password" placeholder="Enter password">
+                <i class="fas fa-lock icon"></i>
+                <div class="divider"></div>
+                <input name="password" type="password" id="loginPass" placeholder="Password" required>
+                <i class="fas fa-eye eye-toggle" onclick="togglePass()"></i>
             </div>
 
             <button type="submit" class="login-button">Login</button>
+            
+            <a href="#" class="forgot-link">Forgot password?</a>
         </form>
     </div>
+
+    <script>
+        function togglePass() {
+            const passField = document.getElementById("loginPass");
+            passField.type = passField.type === "password" ? "text" : "password";
+        }
+    </script>
 </body>
 </html>

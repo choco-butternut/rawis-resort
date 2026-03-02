@@ -64,6 +64,11 @@
     font-weight: bold;
 }
 
+.nav-menu ul li a.active {
+    color: #341f0c;
+    font-weight: bold;
+}
+
 /*  */
 .header-logo .logo {
     display: flex;
