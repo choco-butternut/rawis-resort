@@ -26,7 +26,7 @@ $rooms = $conn->query("SELECT * FROM rooms WHERE room_status='available'");
         <div id="reserveModal">
             <div class="modal-content">
                 <button type="button" class="modal-close" onclick="closeModal()"><i class="fa-solid fa-times"></i></button>
-                <form method="POST" action="/php/reserve.php">
+                <form method="POST" action="/rawis-resort/php/reserve.php">
                     <input type="hidden" name="room_id" id="room_id">
 
                     <h3>Reserve Room</h3>

@@ -127,10 +127,11 @@ $rooms = $conn->query("SELECT * FROM rooms ORDER BY room_number ASC");
 
                 
                 
-                <?php if (!$edit_room): ?>
-                    <input type="file" name="room_image" accept="image/*"
+                <!-- <?php if (!$edit_room): ?>
+                    
+                <?php endif; ?> -->
+                <input type="file" name="room_image" accept="image/*"
                                     value="<?= $edit_room["image_path"] ?? ""; ?>" required>
-                <?php endif; ?>
 
                 <input type="text" name="room_type" placeholder="Room Type"
                     value="<?= $edit_room["room_type"] ?? ""; ?>" required>

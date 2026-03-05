@@ -87,7 +87,7 @@ if($_SERVER["REQUEST_METHOD"] === "POST"){
 
     $stmt2->close();
 
-    header("Location: /payment.php?reservation_id=" . $reservation_id);
+    header("Location: /rawis-resort/payment.php?reservation_id=" . $reservation_id);
     exit();
 }
 ?>
