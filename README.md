@@ -95,13 +95,15 @@ CREATE TABLE reservation_amenities (
 );
 
 CREATE TABLE payments (
-    payment_id INT AUTO_INCREMENT PRIMARY KEY,
-    reservation_id INT NOT NULL,
-    amount_paid DECIMAL(10,2) NOT NULL,
-    payment_method ENUM('Cash','GCash','Card') NOT NULL,
-    payment_status ENUM('Pending','Completed','Refunded') DEFAULT 'Pending',
-    reference_number VARCHAR(100),
-    payment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    payment_id        INT AUTO_INCREMENT PRIMARY KEY,
+    reservation_id    INT NOT NULL,
+    amount_paid       DECIMAL(10,2) NOT NULL,
+    payment_method    ENUM('Cash','GCash','Card') NOT NULL,
+    payment_status    ENUM('Pending','Awaiting Verification','Completed','Rejected','Refunded')
+                          DEFAULT 'Pending',
+    reference_number  VARCHAR(100),
+    notes             TEXT,
+    payment_date      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT fk_payment_reservation
         FOREIGN KEY (reservation_id) REFERENCES reservations(reservation_id)

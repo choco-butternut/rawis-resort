@@ -9,59 +9,54 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $max_capacity    = (int) $_POST["max_capacity"];
     $price_per_night = (float) $_POST["price_per_night"];
     $room_status     = sanitize_input($_POST["room_status"]);
-    $image_path      = "";
 
+    $new_image = "";
     if (isset($_FILES["room_image"]) && $_FILES["room_image"]["error"] === 0) {
-
         $upload_dir = "../uploads/rooms/";
-        if (!is_dir($upload_dir)) {
-            mkdir($upload_dir, 0777, true);
-        }
-
-        $filename = time() . "_" . basename($_FILES["room_image"]["name"]);
+        if (!is_dir($upload_dir)) mkdir($upload_dir, 0777, true);
+        $filename    = time() . "_" . basename($_FILES["room_image"]["name"]);
         $target_file = $upload_dir . $filename;
-
         move_uploaded_file($_FILES["room_image"]["tmp_name"], $target_file);
-
-        $image_path = "uploads/rooms/" . $filename;
+        $new_image = "uploads/rooms/" . $filename;
     }
 
-
-    
     if (!empty($_POST["room_id"])) {
         $room_id = (int) $_POST["room_id"];
 
-        $stmt = $conn->prepare(
-            "UPDATE rooms 
-             SET room_number=?, room_type=?, max_capacity=?, price_per_night=?, room_status=?
-             WHERE room_id=?"
-        );
-        $stmt->bind_param(
-            "ssidsi",
-            $room_number,
-            $room_type,
-            $max_capacity,
-            $price_per_night,
-            $room_status,
-            $room_id
-        );
+        if ($new_image) {
+            $stmt = $conn->prepare(
+                "UPDATE rooms
+                 SET room_number=?, room_type=?, max_capacity=?, price_per_night=?, room_status=?, image_path=?
+                 WHERE room_id=?"
+            );
+            $stmt->bind_param("ssidssi",
+                $room_number, $room_type, $max_capacity,
+                $price_per_night, $room_status, $new_image, $room_id
+            );
+        } else {
+            $stmt = $conn->prepare(
+                "UPDATE rooms
+                 SET room_number=?, room_type=?, max_capacity=?, price_per_night=?, room_status=?
+                 WHERE room_id=?"
+            );
+            $stmt->bind_param("ssidsi",
+                $room_number, $room_type, $max_capacity,
+                $price_per_night, $room_status, $room_id
+            );
+        }
         $stmt->execute();
         $stmt->close();
-    }
-    
-    else {
+
+    } else {
+        //INSERT
+        $image_path = $new_image;
         $stmt = $conn->prepare(
             "INSERT INTO rooms (room_number, room_type, max_capacity, price_per_night, room_status, image_path)
              VALUES (?,?,?,?,?,?)"
         );
-        $stmt->bind_param(
-            "ssidss",
-            $room_number,
-            $room_type,
-            $max_capacity,
-            $price_per_night,
-            $room_status,
-            $image_path
+        $stmt->bind_param("ssidss",
+            $room_number, $room_type, $max_capacity,
+            $price_per_night, $room_status, $image_path
         );
         $stmt->execute();
         $stmt->close();
@@ -71,87 +66,148 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     exit();
 }
 
+// DELETE
 if (isset($_GET["delete"])) {
     $room_id = (int) $_GET["delete"];
-
     $stmt = $conn->prepare("DELETE FROM rooms WHERE room_id=?");
     $stmt->bind_param("i", $room_id);
     $stmt->execute();
     $stmt->close();
-
     header("Location: rooms.php");
     exit();
 }
 
-
+// EDIT
 $edit_room = null;
 if (isset($_GET["edit"])) {
     $room_id = (int) $_GET["edit"];
-
     $stmt = $conn->prepare("SELECT * FROM rooms WHERE room_id=?");
     $stmt->bind_param("i", $room_id);
     $stmt->execute();
-    $result = $stmt->get_result();
-    $edit_room = $result->fetch_assoc();
+    $edit_room = $stmt->get_result()->fetch_assoc();
     $stmt->close();
 }
 
+$count_all         = $conn->query("SELECT COUNT(*) as c FROM rooms")->fetch_assoc()["c"];
+$count_available   = $conn->query("SELECT COUNT(*) as c FROM rooms WHERE room_status='available'")->fetch_assoc()["c"];
+$count_occupied    = $conn->query("SELECT COUNT(*) as c FROM rooms WHERE room_status='occupied'")->fetch_assoc()["c"];
+$count_maintenance = $conn->query("SELECT COUNT(*) as c FROM rooms WHERE room_status='maintenance'")->fetch_assoc()["c"];
 
 $rooms = $conn->query("SELECT * FROM rooms ORDER BY room_number ASC");
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rooms</title>
+    <title>Rooms | Admin</title>
     <link rel="stylesheet" href="../assets/css/admin.css">
 </head>
 <body>
     <?php require_once __DIR__ . '/sidebar.php'; ?>
 
-    <!-- room add/edit modal -->
+    <!--  Add / Edit Room Modal  -->
     <div id="roomModal" class="modal">
         <div class="modal-content">
             <button type="button" class="modal-close" onclick="closeRoomModal()">&times;</button>
-            <h2 id="modalTitle"><?= $edit_room ? "Edit Room" : "Add Room"; ?></h2>
+            <h2 id="modalTitle">Add Room</h2>
 
             <form id="roomForm" method="POST" enctype="multipart/form-data">
-                <?php if ($edit_room): ?>
-                    <input type="hidden" name="room_id" value="<?= $edit_room["room_id"]; ?>">
-                <?php endif; ?>
+                <input type="hidden" name="room_id" id="formRoomId" value="">
 
-                <input type="text" name="room_number" placeholder="Room Number"
-                    value="<?= $edit_room["room_number"] ?? ""; ?>" required>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                    <div>
+                        <label style="font-size:12px;font-weight:600;color:#64748b;display:block;margin-bottom:4px">Room Number *</label>
+                        <input type="text" name="room_number" id="f_room_number" placeholder="e.g. 101" required>
+                    </div>
+                    <div>
+                        <label style="font-size:12px;font-weight:600;color:#64748b;display:block;margin-bottom:4px">Room Type *</label>
+                        <select name="room_type" id="f_room_type" required>
+                            <option value="">Select type…</option>
+                            <option value="Deluxe">Deluxe</option>
+                            <option value="Standard">Standard</option>
+                            <option value="Family">Family</option>
+                            <option value="BeachFront">BeachFront</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size:12px;font-weight:600;color:#64748b;display:block;margin-bottom:4px">Max Capacity *</label>
+                        <input type="number" name="max_capacity" id="f_max_capacity" placeholder="e.g. 2" min="1" required>
+                    </div>
+                    <div>
+                        <label style="font-size:12px;font-weight:600;color:#64748b;display:block;margin-bottom:4px">Price per Night (₱) *</label>
+                        <input type="number" step="0.01" name="price_per_night" id="f_price" placeholder="e.g. 2500.00" required>
+                    </div>
+                </div>
 
-                
-                
-                <!-- <?php if (!$edit_room): ?>
-                    
-                <?php endif; ?> -->
-                <input type="file" name="room_image" accept="image/*"
-                                    value="<?= $edit_room["image_path"] ?? ""; ?>" required>
+                <div style="margin-top:12px">
+                    <label style="font-size:12px;font-weight:600;color:#64748b;display:block;margin-bottom:4px">Status *</label>
+                    <select name="room_status" id="f_status" required>
+                        <option value="available">Available</option>
+                        <option value="occupied">Occupied</option>
+                        <option value="maintenance">Maintenance</option>
+                    </select>
+                </div>
 
-                <input type="text" name="room_type" placeholder="Room Type"
-                    value="<?= $edit_room["room_type"] ?? ""; ?>" required>
+                <div style="margin-top:12px">
+                    <label style="font-size:12px;font-weight:600;color:#64748b;display:block;margin-bottom:4px">
+                        Room Image <span id="imgRequiredNote">*</span>
+                    </label>
+                    <div id="currentImgWrap" style="display:none;margin-bottom:8px">
+                        <img id="currentImg" src="" alt="Current" style="width:100%;max-height:140px;object-fit:cover;border-radius:8px;border:1px solid #e2e8f0">
+                        <p style="font-size:11px;color:#94a3b8;margin:4px 0 0">Leave file empty to keep current image.</p>
+                    </div>
+                    <input type="file" name="room_image" id="f_image" accept="image/*">
+                </div>
 
-                <input type="number" name="max_capacity" placeholder="Max Capacity"
-                    value="<?= $edit_room["max_capacity"] ?? ""; ?>" required>
-
-                <input type="number" step="0.01" name="price_per_night" placeholder="Price per Night"
-                    value="<?= $edit_room["price_per_night"] ?? ""; ?>" required>
-
-                <select name="room_status" required>
-                    <option value="available" <?= (isset($edit_room) && $edit_room["room_status"]=="available")?"selected":""; ?>>Available</option>
-                    <option value="occupied" <?= (isset($edit_room) && $edit_room["room_status"]=="occupied")?"selected":""; ?>>Occupied</option>
-                    <option value="maintenance" <?= (isset($edit_room) && $edit_room["room_status"]=="maintenance")?"selected":""; ?>>Maintenance</option>
-                </select>
-
-                <button type="submit">
-                    <?= $edit_room ? "Update Room" : "Add Room"; ?>
+                <button type="submit" style="margin-top:18px;width:100%;padding:11px;background:#1d4ed8;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer" id="formSubmitBtn">
+                    Add Room
                 </button>
             </form>
+        </div>
+    </div>
+
+    <div id="roomDetailModal" class="modal">
+        <div class="modal-content">
+            <button type="button" class="modal-close" onclick="closeRoomDetailModal()">&times;</button>
+            <h2>Room Details</h2>
+
+            <div id="detailImgWrap" style="margin-bottom:16px">
+                <img id="detailImg" src="" alt="Room"
+                     style="width:100%;height:180px;object-fit:cover;border-radius:10px;border:1px solid #e2e8f0">
+            </div>
+
+            <div class="detail-grid">
+                <div class="detail-item">
+                    <label>Room Number</label>
+                    <p id="d_number"></p>
+                </div>
+                <div class="detail-item">
+                    <label>Room Type</label>
+                    <p id="d_type"></p>
+                </div>
+                <div class="detail-item">
+                    <label>Max Capacity</label>
+                    <p id="d_capacity"></p>
+                </div>
+                <div class="detail-item">
+                    <label>Price / Night</label>
+                    <p id="d_price"></p>
+                </div>
+                <div class="detail-item">
+                    <label>Status</label>
+                    <p id="d_status"></p>
+                </div>
+            </div>
+
+            <div style="display:flex;gap:10px;margin-top:20px">
+                <button onclick="editFromDetail()" style="flex:1;padding:10px;background:#1d4ed8;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer">
+                    <i class="fas fa-edit"></i> Edit Room
+                </button>
+                <button onclick="deleteFromDetail()" style="flex:1;padding:10px;background:#ef4444;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer">
+                    <i class="fas fa-trash"></i> Delete
+                </button>
+            </div>
         </div>
     </div>
 
@@ -159,49 +215,66 @@ $rooms = $conn->query("SELECT * FROM rooms ORDER BY room_number ASC");
         <div class="section-title">
             <h1>ROOMS</h1>
             <hr class="header-line">
-            
+
             <div class="toolbar">
                 <div class="filter-group">
                     <i class="fas fa-bars"></i> Filter by
                 </div>
                 <div class="search-add">
                     <div class="search-bar">
-                        <input type="text" placeholder="Search">
+                        <input type="text" id="roomSearch" placeholder="Search rooms…" oninput="applySearch()">
                         <i class="fas fa-search"></i>
                     </div>
-                    <button class="btn-add"><i class="fas fa-plus"></i> Add</button>
+                    <button class="btn-add" onclick="openAddModal()">
+                        <i class="fas fa-plus"></i> Add
+                    </button>
                 </div>
             </div>
 
             <div class="status-filters">
-                <a href="#" class="active">All rooms (<?= $rooms->num_rows ?>)</a>
-                <a href="#">Available rooms (13)</a>
-                <a href="#">Occupied rooms (6)</a>
-                <a href="#">Under Maintenance (0)</a>
+                <a href="#" class="filter-tab active" data-filter="all"
+                   onclick="filterByStatus('all', this); return false;">
+                    All rooms (<?= $count_all ?>)
+                </a>
+                <a href="#" class="filter-tab" data-filter="available"
+                   onclick="filterByStatus('available', this); return false;">
+                    Available (<?= $count_available ?>)
+                </a>
+                <a href="#" class="filter-tab" data-filter="occupied"
+                   onclick="filterByStatus('occupied', this); return false;">
+                    Occupied (<?= $count_occupied ?>)
+                </a>
+                <a href="#" class="filter-tab" data-filter="maintenance"
+                   onclick="filterByStatus('maintenance', this); return false;">
+                    Under Maintenance (<?= $count_maintenance ?>)
+                </a>
             </div>
         </div>
 
-        <div class="rooms-grid">
+        <div class="rooms-grid" id="roomsGrid">
             <?php while ($row = $rooms->fetch_assoc()): ?>
-                <div class="room-card" 
+                <div class="room-card"
                      data-room-id="<?= $row["room_id"]; ?>"
                      data-room-number="<?= htmlspecialchars($row["room_number"]); ?>"
                      data-room-type="<?= htmlspecialchars($row["room_type"]); ?>"
                      data-capacity="<?= $row["max_capacity"]; ?>"
                      data-price="<?= number_format($row["price_per_night"], 2); ?>"
+                     data-price-raw="<?= $row["price_per_night"]; ?>"
                      data-status="<?= htmlspecialchars($row["room_status"]); ?>"
-                     style="cursor: pointer;" onclick="openRoomDetailModal(event)">
+                     data-image="../<?= htmlspecialchars($row["image_path"] ?: 'assets/images/default-room.jpg'); ?>"
+                     style="cursor:pointer"
+                     onclick="openRoomDetailModal(event)">
+
                     <div class="room-image">
                         <img src="../<?= $row["image_path"] ?: 'assets/images/default-room.jpg'; ?>" alt="Room Image">
                         <div class="room-number-badge"><?= str_pad($row["room_number"], 2, '0', STR_PAD_LEFT); ?></div>
                     </div>
-                    
+
                     <div class="room-details">
                         <div class="room-title-row">
                             <?php
-                                // split room type into two parts for styling
-                                $parts = explode(' ', $row['room_type'], 2);
-                                $first_word = $parts[0];
+                                $parts       = explode(' ', $row['room_type'], 2);
+                                $first_word  = $parts[0];
                                 $second_word = $parts[1] ?? '';
                             ?>
                             <h3 class="room-title">
@@ -216,8 +289,6 @@ $rooms = $conn->query("SELECT * FROM rooms ORDER BY room_number ASC");
                         </div>
 
                         <div class="room-info">
-                            <span><i class="fas fa-bed"></i> 1 Double Bed</span> 
-                            <!-- it yadi dapat upod hin ht igffill up ngin mag add room -->
                             <span><i class="fas fa-users"></i> <?= $row["max_capacity"]; ?> Guests</span>
                         </div>
 
@@ -226,123 +297,164 @@ $rooms = $conn->query("SELECT * FROM rooms ORDER BY room_number ASC");
                                 <?= ucfirst($row["room_status"]); ?>
                             </span>
                             <div class="card-actions">
-                                <a href="#"><i class="fas fa-eye"></i></a>
-                                <a href="rooms.php?delete=<?= $row["room_id"]; ?>" onclick="return confirm('Delete?');"><i class="fas fa-trash"></i></a>
-                                <a href="rooms.php?edit=<?= $row["room_id"]; ?>"><i class="fas fa-edit"></i></a>
+                                <a href="#" title="View"
+                                   onclick="event.stopPropagation(); openRoomDetailModal(event, document.querySelector('[data-room-id=\'<?= $row["room_id"]; ?>\']')); return false;">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="#" title="Edit"
+                                   onclick="event.stopPropagation(); openEditModal(<?= $row["room_id"]; ?>); return false;">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="rooms.php?delete=<?= $row["room_id"]; ?>"
+                                   onclick="event.stopPropagation(); return confirm('Delete room <?= addslashes($row["room_number"]); ?>?');"
+                                   title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </a>
                             </div>
                         </div>
                     </div>
                 </div>
             <?php endwhile; ?>
         </div>
+
+        <p id="noRoomsMsg" style="display:none;text-align:center;padding:40px;color:#94a3b8">
+            No rooms match your search.
+        </p>
     </main>
 
-    <!-- Reservation Detail Modal -->
-     <!-- kaw na bahala here -->
-    <div id="reservationModal" class="modal">
-        <div class="modal-content">
-            <button type="button" class="modal-close" onclick="closeRoomDetailModal()">&times;</button>
-            <h2>Reservation Details</h2>
-            
-            <div class="detail-grid">
-                <div class="detail-item">
-                    <label>Reservation ID</label>
-                    <p id="modalId"></p>
-                </div>
-                <div class="detail-item">
-                    <label>Guest Name</label>
-                    <p id="modalName"></p>
-                </div>
-                <div class="detail-item">
-                    <label>Contact</label>
-                    <p id="modalPhone"></p>
-                </div>
-                <div class="detail-item">
-                    <label>Room Details</label>
-                    <p id="modalRoom"></p>
-                </div>
-                <div class="detail-item">
-                    <label>Check-in Date</label>
-                    <p id="modalCheckIn"></p>
-                </div>
-                <div class="detail-item">
-                    <label>Check-out Date</label>
-                    <p id="modalCheckOut"></p>
-                </div>
-                <div class="detail-item">
-                    <label>Status</label>
-                    <p id="modalStatus"></p>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <script>
-        function openRoomDetailModal(event) {
-            // prevent triggering if clicking delete/edit/eye links
-            if (event.target.closest('a')) return;
+    const roomData = <?= json_encode(
+        array_map(fn($r) => [
+            'id'       => $r['room_id'],
+            'number'   => $r['room_number'],
+            'type'     => $r['room_type'],
+            'capacity' => $r['max_capacity'],
+            'price'    => $r['price_per_night'],
+            'status'   => $r['room_status'],
+            'image'    => '../' . ($r['image_path'] ?: 'assets/images/default-room.jpg'),
+        ],
+        iterator_to_array((function() use ($conn) {
+            $r = $conn->query("SELECT * FROM rooms ORDER BY room_number ASC");
+            while ($row = $r->fetch_assoc()) yield $row;
+        })())
+    )); ?>;
 
-            const card = event.currentTarget;
+    let currentDetailId = null;
 
-            document.getElementById('modalId').textContent = '#' + card.dataset.roomId;
-            document.getElementById('modalName').textContent = card.dataset.roomNumber;
-            document.getElementById('modalRoom').textContent = card.dataset.roomType;
-            document.getElementById('modalCheckIn').textContent = 'Max Capacity: ' + card.dataset.capacity;
-            document.getElementById('modalCheckOut').textContent = 'PHP ' + card.dataset.price + ' / night';
-            document.getElementById('modalStatus').textContent = card.dataset.status;
-            document.getElementById('modalPhone').textContent = '—';
-
-            document.getElementById('reservationModal').classList.add('show');
-        }
-        function closeRoomDetailModal() {
-            document.getElementById('reservationModal').classList.remove('show');
-        }
-    </script>
-
-    <script>
-
-    function openRoomModal() {
+    function openAddModal() {
+        document.getElementById('modalTitle').textContent    = 'Add Room';
+        document.getElementById('formSubmitBtn').textContent = 'Add Room';
+        document.getElementById('formRoomId').value          = '';
+        document.getElementById('roomForm').reset();
+        document.getElementById('currentImgWrap').style.display = 'none';
+        document.getElementById('imgRequiredNote').textContent  = '*';
+        document.getElementById('f_image').required = true;
         document.getElementById('roomModal').classList.add('show');
     }
-    function closeRoomModal() {
-        document.getElementById('roomModal').classList.remove('show');
-        document.getElementById('roomForm').reset();
-        // remove hidden id input
-        const hid = document.querySelector('#roomForm input[name="room_id"]');
-        if(hid) hid.remove();
-        // reset modal title
-        document.getElementById('modalTitle').textContent = 'Add Room';
+
+    function openEditModal(roomId) {
+        const room = roomData.find(r => r.id == roomId);
+        if (!room) return;
+
+        document.getElementById('modalTitle').textContent    = 'Edit Room';
+        document.getElementById('formSubmitBtn').textContent = 'Update Room';
+        document.getElementById('formRoomId').value          = room.id;
+
+        document.getElementById('f_room_number').value  = room.number;
+        document.getElementById('f_room_type').value    = room.type;
+        document.getElementById('f_max_capacity').value = room.capacity;
+        document.getElementById('f_price').value        = room.price;
+        document.getElementById('f_status').value       = room.status;
+
+        const imgWrap = document.getElementById('currentImgWrap');
+        document.getElementById('currentImg').src = room.image;
+        imgWrap.style.display = 'block';
+
+        document.getElementById('f_image').required = false;
+        document.getElementById('imgRequiredNote').textContent = '(optional — leave blank to keep current)';
+        document.getElementById('f_image').value = '';
+
+        document.getElementById('roomModal').classList.add('show');
     }
 
-    document.querySelector('.btn-add').addEventListener('click', function(e){
-        e.preventDefault();
-        <?php if ($edit_room): ?>
-        window.location.href = 'rooms.php?add=1';
-        <?php else: ?>
-        openRoomModal();
-        <?php endif; ?>
+    function closeRoomModal() {
+        document.getElementById('roomModal').classList.remove('show');
+    }
+
+    document.getElementById('roomModal').addEventListener('click', function(e) {
+        if (e.target === this) closeRoomModal();
     });
 
-    // close when clicking backdrop
-    document.getElementById('roomModal').addEventListener('click', function(evt){
-        if(evt.target === this) {
-            closeRoomModal();
-        }
+    function openRoomDetailModal(event, cardEl) {
+        if (event.target.closest('a')) return;
+
+        const card = cardEl || event.currentTarget;
+        currentDetailId = card.dataset.roomId;
+
+        document.getElementById('detailImg').src         = card.dataset.image;
+        document.getElementById('d_number').textContent  = card.dataset.roomNumber;
+        document.getElementById('d_type').textContent    = card.dataset.roomType;
+        document.getElementById('d_capacity').textContent = card.dataset.capacity + ' guests';
+        document.getElementById('d_price').textContent   = '₱' + Number(card.dataset.priceRaw).toLocaleString('en-PH', {minimumFractionDigits:2});
+        document.getElementById('d_status').textContent  = card.dataset.status.charAt(0).toUpperCase() + card.dataset.status.slice(1);
+
+        document.getElementById('roomDetailModal').classList.add('show');
+    }
+
+    function closeRoomDetailModal() {
+        document.getElementById('roomDetailModal').classList.remove('show');
+    }
+
+    document.getElementById('roomDetailModal').addEventListener('click', function(e) {
+        if (e.target === this) closeRoomDetailModal();
     });
+
+    function editFromDetail() {
+        closeRoomDetailModal();
+        if (currentDetailId) openEditModal(currentDetailId);
+    }
+
+    function deleteFromDetail() {
+        if (!currentDetailId) return;
+        const room = roomData.find(r => r.id == currentDetailId);
+        if (confirm('Delete room ' + (room ? room.number : '') + '?')) {
+            window.location.href = 'rooms.php?delete=' + currentDetailId;
+        }
+    }
+
+    let activeFilter = 'all';
+
+    function filterByStatus(status, el) {
+        activeFilter = status;
+        document.querySelectorAll('.filter-tab').forEach(a => a.classList.remove('active'));
+        el.classList.add('active');
+        applySearch();
+    }
+
+    function applySearch() {
+        const q    = document.getElementById('roomSearch').value.toLowerCase();
+        const cards = document.querySelectorAll('#roomsGrid .room-card');
+        let visible = 0;
+
+        cards.forEach(card => {
+            const matchStatus = activeFilter === 'all' || card.dataset.status === activeFilter;
+            const text = (card.dataset.roomNumber + ' ' + card.dataset.roomType).toLowerCase();
+            const matchSearch = !q || text.includes(q);
+
+            if (matchStatus && matchSearch) {
+                card.style.display = '';
+                visible++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+
+        document.getElementById('noRoomsMsg').style.display = visible === 0 ? 'block' : 'none';
+    }
 
     <?php if ($edit_room): ?>
-    document.addEventListener('DOMContentLoaded', function(){
-        openRoomModal();
-        // populate fields already set by PHP in value attributes
-        document.getElementById('modalTitle').textContent = 'Edit Room';
-    });
+    document.addEventListener('DOMContentLoaded', () => openEditModal(<?= $edit_room["room_id"]; ?>));
     <?php endif; ?>
-    
-    <?php if (isset($_GET['add'])): ?>
-        document.addEventListener('DOMContentLoaded', function(){
-            openRoomModal();
-        });
-        <?php endif; ?>
     </script>
 
 </body>
