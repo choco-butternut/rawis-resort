@@ -1,12 +1,11 @@
 <?php
-require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/php/config.php';
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
     header("Location: /rooms.php");
     exit();
 }
 
-// ── 1. Guest info ──────────────────────────────────────────────
 $room_id        = (int) $_POST["room_id"];
 $first_name     = sanitize_input($_POST["first_name"]);
 $last_name      = sanitize_input($_POST["last_name"]);
@@ -19,7 +18,6 @@ $extra_requests = sanitize_input($_POST["extra_requests"] ?? "");
 $payment_method = sanitize_input($_POST["payment_method"] ?? "Cash");
 $reference_number = sanitize_input($_POST["reference_number"] ?? "");
 
-// ── 2. Validate dates ──────────────────────────────────────────
 $today = date('Y-m-d');
 if ($check_in < $today) {
     header("Location: /rooms.php?error=invalid_date");
@@ -30,7 +28,6 @@ if ($check_out <= $check_in) {
     exit();
 }
 
-// ── 3. Check room is still available ──────────────────────────
 $roomStmt = $conn->prepare("SELECT * FROM rooms WHERE room_id=? AND room_status='available'");
 $roomStmt->bind_param("i", $room_id);
 $roomStmt->execute();
@@ -42,7 +39,6 @@ if (!$room) {
     exit();
 }
 
-// ── 4. Upsert guest user (match by email) ─────────────────────
 $userStmt = $conn->prepare("SELECT id FROM users WHERE email=?");
 $userStmt->bind_param("s", $email);
 $userStmt->execute();
@@ -51,7 +47,6 @@ $userStmt->close();
 
 if ($existingUser) {
     $guest_id = $existingUser["id"];
-    // Update their info in case it changed
     $upd = $conn->prepare(
         "UPDATE users SET first_name=?, last_name=?, phone_number=?, address=? WHERE id=?"
     );
@@ -70,8 +65,7 @@ if ($existingUser) {
     $ins->close();
 }
 
-// ── 5. Create reservation (Pending) ───────────────────────────
-$num_guests = 1; // placeholder until num_guests field is added to form
+$num_guests = 1; 
 $res = $conn->prepare(
     "INSERT INTO reservations
      (guest_id, room_id, check_in_date, check_out_date, num_guests, reservation_status, extra_requests, created_at)
@@ -82,7 +76,6 @@ $res->execute();
 $reservation_id = $res->insert_id;
 $res->close();
 
-// ── 6. Attach amenities ────────────────────────────────────────
 if (!empty($_POST["amenities"])) {
     foreach ($_POST["amenities"] as $amenity_id => $dummy) {
         $amenity_id = (int) $amenity_id;
@@ -102,7 +95,6 @@ if (!empty($_POST["amenities"])) {
     }
 }
 
-// ── 7. Compute total amount ────────────────────────────────────
 $nights = (new DateTime($check_in))->diff(new DateTime($check_out))->days;
 $room_total = $room["price_per_night"] * $nights;
 
@@ -118,11 +110,6 @@ $amRes->close();
 
 $total_amount = $room_total + $amTotal;
 
-// ── 8. Create payment record ───────────────────────────────────
-// Payment status logic:
-//   Cash      → Pending        (pay at front desk)
-//   GCash     → if ref given → Awaiting Verification, else Pending
-//   Card      → if ref given → Awaiting Verification, else Pending
 if ($payment_method === "Cash") {
     $payment_status = "Pending";
 } else {
@@ -137,6 +124,5 @@ $pay->bind_param("idsss", $reservation_id, $total_amount, $payment_method, $paym
 $pay->execute();
 $pay->close();
 
-// ── 9. Redirect to booking confirmation page ───────────────────
 header("Location: /booking-confirmation.php?r=" . $reservation_id . "&t=" . urlencode(base64_encode($email)));
 exit();

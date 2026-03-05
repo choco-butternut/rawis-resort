@@ -349,7 +349,38 @@ while ($r = $rooms->fetch_assoc()) {
 
                         <div class="rm-field">
                             <label>Special Requests</label>
-                            <textarea name="extra_requests" placeholder="Any special requests or notes…" rows="3"></textarea>
+                            <textarea name="extra_requests" placeholder="Any special requests or notes…" rows="2"></textarea>
+                        </div>
+
+                        <div class="rm-field">
+                            <label>Payment Method <span class="req">*</span></label>
+                            <select name="payment_method" id="modal_pay_method" onchange="toggleRefField()" required>
+                                <option value="Cash">💵 Cash — Pay on arrival</option>
+                                <option value="GCash">📱 GCash</option>
+                                <option value="Card">💳 Credit / Debit Card</option>
+                            </select>
+                        </div>
+
+                        <div class="rm-field" id="ref-field" style="display:none">
+                            <label>Reference Number <span style="color:#94a3b8;font-weight:400">(optional)</span></label>
+                            <input type="text" name="reference_number"
+                                   placeholder="Transaction/approval code">
+                            <small style="color:#64748b;font-size:11px;margin-top:4px;display:block">
+                                You can also submit this on your confirmation page.
+                            </small>
+                        </div>
+
+                        <div id="cash-note" class="rm-pay-note rm-pay-note-cash">
+                            <i class="fas fa-info-circle"></i>
+                            Your booking will be <strong>pending</strong> until you pay at the front desk on check-in.
+                        </div>
+                        <div id="gcash-note" class="rm-pay-note rm-pay-note-gcash" style="display:none">
+                            <i class="fas fa-mobile-alt"></i>
+                            Send payment to GCash <strong>0977 183 7288</strong>. Submit your reference number to get confirmed.
+                        </div>
+                        <div id="card-note" class="rm-pay-note rm-pay-note-card" style="display:none">
+                            <i class="fas fa-credit-card"></i>
+                            Provide your card transaction reference. Our team will verify and confirm your booking.
                         </div>
                     </div>
 
@@ -718,6 +749,22 @@ while ($r = $rooms->fetch_assoc()) {
         .rm-col + .rm-col { border-left: none; border-top: 1px solid #e5e7eb; }
         .rm-shell { max-width: 540px; }
     }
+
+    /* Payment notes */
+    .rm-pay-note {
+        padding: 10px 14px;
+        border-radius: 8px;
+        font-size: 13px;
+        margin-top: 10px;
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        line-height: 1.5;
+    }
+    .rm-pay-note i { flex-shrink: 0; margin-top: 2px; }
+    .rm-pay-note-cash  { background:#f0fdf4; color:#166534; border:1px solid #bbf7d0; }
+    .rm-pay-note-gcash { background:#eff6ff; color:#1e40af; border:1px solid #bfdbfe; }
+    .rm-pay-note-card  { background:#f5f3ff; color:#5b21b6; border:1px solid #ddd6fe; }
     /* ════════════════ END MODAL STYLES ════════════════ */
     </style>
 
@@ -877,6 +924,14 @@ while ($r = $rooms->fetch_assoc()) {
     <?php require_once __DIR__ . '/php/footer.php'; ?>
 
     <script>
+    function toggleRefField() {
+        const method = document.getElementById('modal_pay_method').value;
+        document.getElementById('ref-field').style.display   = method !== 'Cash' ? '' : 'none';
+        document.getElementById('cash-note').style.display   = method === 'Cash'  ? '' : 'none';
+        document.getElementById('gcash-note').style.display  = method === 'GCash' ? '' : 'none';
+        document.getElementById('card-note').style.display   = method === 'Card'  ? '' : 'none';
+    }
+
     // ── Reserve Modal ──
     let currentRoomPrice  = 0;
     let currentRoomType   = '';
@@ -1052,6 +1107,7 @@ while ($r = $rooms->fetch_assoc()) {
         if (e.target === this) closeDetailModal();
     });
 
+    // ── Filter & Sort ──
     function applyFilters() {
         const type     = document.getElementById('filterType').value.toLowerCase();
         const capacity = parseInt(document.getElementById('filterCapacity').value) || 0;
@@ -1072,6 +1128,7 @@ while ($r = $rooms->fetch_assoc()) {
             return true;
         });
 
+        // Sort
         visible.sort((a, b) => {
             const aPrice = parseFloat(a.dataset.price);
             const bPrice = parseFloat(b.dataset.price);
@@ -1084,6 +1141,7 @@ while ($r = $rooms->fetch_assoc()) {
             return 0;
         });
 
+        // Hide all, then re-append sorted visible ones
         cards.forEach(c => c.style.display = 'none');
         const grid = document.getElementById('roomGrid');
         visible.forEach(c => {
@@ -1106,6 +1164,7 @@ while ($r = $rooms->fetch_assoc()) {
         applyFilters();
     }
 
+    // Attach listeners
     ['filterType','filterCapacity','filterSort'].forEach(id => {
         document.getElementById(id).addEventListener('change', applyFilters);
     });
@@ -1113,6 +1172,7 @@ while ($r = $rooms->fetch_assoc()) {
         document.getElementById(id).addEventListener('input', applyFilters);
     });
 
+    // Init count
     applyFilters();
     </script>
 </div>
