@@ -32,19 +32,19 @@ while ($r = $rooms->fetch_assoc()) {
     <link rel="stylesheet" href="assets/css/header-footer.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        /* ── Filter Panel ── */
+        /* ── Filter Bar ── */
         .filter-bar {
             display: flex;
             flex-wrap: wrap;
             gap: 12px;
             align-items: flex-end;
             background: #fff;
-            border: 1px solid #e5e7eb;
+            border: 1px solid #ede8e1;
             border-radius: 12px;
             padding: 18px 24px;
             margin: 20px auto;
             max-width: 1100px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
         }
         .filter-group {
             display: flex;
@@ -58,26 +58,29 @@ while ($r = $rooms->fetch_assoc()) {
             min-width: 220px;
         }
         .filter-group label {
-            font-size: 12px;
-            font-weight: 600;
-            color: #6b7280;
+            font-family: Poppins, sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            color: #531e07;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
+            letter-spacing: 0.06em;
         }
         .filter-group select,
         .filter-group input[type="number"] {
-            padding: 8px 12px;
-            border: 1px solid #d1d5db;
+            padding: 9px 12px;
+            border: 1.5px solid #e2ddd8;
             border-radius: 8px;
+            font-family: Poppins, sans-serif;
             font-size: 14px;
-            background: #f9fafb;
-            color: #111827;
+            background: #faf8f6;
+            color: #341f0c;
             outline: none;
-            transition: border-color 0.2s;
+            transition: border-color 0.2s, box-shadow 0.2s;
         }
         .filter-group select:focus,
         .filter-group input[type="number"]:focus {
-            border-color: #3b82f6;
+            border-color: #bbcc81;
+            box-shadow: 0 0 0 3px rgba(187,204,129,0.18);
         }
         .price-range-row {
             display: flex;
@@ -85,7 +88,7 @@ while ($r = $rooms->fetch_assoc()) {
             align-items: center;
         }
         .price-range-row span {
-            color: #9ca3af;
+            color: #aaa;
             font-size: 13px;
             flex-shrink: 0;
         }
@@ -96,185 +99,415 @@ while ($r = $rooms->fetch_assoc()) {
         }
         .btn-filter-reset {
             padding: 9px 20px;
-            background: #f3f4f6;
-            border: 1px solid #d1d5db;
+            background: #faf8f6;
+            border: 1.5px solid #e2ddd8;
             border-radius: 8px;
+            font-family: Poppins, sans-serif;
             font-size: 14px;
             cursor: pointer;
-            color: #374151;
-            transition: background 0.2s;
+            color: #531e07;
+            font-weight: 500;
+            transition: background 0.2s, border-color 0.2s;
             height: fit-content;
             align-self: flex-end;
         }
-        .btn-filter-reset:hover { background: #e5e7eb; }
-
+        .btn-filter-reset:hover {
+            background: #ede8e1;
+            border-color: #bbcc81;
+        }
         .filter-results-count {
+            font-family: Poppins, sans-serif;
             font-size: 13px;
-            color: #6b7280;
+            color: #888;
             margin: 0 auto 10px;
             max-width: 1100px;
             padding: 0 4px;
         }
 
-        /* ── Room Detail Modal ── */
+        /* ══════════════════════════════════════
+           RESERVATION MODAL
+        ══════════════════════════════════════ */
+        .rm-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(52,31,12,0.6);
+            backdrop-filter: blur(4px);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .rm-overlay.show { display: flex; }
+
+        .rm-shell {
+            background: #fff;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 1060px;
+            max-height: 92vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 32px 80px rgba(52,31,12,0.25);
+            animation: rmSlide 0.28s cubic-bezier(.22,.68,0,1.2);
+            border-top: 4px solid #bbcc81;
+        }
+        @keyframes rmSlide {
+            from { transform: translateY(40px) scale(0.97); opacity: 0; }
+            to   { transform: none; opacity: 1; }
+        }
+
+        /* Header */
+        .rm-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 28px;
+            border-bottom: 1px solid #ede8e1;
+            background: #faf8f5;
+            flex-shrink: 0;
+        }
+        .rm-header-left { display: flex; align-items: center; gap: 14px; }
+        .rm-badge {
+            width: 44px; height: 44px;
+            background: linear-gradient(135deg, #bbcc81 0%, #334937 100%);
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            color: #fff; font-size: 18px; flex-shrink: 0;
+        }
+        .rm-title {
+            font-family: 'The Seasons', serif;
+            margin: 0; font-size: 20px; font-weight: 400; color: #341f0c;
+        }
+        .rm-subtitle {
+            font-family: Poppins, sans-serif;
+            margin: 2px 0 0; font-size: 13px; color: #888;
+        }
+        .rm-close {
+            width: 36px; height: 36px;
+            border: 1.5px solid #e2ddd8;
+            border-radius: 8px;
+            background: #fff;
+            cursor: pointer;
+            font-size: 15px;
+            color: #888;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.15s;
+        }
+        .rm-close:hover { background: #fdf0ee; border-color: #c0392b; color: #c0392b; }
+
+        /* Body — 3 columns */
+        .rm-body {
+            display: grid;
+            grid-template-columns: 1.1fr 1fr 0.85fr;
+            overflow-y: auto;
+            flex: 1;
+        }
+        .rm-col { padding: 24px 22px; overflow-y: auto; }
+        .rm-col + .rm-col { border-left: 1px solid #ede8e1; }
+        .rm-col-summary { background: #faf8f5; }
+
+        .rm-col-heading {
+            font-family: Poppins, sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #aaa;
+            margin: 0 0 16px;
+            display: flex; align-items: center; gap: 7px;
+        }
+        .rm-col-heading i { color: #bbcc81; }
+
+        /* Fields */
+        .rm-field { margin-bottom: 14px; }
+        .rm-field label {
+            display: block;
+            font-family: Poppins, sans-serif;
+            font-size: 12px; font-weight: 600; color: #531e07; margin-bottom: 5px;
+        }
+        .req { color: #c0392b; }
+        .rm-field input,
+        .rm-field textarea,
+        .rm-field select {
+            width: 100%;
+            padding: 9px 12px;
+            border: 1.5px solid #e2ddd8;
+            border-radius: 8px;
+            font-family: Poppins, sans-serif;
+            font-size: 14px; color: #341f0c;
+            background: #fff;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            box-sizing: border-box; outline: none;
+        }
+        .rm-field input:focus,
+        .rm-field textarea:focus,
+        .rm-field select:focus {
+            border-color: #bbcc81;
+            box-shadow: 0 0 0 3px rgba(187,204,129,0.18);
+        }
+        .rm-field textarea { resize: vertical; }
+        .rm-field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+        /* Amenity cards */
+        .rm-amenities-list { display: flex; flex-direction: column; gap: 10px; }
+        .rm-amenity-card {
+            border: 1.5px solid #e2ddd8;
+            border-radius: 10px;
+            padding: 12px 14px;
+            background: #fff;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .rm-amenity-card.selected {
+            border-color: #bbcc81;
+            background: #f5f8ee;
+            box-shadow: 0 0 0 3px rgba(187,204,129,0.15);
+        }
+        .rm-amenity-top {
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .rm-amenity-check-label {
+            display: flex; align-items: center; gap: 10px; cursor: pointer; flex: 1;
+        }
+        .rm-amenity-check-label input[type="checkbox"] {
+            width: 16px; height: 16px;
+            accent-color: #334937;
+            cursor: pointer; flex-shrink: 0;
+        }
+        .rm-amenity-name {
+            font-family: Poppins, sans-serif;
+            font-size: 14px; font-weight: 500; color: #341f0c;
+        }
+        .rm-amenity-price {
+            font-family: Poppins, sans-serif;
+            font-size: 13px; font-weight: 700; color: #334937;
+            white-space: nowrap; margin-left: 10px;
+        }
+        .rm-amenity-qty {
+            display: none; align-items: center; gap: 8px;
+            margin-top: 10px; padding-top: 10px; border-top: 1px dashed #e2ddd8;
+        }
+        .rm-amenity-qty.visible { display: flex; }
+        .qty-btn {
+            width: 28px; height: 28px;
+            border: 1.5px solid #e2ddd8; border-radius: 6px;
+            background: #fff; font-size: 16px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            color: #531e07; transition: background 0.15s, border-color 0.15s;
+            flex-shrink: 0;
+        }
+        .qty-btn:hover { background: #f5f8ee; border-color: #bbcc81; }
+        .rm-amenity-qty input[type="number"] {
+            width: 52px; text-align: center;
+            border: 1.5px solid #e2ddd8; border-radius: 6px;
+            padding: 4px 6px;
+            font-family: Poppins, sans-serif;
+            font-size: 14px; font-weight: 600; color: #341f0c;
+        }
+
+        /* Summary panel */
+        .rm-summary-room-img {
+            border-radius: 10px; overflow: hidden;
+            margin-bottom: 16px; aspect-ratio: 16/9;
+            background: #e2ddd8;
+            border: 2px solid #bbcc81;
+        }
+        .rm-summary-room-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .rm-summary-block { margin-bottom: 4px; }
+        .rm-summary-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 7px 0;
+            font-family: Poppins, sans-serif;
+            font-size: 13px; color: #666;
+            border-bottom: 1px solid #f0ece6;
+        }
+        .rm-summary-row strong { color: #341f0c; font-weight: 600; text-align: right; max-width: 60%; }
+        .rm-total-row {
+            margin-top: 4px; padding-top: 10px;
+            border-top: 2px solid #e2ddd8; border-bottom: none;
+        }
+        .rm-total-row span { font-size: 15px; font-weight: 700; color: #341f0c; }
+        .rm-total-row strong { font-size: 18px; font-weight: 800; color: #334937; }
+        .rm-summary-divider { border: none; border-top: 1px dashed #e2ddd8; margin: 10px 0; }
+        .sum-amenity-line {
+            display: flex; justify-content: space-between;
+            font-family: Poppins, sans-serif;
+            font-size: 12px; color: #888; padding: 4px 0;
+        }
+
+        /* Buttons */
+        .rm-btn-confirm {
+            width: 100%; margin-top: 18px; padding: 13px;
+            background: linear-gradient(to right, #bbcc81 10%, #334937 80%);
+            color: #fff; border: none; border-radius: 50px;
+            font-family: Poppins, sans-serif;
+            font-size: 15px; font-weight: 700; cursor: pointer;
+            letter-spacing: 0.03em;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.25);
+            box-shadow: 0 4px 14px rgba(51,73,55,0.3);
+            transition: opacity 0.2s, transform 0.15s;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .rm-btn-confirm:hover { opacity: 0.9; transform: translateY(-1px); }
+        .rm-btn-cancel {
+            width: 100%; margin-top: 8px; padding: 10px;
+            background: transparent; color: #aaa;
+            border: 1.5px solid #e2ddd8; border-radius: 50px;
+            font-family: Poppins, sans-serif;
+            font-size: 14px; cursor: pointer;
+            transition: background 0.15s, color 0.15s;
+        }
+        .rm-btn-cancel:hover { background: #faf8f5; color: #531e07; border-color: #bbcc81; }
+
+        /* Payment notes */
+        .rm-pay-note {
+            padding: 10px 14px; border-radius: 8px;
+            font-family: Poppins, sans-serif;
+            font-size: 13px; margin-top: 10px;
+            display: flex; align-items: flex-start; gap: 8px; line-height: 1.5;
+        }
+        .rm-pay-note i { flex-shrink: 0; margin-top: 2px; }
+        .rm-pay-note-cash  { background: #f0f7e6; color: #2d5a27; border: 1px solid #bbcc81; }
+        .rm-pay-note-gcash { background: #fff8f0; color: #8e4a0f; border: 1px solid #e8b98a; }
+        .rm-pay-note-card  { background: #fdf6f0; color: #531e07; border: 1px solid #d4b8a8; }
+
+        @media (max-width: 900px) {
+            .rm-body { grid-template-columns: 1fr; }
+            .rm-col + .rm-col { border-left: none; border-top: 1px solid #ede8e1; }
+            .rm-shell { max-width: 540px; }
+        }
+
+        /* ══════════════════════════════════════
+           ROOM DETAIL MODAL
+        ══════════════════════════════════════ */
         #roomDetailModal {
             display: none;
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.55);
+            background: rgba(52,31,12,0.58);
             z-index: 1000;
             align-items: center;
             justify-content: center;
         }
-        #roomDetailModal.show {
-            display: flex;
-        }
+        #roomDetailModal.show { display: flex; }
+
         .room-detail-content {
             background: #fff;
-            border-radius: 16px;
+            border-radius: 18px;
             width: 90%;
             max-width: 700px;
             max-height: 90vh;
             overflow-y: auto;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+            box-shadow: 0 20px 60px rgba(52,31,12,0.25);
             animation: slideUp 0.25s ease;
+            border-top: 4px solid #bbcc81;
         }
         @keyframes slideUp {
             from { transform: translateY(30px); opacity: 0; }
-            to   { transform: translateY(0);    opacity: 1; }
+            to   { transform: translateY(0); opacity: 1; }
         }
         .room-detail-image {
-            width: 100%;
-            height: 260px;
+            width: 100%; height: 260px;
             object-fit: cover;
-            border-radius: 16px 16px 0 0;
+            border-radius: 14px 14px 0 0;
         }
-        .room-detail-body {
-            padding: 28px 32px;
-        }
+        .room-detail-body { padding: 28px 32px; }
         .room-detail-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 16px;
+            display: flex; justify-content: space-between;
+            align-items: flex-start; margin-bottom: 16px;
         }
         .room-detail-header h2 {
-            margin: 0;
-            font-size: 24px;
-            color: #1f2937;
+            font-family: 'The Seasons', serif;
+            margin: 0; font-size: 26px; font-weight: 400; color: #341f0c;
         }
-        .room-detail-price {
-            text-align: right;
-        }
+        .room-detail-price { text-align: right; }
         .room-detail-price .big-price {
-            font-size: 26px;
-            font-weight: 700;
-            color: #1d4ed8;
+            font-family: 'The Seasons', serif;
+            font-size: 28px; font-weight: 400; color: #334937;
         }
         .room-detail-price .per-night {
-            font-size: 13px;
-            color: #6b7280;
+            font-family: Poppins, sans-serif;
+            font-size: 12px; color: #888;
         }
+
         .room-meta {
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-            margin-bottom: 20px;
-            padding: 16px;
-            background: #f9fafb;
-            border-radius: 10px;
+            display: flex; gap: 20px; flex-wrap: wrap;
+            margin-bottom: 20px; padding: 16px;
+            background: #faf8f5; border-radius: 10px;
+            border: 1px solid #ede8e1;
         }
         .room-meta-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-            color: #374151;
+            display: flex; align-items: center; gap: 8px;
+            font-family: Poppins, sans-serif;
+            font-size: 14px; color: #531e07;
         }
-        .room-meta-item i {
-            color: #3b82f6;
-            width: 16px;
-        }
+        .room-meta-item i { color: #bbcc81; width: 16px; }
+
         .detail-status-pill {
-            display: inline-block;
-            padding: 4px 12px;
+            display: inline-block; padding: 4px 14px;
             border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: capitalize;
+            font-family: Poppins, sans-serif;
+            font-size: 12px; font-weight: 600; text-transform: capitalize;
         }
-        .detail-status-pill.available { background: #d1fae5; color: #065f46; }
-        .detail-status-pill.occupied  { background: #fee2e2; color: #991b1b; }
-        .detail-status-pill.maintenance { background: #fef3c7; color: #92400e; }
+        .detail-status-pill.available  { background: #e8f0d8; color: #2d5a27; }
+        .detail-status-pill.occupied   { background: #fde8e8; color: #9b2226; }
+        .detail-status-pill.maintenance{ background: #fff8f0; color: #8e4a0f; }
 
         .room-detail-divider {
-            border: none;
-            border-top: 1px solid #e5e7eb;
-            margin: 20px 0;
+            border: none; border-top: 1px solid #ede8e1; margin: 20px 0;
         }
         .detail-section-title {
-            font-size: 13px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: #9ca3af;
-            margin-bottom: 10px;
+            font-family: Poppins, sans-serif;
+            font-size: 11px; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.08em;
+            color: #aaa; margin-bottom: 10px;
         }
-        .room-detail-actions {
-            display: flex;
-            gap: 12px;
-            margin-top: 24px;
+        #detailDescription {
+            font-family: Poppins, sans-serif;
+            color: #555; font-size: 14px; line-height: 1.75;
         }
+
+        .room-detail-actions { display: flex; gap: 12px; margin-top: 24px; }
         .btn-detail-book {
-            flex: 1;
-            padding: 12px;
-            background: #1d4ed8;
-            color: #fff;
-            border: none;
-            border-radius: 10px;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.2s;
+            flex: 1; padding: 12px;
+            background: linear-gradient(to right, #bbcc81 10%, #334937 80%);
+            color: #fff; border: none; border-radius: 50px;
+            font-family: Poppins, sans-serif;
+            font-size: 15px; font-weight: 700; cursor: pointer;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 14px rgba(51,73,55,0.25);
+            transition: opacity 0.2s, transform 0.15s;
         }
-        .btn-detail-book:hover { background: #1e40af; }
+        .btn-detail-book:hover { opacity: 0.9; transform: translateY(-1px); }
         .btn-detail-close {
             padding: 12px 24px;
-            background: #f3f4f6;
-            color: #374151;
-            border: 1px solid #d1d5db;
-            border-radius: 10px;
-            font-size: 15px;
-            cursor: pointer;
-            transition: background 0.2s;
+            background: #faf8f5; color: #531e07;
+            border: 1.5px solid #e2ddd8; border-radius: 50px;
+            font-family: Poppins, sans-serif;
+            font-size: 15px; cursor: pointer;
+            transition: background 0.2s, border-color 0.2s;
         }
-        .btn-detail-close:hover { background: #e5e7eb; }
+        .btn-detail-close:hover { background: #ede8e1; border-color: #bbcc81; }
+
         .modal-x-btn {
-            position: absolute;
-            top: 14px;
-            right: 18px;
-            background: rgba(0,0,0,0.35);
-            border: none;
-            color: #fff;
-            border-radius: 50%;
-            width: 32px;
-            height: 32px;
-            font-size: 18px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            position: absolute; top: 14px; right: 18px;
+            background: rgba(52,31,12,0.4);
+            border: none; color: #fff; border-radius: 50%;
+            width: 32px; height: 32px; font-size: 16px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: background 0.15s;
         }
+        .modal-x-btn:hover { background: rgba(52,31,12,0.65); }
         .room-detail-image-wrap { position: relative; }
 
-        /* no results */
+        /* No results */
         .no-results {
-            text-align: center;
-            padding: 60px 20px;
-            color: #9ca3af;
-            display: none;
+            text-align: center; padding: 60px 20px;
+            color: #aaa; display: none;
+            font-family: Poppins, sans-serif;
         }
-        .no-results i { font-size: 48px; margin-bottom: 12px; }
+        .no-results i { font-size: 48px; margin-bottom: 12px; color: #bbcc81; }
     </style>
 </head>
 <body class="customer-page">
@@ -358,15 +591,14 @@ while ($r = $rooms->fetch_assoc()) {
                         </div>
 
                         <div class="rm-field" id="ref-field" style="display:none">
-                            <label>Reference Number <span style="color:#94a3b8;font-weight:400">(optional)</span></label>
-                            <input type="text" name="reference_number"
-                                   placeholder="Transaction/approval code">
-                            <small style="color:#64748b;font-size:11px;margin-top:4px;display:block">
+                            <label>Reference Number <span style="color:#aaa;font-weight:400">(optional)</span></label>
+                            <input type="text" name="reference_number" placeholder="Transaction/approval code">
+                            <small style="color:#888;font-size:11px;margin-top:4px;display:block">
                                 You can also submit this on your confirmation page.
                             </small>
                         </div>
 
-                        <div id="cash-note" class="rm-pay-note rm-pay-note-cash">
+                        <div id="cash-note"  class="rm-pay-note rm-pay-note-cash">
                             <i class="fas fa-info-circle"></i>
                             Your booking will be <strong>pending</strong> until you pay at the front desk on check-in.
                         </div>
@@ -374,7 +606,7 @@ while ($r = $rooms->fetch_assoc()) {
                             <i class="fas fa-mobile-alt"></i>
                             Send payment to GCash <strong>0977 183 7288</strong>. Submit your reference number to get confirmed.
                         </div>
-                        <div id="card-note" class="rm-pay-note rm-pay-note-card" style="display:none">
+                        <div id="card-note"  class="rm-pay-note rm-pay-note-card" style="display:none">
                             <i class="fas fa-credit-card"></i>
                             Provide your card transaction reference. Our team will verify and confirm your booking.
                         </div>
