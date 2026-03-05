@@ -36,7 +36,7 @@ $rooms = $conn->query("SELECT * FROM rooms WHERE room_status='available'");
             </div>
 
             <div class="cta">
-                <button id="findRoomId" type="button">FIND ME A ROOM</button>
+                <button id="findRoomId" type="button">BOOK NOW</button>
             </div>
 
         </div>

@@ -21,6 +21,8 @@
                 <li><a href="index.php" class="<?= $currentPage === 'index.php' ? 'active' : '' ?>">Home</a></li>
                 <li><a href="rooms.php" class="<?= $currentPage === 'rooms.php' ? 'active' : '' ?>">Rooms</a></li>
                 <li><a href="amenities.php" class="<?= $currentPage === 'amenities.php' ? 'active' : '' ?>">Amenities</a></li>
+                <li><a href="contacts.php" class="<?= $currentPage === 'contacts.php' ? 'active' : '' ?>">Contacts</a></li>
+                <li><a href="about.php" class="<?= $currentPage === 'about.php' ? 'active' : '' ?>">About</a></li>
             </ul>
         </nav>
 
