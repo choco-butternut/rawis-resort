@@ -16,9 +16,9 @@ require_once "php/config.php";
     <style>
         /* ── Hero ── */
         .about-hero {
-            background: url('assets/images/facilities-banner.jpg') center/cover no-repeat;
             position: relative;
-            height: 340px;
+            background: url('assets/images/facilities-banner.jpg') center/cover no-repeat;
+            height: 300px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -29,19 +29,32 @@ require_once "php/config.php";
             content: '';
             position: absolute;
             inset: 0;
-            background: rgba(0,0,0,0.52);
+            background: rgba(0, 0, 0, 0.52);
+        }
+        .about-hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-top: 5px solid #bbcc81;
+            border-bottom: 5px solid #bbcc81;
+            z-index: 3;
+            pointer-events: none;
         }
         .about-hero-content {
             position: relative;
-            z-index: 1;
+            z-index: 4;
         }
         .about-hero-content h1 {
+            font-family: 'The Seasons', serif;
             font-size: 44px;
+            font-weight: 300;
             margin: 0 0 10px;
             letter-spacing: 0.04em;
+            text-shadow: 2px 2px 6px rgba(0,0,0,0.5);
         }
         .about-hero-content p {
-            font-size: 17px;
+            font-family: Poppins, sans-serif;
+            font-size: 16px;
             opacity: 0.88;
             max-width: 520px;
             margin: 0 auto;
@@ -55,26 +68,28 @@ require_once "php/config.php";
             margin: 60px auto 80px;
         }
 
-        /* ── Section heading ── */
+        /* ── Section label shared ── */
         .section-label {
+            font-family: Poppins, sans-serif;
             font-size: 12px;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.12em;
-            color: #3b82f6;
+            color: #bbcc81;
             margin-bottom: 8px;
         }
         .section-heading {
-            font-size: 32px;
-            font-weight: 800;
-            color: #1e293b;
-            margin: 0 0 16px;
+            font-family: 'The Seasons', serif;
+            font-size: 36px;
+            font-weight: 400;
+            color: #341f0c;
+            margin: 0 0 12px;
             line-height: 1.2;
         }
         .section-divider {
             width: 52px;
             height: 4px;
-            background: #3b82f6;
+            background: linear-gradient(to right, #bbcc81, #334937);
             border-radius: 2px;
             margin-bottom: 28px;
         }
@@ -92,8 +107,9 @@ require_once "php/config.php";
             min-width: 280px;
         }
         .about-story-text p {
-            color: #475569;
-            font-size: 15.5px;
+            font-family: Poppins, sans-serif;
+            color: #555;
+            font-size: 15px;
             line-height: 1.8;
             margin-bottom: 18px;
         }
@@ -103,6 +119,7 @@ require_once "php/config.php";
             border-radius: 16px;
             overflow: hidden;
             box-shadow: 0 16px 40px rgba(0,0,0,0.12);
+            border: 4px solid #bbcc81;
         }
         .about-story-img img {
             width: 100%;
@@ -111,7 +128,19 @@ require_once "php/config.php";
             display: block;
         }
 
-        /* ── Values cards ── */
+        /* ── Values ── */
+        .values-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .values-header .section-label,
+        .values-header .section-heading {
+            display: block;
+        }
+        .values-header .section-divider {
+            margin: 0 auto 0;
+        }
+
         .values-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -124,8 +153,8 @@ require_once "php/config.php";
             padding: 32px 26px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.07);
             text-align: center;
-            border-top: 4px solid #3b82f6;
-            transition: transform 0.2s, box-shadow 0.2s;
+            border-top: 4px solid #bbcc81;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
         .value-card:hover {
             transform: translateY(-6px);
@@ -134,47 +163,55 @@ require_once "php/config.php";
         .value-icon {
             width: 60px;
             height: 60px;
-            background: #eff6ff;
+            background: linear-gradient(135deg, #bbcc81 0%, #334937 100%);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 26px;
-            color: #3b82f6;
+            font-size: 24px;
+            color: #fff;
             margin: 0 auto 18px;
         }
         .value-card h3 {
-            font-size: 17px;
-            color: #1e293b;
+            font-family: 'The Seasons', serif;
+            font-size: 18px;
+            font-weight: 400;
+            color: #341f0c;
             margin: 0 0 10px;
         }
         .value-card p {
-            font-size: 14px;
-            color: #64748b;
+            font-family: Poppins, sans-serif;
+            font-size: 13.5px;
+            color: #666;
             line-height: 1.65;
             margin: 0;
         }
 
-        /* ── Location strip ── */
+        /* ── Location CTA ── */
         .location-strip {
-            background: linear-gradient(135deg, #1d4ed8 0%, #0ea5e9 100%);
+            background: linear-gradient(to right, #bbcc81 10%, #334937 80%);
             border-radius: 18px;
             padding: 44px 48px;
             color: #fff;
             display: flex;
             flex-wrap: wrap;
-            gap: 36px;
+            gap: 30px;
             align-items: center;
             justify-content: space-between;
+            box-shadow: 0 8px 28px rgba(51,73,55,0.3);
         }
         .location-strip h2 {
+            font-family: 'The Seasons', serif;
             font-size: 26px;
+            font-weight: 400;
             margin: 0 0 8px;
+            text-shadow: 1px 1px 4px rgba(0,0,0,0.25);
         }
         .location-strip p {
+            font-family: Poppins, sans-serif;
             margin: 0;
-            opacity: 0.88;
-            font-size: 15px;
+            opacity: 0.9;
+            font-size: 14.5px;
             max-width: 400px;
             line-height: 1.6;
         }
@@ -183,24 +220,29 @@ require_once "php/config.php";
             align-items: center;
             gap: 8px;
             background: #fff;
-            color: #1d4ed8;
+            color: #334937;
+            font-family: Poppins, sans-serif;
             font-weight: 700;
             padding: 13px 26px;
-            border-radius: 10px;
+            border-radius: 50px;
             text-decoration: none;
             font-size: 14px;
-            transition: opacity 0.2s;
+            transition: transform 0.2s, box-shadow 0.2s;
             white-space: nowrap;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
-        .location-strip a:hover { opacity: 0.88; }
+        .location-strip a:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
 
         @media (max-width: 680px) {
             .about-hero-content h1 { font-size: 30px; }
-            .location-strip { flex-direction: column; }
+            .location-strip { flex-direction: column; padding: 30px 24px; }
         }
     </style>
 </head>
-<body>
+<body class="customer-page">
     <?php require_once __DIR__ . '/php/header.php'; ?>
 
     <div class="about-hero">
@@ -219,14 +261,14 @@ require_once "php/config.php";
                 <h2 class="section-heading">Where Every Stay<br>Feels Like Home</h2>
                 <div class="section-divider"></div>
                 <p>
-                    Nestled along the shores of Borongan City in Eastern Samar, Rawis Resort Hotel was built 
-                    on a simple idea: that every guest deserves a place to truly unwind. Surrounded by the 
-                    natural beauty of the Philippine coast, we offer a peaceful retreat away from the rush 
+                    Nestled along the shores of Borongan City in Eastern Samar, Rawis Resort Hotel was built
+                    on a simple idea: that every guest deserves a place to truly unwind. Surrounded by the
+                    natural beauty of the Philippine coast, we offer a peaceful retreat away from the rush
                     of everyday life.
                 </p>
                 <p>
-                    Since opening, we have welcomed families, couples, and solo travelers seeking both 
-                    comfort and a genuine taste of Eastern Samar's warm hospitality. Every room, every 
+                    Since opening, we have welcomed families, couples, and solo travelers seeking both
+                    comfort and a genuine taste of Eastern Samar's warm hospitality. Every room, every
                     facility, and every interaction is shaped by our commitment to making you feel welcome.
                 </p>
             </div>
@@ -236,10 +278,10 @@ require_once "php/config.php";
         </div>
 
         <!-- Values -->
-        <div style="margin-bottom: 40px; text-align: center;">
+        <div class="values-header">
             <p class="section-label">What We Stand For</p>
-            <h2 class="section-heading" style="margin: 0 auto 8px">Our Core Values</h2>
-            <div class="section-divider" style="margin: 0 auto 48px"></div>
+            <h2 class="section-heading">Our Core Values</h2>
+            <div class="section-divider"></div>
         </div>
 
         <div class="values-grid">

@@ -65,7 +65,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["submit_reference"])) 
     $upd->bind_param("si", $ref, $reservation_id);
     $upd->execute();
     $upd->close();
-    $success_msg = "Reference number submitted! We'll verify your payment shortly.";
     header("Location: /booking-confirmation.php?r={$reservation_id}&t=" . urlencode(base64_encode($data["email"])) . "&updated=1");
     exit();
 }
@@ -77,31 +76,31 @@ if (isset($_GET["updated"])) {
     $updated = $refetch->get_result()->fetch_assoc();
     $refetch->close();
     if ($updated) {
-        $data["payment_status"]    = $updated["payment_status"];
-        $data["reference_number"]  = $updated["reference_number"];
+        $data["payment_status"]   = $updated["payment_status"];
+        $data["reference_number"] = $updated["reference_number"];
     }
 }
 
 function reservationBadge($s) {
     $map = [
-        'Pending'   => ['#f59e0b','#fffbeb','⏳'],
-        'Confirmed' => ['#10b981','#ecfdf5','✅'],
-        'Cancelled' => ['#ef4444','#fef2f2','✗'],
-        'Completed' => ['#6366f1','#eef2ff','★'],
-        'Checked-in'  => ['#3b82f6','#eff6ff','🔑'],
-        'Checked-out' => ['#8b5cf6','#f5f3ff','👋'],
+        'Pending'    => ['#8e4a0f','#fff8f0','⏳'],
+        'Confirmed'  => ['#334937','#f0f7e6','✅'],
+        'Cancelled'  => ['#9b2226','#fdf0ee','✗'],
+        'Completed'  => ['#531e07','#fdf6f0','★'],
+        'Checked-in' => ['#2d5a27','#e8f0d8','🔑'],
+        'Checked-out'=> ['#531e07','#fdf6f0','👋'],
     ];
-    $d = $map[$s] ?? ['#6b7280','#f9fafb','•'];
+    $d = $map[$s] ?? ['#666','#f5f5f5','•'];
     return "<span class='status-badge' style='background:{$d[1]};color:{$d[0]};border-color:{$d[0]}'>{$d[2]} {$s}</span>";
 }
 function paymentBadge($s) {
     $map = [
-        'Pending'                => ['#f59e0b','#fffbeb'],
-        'Awaiting Verification'  => ['#3b82f6','#eff6ff'],
-        'Completed'              => ['#10b981','#ecfdf5'],
-        'Refunded'               => ['#ef4444','#fef2f2'],
+        'Pending'               => ['#8e4a0f','#fff8f0'],
+        'Awaiting Verification' => ['#334937','#f0f7e6'],
+        'Completed'             => ['#2d5a27','#e8f0d8'],
+        'Refunded'              => ['#9b2226','#fdf0ee'],
     ];
-    $d = $map[$s] ?? ['#6b7280','#f9fafb'];
+    $d = $map[$s] ?? ['#666','#f5f5f5'];
     return "<span class='status-badge' style='background:{$d[1]};color:{$d[0]};border-color:{$d[0]}'>{$s}</span>";
 }
 ?>
@@ -117,19 +116,18 @@ function paymentBadge($s) {
     <style>
         * { box-sizing: border-box; }
 
-        body { background: #f1f5f9; }
-
+        /* ── Page wrapper ── */
         .confirm-page {
-            max-width: 900px;
+            max-width: 940px;
             margin: 40px auto 80px;
-            padding: 0 16px;
+            padding: 0 18px;
         }
 
         /* ── Hero banner ── */
         .confirm-hero {
-            background: linear-gradient(135deg, #1d4ed8 0%, #0ea5e9 100%);
-            border-radius: 20px;
-            padding: 36px 40px;
+            background: linear-gradient(to right, #bbcc81 10%, #334937 80%);
+            border-radius: 18px;
+            padding: 36px 42px;
             color: #fff;
             display: flex;
             align-items: center;
@@ -137,6 +135,7 @@ function paymentBadge($s) {
             margin-bottom: 28px;
             position: relative;
             overflow: hidden;
+            box-shadow: 0 8px 28px rgba(51,73,55,0.3);
         }
         .confirm-hero::before {
             content: '';
@@ -147,35 +146,53 @@ function paymentBadge($s) {
             border-radius: 50%;
         }
         .confirm-hero-icon {
-            width: 72px; height: 72px;
-            background: rgba(255,255,255,0.18);
+            width: 68px; height: 68px;
+            background: rgba(255,255,255,0.2);
             border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            font-size: 32px; flex-shrink: 0;
+            font-size: 30px; flex-shrink: 0;
         }
-        .confirm-hero h1 { margin: 0 0 6px; font-size: 26px; font-weight: 800; }
-        .confirm-hero p  { margin: 0; opacity: 0.85; font-size: 15px; }
+        .confirm-hero h1 {
+            font-family: 'The Seasons', serif;
+            font-size: 28px;
+            font-weight: 400;
+            margin: 0 0 6px;
+            text-shadow: 1px 1px 4px rgba(0,0,0,0.2);
+        }
+        .confirm-hero p {
+            font-family: Poppins, sans-serif;
+            margin: 0; opacity: 0.9; font-size: 14.5px;
+        }
         .confirm-booking-id {
             margin-left: auto;
             text-align: right;
             flex-shrink: 0;
         }
-        .confirm-booking-id .id-label { font-size: 12px; opacity: 0.75; text-transform: uppercase; letter-spacing: 0.08em; }
-        .confirm-booking-id .id-value { font-size: 28px; font-weight: 900; letter-spacing: 0.04em; }
+        .confirm-booking-id .id-label {
+            font-family: Poppins, sans-serif;
+            font-size: 11px; opacity: 0.8;
+            text-transform: uppercase; letter-spacing: 0.08em;
+        }
+        .confirm-booking-id .id-value {
+            font-family: 'The Seasons', serif;
+            font-size: 30px; font-weight: 400; letter-spacing: 0.04em;
+        }
 
         /* ── Alert ── */
         .alert-success {
-            background: #ecfdf5;
-            border: 1px solid #6ee7b7;
-            color: #065f46;
+            background: #f0f7e6;
+            border: 1px solid #bbcc81;
+            border-left: 4px solid #334937;
+            color: #2d5a27;
             border-radius: 10px;
             padding: 14px 18px;
             margin-bottom: 20px;
+            font-family: Poppins, sans-serif;
             font-size: 14px;
             display: flex; align-items: center; gap: 10px;
         }
 
-        /* ── Grid layout ── */
+        /* ── Grid ── */
         .confirm-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -188,18 +205,20 @@ function paymentBadge($s) {
             background: #fff;
             border-radius: 16px;
             padding: 24px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+            border-top: 3px solid #bbcc81;
         }
         .card-title {
-            font-size: 12px;
+            font-family: Poppins, sans-serif;
+            font-size: 11px;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.08em;
-            color: #94a3b8;
+            color: #888;
             margin: 0 0 16px;
             display: flex; align-items: center; gap: 8px;
         }
-        .card-title i { color: #3b82f6; }
+        .card-title i { color: #bbcc81; }
 
         /* ── Info rows ── */
         .info-row {
@@ -207,14 +226,15 @@ function paymentBadge($s) {
             justify-content: space-between;
             align-items: center;
             padding: 9px 0;
-            border-bottom: 1px solid #f1f5f9;
+            border-bottom: 1px solid #f5f0eb;
+            font-family: Poppins, sans-serif;
             font-size: 14px;
         }
         .info-row:last-child { border-bottom: none; }
-        .info-row .label { color: #64748b; }
-        .info-row .value { font-weight: 600; color: #0f172a; text-align: right; }
+        .info-row .label { color: #888; }
+        .info-row .value { font-weight: 600; color: #341f0c; text-align: right; }
 
-        /* ── Room card ── */
+        /* ── Room inline card ── */
         .room-card-inline {
             display: flex;
             gap: 16px;
@@ -225,47 +245,78 @@ function paymentBadge($s) {
             border-radius: 10px;
             object-fit: cover;
             flex-shrink: 0;
+            border: 2px solid #bbcc81;
         }
-        .room-card-inline .room-type { font-size: 17px; font-weight: 700; color: #0f172a; }
-        .room-card-inline .room-meta { font-size: 13px; color: #64748b; margin-top: 4px; }
+        .room-card-inline .room-type {
+            font-family: 'The Seasons', serif;
+            font-size: 20px;
+            font-weight: 400;
+            color: #341f0c;
+        }
+        .room-card-inline .room-meta {
+            font-family: Poppins, sans-serif;
+            font-size: 13px;
+            color: #888;
+            margin-top: 4px;
+        }
 
         /* ── Date strip ── */
         .date-strip {
             display: flex;
             align-items: center;
             gap: 0;
-            margin: 16px 0;
+            margin: 18px 0 0;
         }
         .date-box {
             flex: 1;
-            background: #f8fafc;
+            background: #faf8f5;
             border-radius: 10px;
             padding: 14px 18px;
             text-align: center;
+            border: 1px solid #ede8e1;
         }
-        .date-box .date-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: #94a3b8; font-weight: 600; }
-        .date-box .date-value { font-size: 17px; font-weight: 700; color: #0f172a; margin-top: 4px; }
-        .date-box .date-sub   { font-size: 12px; color: #64748b; }
+        .date-box .date-label {
+            font-family: Poppins, sans-serif;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #aaa;
+            font-weight: 600;
+        }
+        .date-box .date-value {
+            font-family: 'The Seasons', serif;
+            font-size: 18px;
+            color: #341f0c;
+            margin-top: 4px;
+        }
+        .date-box .date-sub {
+            font-family: Poppins, sans-serif;
+            font-size: 12px;
+            color: #999;
+        }
         .date-arrow {
             padding: 0 12px;
-            color: #cbd5e1;
-            font-size: 20px;
+            color: #bbcc81;
+            font-size: 18px;
         }
         .nights-pill {
-            padding: 6px 16px;
-            background: #eff6ff;
-            color: #1d4ed8;
+            padding: 7px 18px;
+            background: linear-gradient(135deg, #bbcc81 0%, #334937 100%);
+            color: #fff;
             border-radius: 20px;
+            font-family: Poppins, sans-serif;
             font-size: 13px;
             font-weight: 700;
             text-align: center;
+            white-space: nowrap;
         }
 
         /* ── Status badge ── */
         .status-badge {
             display: inline-block;
-            padding: 4px 12px;
+            padding: 4px 14px;
             border-radius: 20px;
+            font-family: Poppins, sans-serif;
             font-size: 12px;
             font-weight: 600;
             border: 1.5px solid;
@@ -275,107 +326,130 @@ function paymentBadge($s) {
         .cost-row {
             display: flex;
             justify-content: space-between;
-            padding: 8px 0;
+            padding: 9px 0;
+            font-family: Poppins, sans-serif;
             font-size: 14px;
-            color: #475569;
-            border-bottom: 1px dashed #e2e8f0;
+            color: #666;
+            border-bottom: 1px dashed #ede8e1;
         }
         .cost-row:last-child { border-bottom: none; }
         .cost-row.total-row {
-            border-top: 2px solid #e2e8f0;
+            border-top: 2px solid #ede8e1;
             border-bottom: none;
-            padding-top: 12px;
+            padding-top: 14px;
             margin-top: 4px;
         }
-        .cost-row.total-row span:first-child { font-size: 15px; font-weight: 700; color: #0f172a; }
-        .cost-row.total-row span:last-child  { font-size: 20px; font-weight: 800; color: #1d4ed8; }
+        .cost-row.total-row span:first-child { font-size: 15px; font-weight: 700; color: #341f0c; }
+        .cost-row.total-row span:last-child  { font-size: 20px; font-weight: 800; color: #334937; }
 
-        /* ── Payment method icons ── */
+        /* ── Payment method ── */
         .pm-icon {
             display: inline-flex; align-items: center; gap: 7px;
+            font-family: Poppins, sans-serif;
             font-weight: 600; font-size: 14px;
         }
-        .pm-icon i { font-size: 18px; }
-        .pm-cash   { color: #059669; }
-        .pm-gcash  { color: #0070f3; }
-        .pm-card   { color: #7c3aed; }
+        .pm-icon i { font-size: 16px; }
+        .pm-cash  { color: #334937; }
+        .pm-gcash { color: #531e07; }
+        .pm-card  { color: #8e4a0f; }
 
-        /* ── Reference number form ── */
-        .ref-form {
-            margin-top: 14px;
-            padding: 16px;
-            background: #fffbeb;
-            border: 1px dashed #fbbf24;
-            border-radius: 10px;
-        }
-        .ref-form p { margin: 0 0 10px; font-size: 13px; color: #92400e; }
-        .ref-form-row { display: flex; gap: 10px; }
-        .ref-form input {
-            flex: 1;
-            padding: 9px 12px;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            font-size: 14px;
-        }
-        .ref-form button {
-            padding: 9px 20px;
-            background: #1d4ed8;
-            color: #fff;
-            border: none;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        /* ── Payment instructions ── */
+        /* ── Instructions ── */
         .instructions-box {
-            background: #f8fafc;
+            background: #faf8f5;
             border-radius: 12px;
             padding: 18px;
-            margin-top: 14px;
+            margin-top: 16px;
+            border: 1px solid #ede8e1;
         }
         .instructions-box .step {
             display: flex; gap: 12px; align-items: flex-start;
-            font-size: 13px; color: #334155;
+            font-family: Poppins, sans-serif;
+            font-size: 13.5px; color: #555;
             margin-bottom: 12px;
         }
         .instructions-box .step:last-child { margin-bottom: 0; }
         .step-num {
-            width: 24px; height: 24px;
-            background: #1d4ed8;
+            width: 26px; height: 26px;
+            background: linear-gradient(135deg, #bbcc81 0%, #334937 100%);
             color: #fff;
             border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
             font-size: 12px; font-weight: 700; flex-shrink: 0;
         }
 
-        /* ── Actions ── */
+        /* ── Reference form ── */
+        .ref-form {
+            margin-top: 14px;
+            padding: 16px;
+            background: #fff8f0;
+            border: 1px dashed #c87941;
+            border-radius: 10px;
+        }
+        .ref-form p {
+            font-family: Poppins, sans-serif;
+            margin: 0 0 10px; font-size: 13px; color: #8e4a0f;
+        }
+        .ref-form-row { display: flex; gap: 10px; }
+        .ref-form input {
+            flex: 1;
+            padding: 9px 12px;
+            border: 1.5px solid #e2ddd8;
+            border-radius: 8px;
+            font-family: Poppins, sans-serif;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .ref-form input:focus { border-color: #bbcc81; }
+        .ref-form button {
+            padding: 9px 20px;
+            background: linear-gradient(to right, #bbcc81 10%, #334937 80%);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-family: Poppins, sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .ref-form button:hover { opacity: 0.88; }
+
+        /* ── Action buttons ── */
         .confirm-actions {
-            display: flex; gap: 12px; margin-top: 8px; flex-wrap: wrap;
+            display: flex; gap: 12px; margin-top: 24px; flex-wrap: wrap;
         }
         .btn-primary {
             display: inline-flex; align-items: center; gap: 8px;
             padding: 12px 24px;
-            background: linear-gradient(135deg,#1d4ed8,#2563eb);
-            color: #fff; border: none; border-radius: 10px;
-            font-size: 14px; font-weight: 600; cursor: pointer;
-            text-decoration: none; transition: opacity 0.2s;
+            background: linear-gradient(to right, #bbcc81 10%, #334937 80%);
+            color: #fff; border: none; border-radius: 50px;
+            font-family: Poppins, sans-serif;
+            font-size: 14px; font-weight: 700;
+            cursor: pointer; text-decoration: none;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 14px rgba(51,73,55,0.25);
+            transition: opacity 0.2s, transform 0.15s;
         }
-        .btn-primary:hover { opacity: 0.88; }
+        .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
         .btn-secondary {
             display: inline-flex; align-items: center; gap: 8px;
             padding: 12px 24px;
-            background: #fff; color: #374151;
-            border: 1px solid #d1d5db; border-radius: 10px;
-            font-size: 14px; font-weight: 500; cursor: pointer;
-            text-decoration: none; transition: background 0.15s;
+            background: #fff; color: #531e07;
+            border: 2px solid #e2ddd8; border-radius: 50px;
+            font-family: Poppins, sans-serif;
+            font-size: 14px; font-weight: 600;
+            cursor: pointer; text-decoration: none;
+            transition: border-color 0.2s, background 0.15s;
         }
-        .btn-secondary:hover { background: #f3f4f6; }
+        .btn-secondary:hover {
+            border-color: #bbcc81;
+            background: #faf8f5;
+        }
 
         @media (max-width: 640px) {
             .confirm-grid { grid-template-columns: 1fr; }
-            .confirm-hero { flex-direction: column; text-align: center; }
+            .confirm-hero { flex-direction: column; text-align: center; padding: 28px 22px; }
             .confirm-booking-id { margin-left: 0; text-align: center; }
             .date-strip { flex-direction: column; }
             .date-arrow { transform: rotate(90deg); }
@@ -387,7 +461,9 @@ function paymentBadge($s) {
 
     <div class="confirm-page">
 
+        <!-- Hero -->
         <div class="confirm-hero">
+            <div class="confirm-hero-icon">🎉</div>
             <div>
                 <h1>Booking Received!</h1>
                 <p>Thank you, <?= htmlspecialchars($data["first_name"]); ?>. Your reservation is being processed.</p>
@@ -427,7 +503,7 @@ function paymentBadge($s) {
                     </div>
                 </div>
 
-                <div class="date-strip" style="margin-top:20px">
+                <div class="date-strip">
                     <div class="date-box">
                         <div class="date-label">Check-in</div>
                         <div class="date-value"><?= date("M d, Y", strtotime($data["check_in_date"])); ?></div>
@@ -486,7 +562,7 @@ function paymentBadge($s) {
                 </div>
             </div>
 
-            <!-- Payment Status -->
+            <!-- Payment -->
             <div class="card full-width">
                 <p class="card-title"><i class="fas fa-credit-card"></i> Payment</p>
 
@@ -505,7 +581,7 @@ function paymentBadge($s) {
                 </div>
                 <div class="info-row">
                     <span class="label">Amount Due</span>
-                    <span class="value" style="font-size:18px;color:#1d4ed8">₱<?= number_format($total, 2); ?></span>
+                    <span class="value" style="font-size:18px;color:#334937">₱<?= number_format($total, 2); ?></span>
                 </div>
                 <div class="info-row">
                     <span class="label">Payment Status</span>
@@ -530,7 +606,7 @@ function paymentBadge($s) {
                         </div>
                         <div class="step">
                             <div class="step-num">3</div>
-                            <div>Pay ₱<?= number_format($total, 2); ?> in cash upon arrival. Your reservation will be confirmed by our staff.</div>
+                            <div>Pay <strong>₱<?= number_format($total, 2); ?></strong> in cash upon arrival. Your reservation will be confirmed by our staff.</div>
                         </div>
                     </div>
 
@@ -595,7 +671,7 @@ function paymentBadge($s) {
         </div><!-- /.confirm-grid -->
 
         <!-- Actions -->
-        <div class="confirm-actions" style="margin-top:24px">
+        <div class="confirm-actions">
             <a href="/rooms.php" class="btn-secondary">
                 <i class="fas fa-arrow-left"></i> Browse More Rooms
             </a>
