@@ -2,11 +2,10 @@
 require_once __DIR__ . "/../php/config.php";
 require_once __DIR__ . "/../php/admin_auth.php";
 
-// ── Verify Payment & Confirm Reservation ──────────────────────
 if (isset($_POST["verify_payment"])) {
     $reservation_id = (int) $_POST["reservation_id"];
 
-    // Mark payment as Completed
+    
     $stmt = $conn->prepare(
         "UPDATE payments SET payment_status='Completed' WHERE reservation_id=? ORDER BY payment_id DESC LIMIT 1"
     );
@@ -14,7 +13,7 @@ if (isset($_POST["verify_payment"])) {
     $stmt->execute();
     $stmt->close();
 
-    // Mark reservation as Confirmed
+    
     $stmt2 = $conn->prepare(
         "UPDATE reservations SET reservation_status='Confirmed' WHERE reservation_id=?"
     );
@@ -26,7 +25,7 @@ if (isset($_POST["verify_payment"])) {
     exit();
 }
 
-// ── Reject Payment ─────────────────────────────────────────────
+
 if (isset($_POST["reject_payment"])) {
     $reservation_id = (int) $_POST["reservation_id"];
     $reject_reason  = sanitize_input($_POST["reject_reason"] ?? "Payment could not be verified.");
@@ -34,11 +33,10 @@ if (isset($_POST["reject_payment"])) {
     $stmt = $conn->prepare(
         "UPDATE payments SET payment_status='Rejected', notes=? WHERE reservation_id=? ORDER BY payment_id DESC LIMIT 1"
     );
-    // Check if notes column exists; if not, just update status
-    // We'll handle gracefully
+    
     $stmt->bind_param("si", $reject_reason, $reservation_id);
     if (!$stmt->execute()) {
-        // Fallback without notes column
+        
         $stmt->close();
         $stmt = $conn->prepare(
             "UPDATE payments SET payment_status='Rejected' WHERE reservation_id=? ORDER BY payment_id DESC LIMIT 1"
@@ -59,34 +57,87 @@ if (isset($_POST["reject_payment"])) {
     exit();
 }
 
-// ── Update Reservation Status ──────────────────────────────────
 if (isset($_POST["update_status"])) {
     $reservation_id = (int) $_POST["reservation_id"];
-    $status = sanitize_input($_POST["reservation_status"]);
+    $new_status     = sanitize_input($_POST["reservation_status"]);
+    $today          = date('Y-m-d');
 
-    $stmt = $conn->prepare(
-        "UPDATE reservations SET reservation_status=? WHERE reservation_id=?"
-    );
-    $stmt->bind_param("si", $status, $reservation_id);
-    $stmt->execute();
-    $stmt->close();
-
-    // When checking out, mark payment complete if not already
-    if ($status === "Checked-out") {
-        $stmt2 = $conn->prepare(
-            "UPDATE payments SET payment_status='Completed'
-             WHERE reservation_id=? AND payment_status != 'Completed'"
-        );
-        $stmt2->bind_param("i", $reservation_id);
-        $stmt2->execute();
-        $stmt2->close();
+    $allowed = ['Pending', 'Confirmed', 'Completed', 'Cancelled'];
+    if (!in_array($new_status, $allowed)) {
+        header("Location: reservation.php"); exit();
     }
 
-    header("Location: reservation.php");
-    exit();
+    $info = $conn->prepare("
+        SELECT p.payment_status, r.room_id, r.check_in_date, r.check_out_date
+        FROM reservations r
+        LEFT JOIN payments p ON p.reservation_id = r.reservation_id
+        WHERE r.reservation_id = ?
+        ORDER BY p.payment_id DESC LIMIT 1
+    ");
+    $info->bind_param("i", $reservation_id);
+    $info->execute();
+    $row = $info->get_result()->fetch_assoc();
+    $info->close();
+
+    $room_id       = $row["room_id"]       ?? null;
+    $pay_status    = $row["payment_status"] ?? "Pending";
+    $check_in_date = $row["check_in_date"]  ?? null;
+
+    $stmt = $conn->prepare("UPDATE reservations SET reservation_status=? WHERE reservation_id=?");
+    $stmt->bind_param("si", $new_status, $reservation_id);
+    $stmt->execute(); $stmt->close();
+
+    if ($new_status === 'Confirmed') {
+        $sp = $conn->prepare(
+            "UPDATE payments SET payment_status='Completed'
+             WHERE reservation_id=? AND payment_status IN ('Pending','Awaiting Verification')
+             ORDER BY payment_id DESC LIMIT 1"
+        );
+        $sp->bind_param("i", $reservation_id);
+        $sp->execute(); $sp->close();
+
+        if ($room_id && $check_in_date <= $today) {
+            $sr = $conn->prepare("UPDATE rooms SET room_status='occupied' WHERE room_id=?");
+            $sr->bind_param("i", $room_id);
+            $sr->execute(); $sr->close();
+        }
+    }
+
+    if ($new_status === 'Completed') {
+        $sp = $conn->prepare(
+            "UPDATE payments SET payment_status='Completed'
+             WHERE reservation_id=? AND payment_status != 'Completed'
+             ORDER BY payment_id DESC LIMIT 1"
+        );
+        $sp->bind_param("i", $reservation_id);
+        $sp->execute(); $sp->close();
+
+        if ($room_id) {
+            $sr = $conn->prepare("UPDATE rooms SET room_status='available' WHERE room_id=?");
+            $sr->bind_param("i", $room_id);
+            $sr->execute(); $sr->close();
+        }
+    }
+
+    if ($new_status === 'Cancelled') {
+        $new_pay = ($pay_status === 'Completed') ? 'Refunded' : 'Rejected';
+        $sp = $conn->prepare(
+            "UPDATE payments SET payment_status=?
+             WHERE reservation_id=? ORDER BY payment_id DESC LIMIT 1"
+        );
+        $sp->bind_param("si", $new_pay, $reservation_id);
+        $sp->execute(); $sp->close();
+
+        if ($room_id) {
+            $sr = $conn->prepare("UPDATE rooms SET room_status='available' WHERE room_id=?");
+            $sr->bind_param("i", $room_id);
+            $sr->execute(); $sr->close();
+        }
+    }
+
+    header("Location: reservation.php"); exit();
 }
 
-// ── Delete ─────────────────────────────────────────────────────
 if (isset($_GET["delete"])) {
     $reservation_id = (int) $_GET["delete"];
     $stmt = $conn->prepare("DELETE FROM reservations WHERE reservation_id=?");
@@ -97,7 +148,6 @@ if (isset($_GET["delete"])) {
     exit();
 }
 
-// ── Fetch all reservations with payment info ───────────────────
 $reservations = $conn->query("
     SELECT r.*,
            u.first_name, u.last_name, u.phone_number, u.email,
@@ -117,7 +167,6 @@ $reservations = $conn->query("
         r.created_at DESC
 ");
 
-// ── Payment status badge helper ────────────────────────────────
 function payBadge($s) {
     $map = [
         'Pending'               => 'pay-pending',
@@ -263,8 +312,7 @@ function payBadge($s) {
             <a href="#" class="active" onclick="filterByStatus('all',this)">All</a>
             <a href="#" onclick="filterByStatus('Pending',this)">Pending</a>
             <a href="#" onclick="filterByStatus('Confirmed',this)">Confirmed</a>
-            <a href="#" onclick="filterByStatus('Checked-in',this)">Checked-in</a>
-            <a href="#" onclick="filterByStatus('Checked-out',this)">Checked-out</a>
+            <a href="#" onclick="filterByStatus('Completed',this)">Completed</a>
             <a href="#" onclick="filterByStatus('Cancelled',this)">Cancelled</a>
         </div>
     </div>
@@ -285,7 +333,6 @@ function payBadge($s) {
             </thead>
             <tbody>
                 <?php while ($row = $reservations->fetch_assoc()):
-                    // Compute total
                     $base = $row["base_amount"];
                     $amQ  = $conn->prepare("SELECT SUM(price*quantity) as t FROM reservation_amenities WHERE reservation_id=?");
                     $amQ->bind_param("i", $row["reservation_id"]);
@@ -347,11 +394,10 @@ function payBadge($s) {
                             <select name="reservation_status"
                                     class="status-select <?= strtolower($row["reservation_status"]); ?>"
                                     onchange="this.form.submit()">
-                                <option value="Pending"     <?= $row["reservation_status"]==='Pending'     ?'selected':''; ?>>Pending</option>
-                                <option value="Confirmed"   <?= $row["reservation_status"]==='Confirmed'   ?'selected':''; ?>>Confirmed</option>
-                                <option value="Checked-in"  <?= $row["reservation_status"]==='Checked-in'  ?'selected':''; ?>>Checked-in</option>
-                                <option value="Checked-out" <?= $row["reservation_status"]==='Checked-out' ?'selected':''; ?>>Checked-out</option>
-                                <option value="Cancelled"   <?= $row["reservation_status"]==='Cancelled'   ?'selected':''; ?>>Cancelled</option>
+                                <option value="Pending"   <?= $row["reservation_status"]==='Pending'   ?'selected':''; ?>>Pending</option>
+                                <option value="Confirmed" <?= $row["reservation_status"]==='Confirmed' ?'selected':''; ?>>Confirmed</option>
+                                <option value="Completed" <?= $row["reservation_status"]==='Completed' ?'selected':''; ?>>Completed</option>
+                                <option value="Cancelled" <?= $row["reservation_status"]==='Cancelled' ?'selected':''; ?>>Cancelled</option>
                             </select>
                             <input type="hidden" name="update_status">
                         </form>
@@ -371,7 +417,6 @@ function payBadge($s) {
     </div>
 </main>
 
-<!-- ── Reservation Detail Modal ─────────────────────────────── -->
 <div id="reservationModal" class="modal">
     <div class="modal-content" style="max-width:520px">
         <button type="button" class="modal-close" onclick="closeReservationModal()">&times;</button>
@@ -433,7 +478,6 @@ function payBadge($s) {
             </div>
         </div>
 
-        <!-- Verify / Reject actions — shown only when payment is Awaiting Verification -->
         <div class="verify-actions" id="verifyActions" style="display:none">
             <form method="POST">
                 <input type="hidden" name="reservation_id" id="verifyResId">
@@ -481,7 +525,6 @@ function openReservationModal(event) {
         refRow.style.display = 'none';
     }
 
-    // Show verify/reject buttons only when awaiting verification
     const verifyBlock = document.getElementById('verifyActions');
     if (link.dataset.payStatus === 'Awaiting Verification') {
         verifyBlock.style.display = 'flex';
@@ -501,7 +544,6 @@ document.getElementById('reservationModal').addEventListener('click', function(e
     if (e.target === this) closeReservationModal();
 });
 
-// Search filter
 function filterTable() {
     const q = document.getElementById('searchInput').value.toLowerCase();
     document.querySelectorAll('#resTable tbody tr').forEach(row => {
@@ -509,7 +551,6 @@ function filterTable() {
     });
 }
 
-// Status filter
 let currentStatus = 'all';
 function filterByStatus(status, el) {
     currentStatus = status;

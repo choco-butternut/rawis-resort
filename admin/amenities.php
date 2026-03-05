@@ -10,7 +10,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $status       = sanitize_input($_POST["amenity_status"]);
     $image_path   = "";
 
-    // Handle image upload
     if (isset($_FILES["amenity_image"]) && $_FILES["amenity_image"]["error"] === 0) {
 
         $upload_dir = "../uploads/amenities/";
@@ -26,11 +25,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $image_path = "uploads/amenities/" . $filename;
     }
 
-    // UPDATE
     if (!empty($_POST["amenity_id"])) {
         $amenity_id = (int) $_POST["amenity_id"];
 
-        // If no new image uploaded, keep old one
         if (empty($image_path)) {
             $stmt = $conn->prepare("SELECT image_path FROM amenities WHERE amenity_id=?");
             $stmt->bind_param("i", $amenity_id);

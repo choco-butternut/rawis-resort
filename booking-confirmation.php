@@ -7,7 +7,6 @@ if (!isset($_GET["r"])) {
 }
 
 $reservation_id = (int) $_GET["r"];
-// Simple token check: base64-encoded email must match guest's email
 $token_email = base64_decode(urldecode($_GET["t"] ?? ""));
 
 $stmt = $conn->prepare("
@@ -36,7 +35,6 @@ if (!$data || strtolower($data["email"]) !== strtolower($token_email)) {
 $nights = (new DateTime($data["check_in_date"]))->diff(new DateTime($data["check_out_date"]))->days;
 $room_cost = $data["price_per_night"] * $nights;
 
-// Amenities breakdown
 $amStmt = $conn->prepare("
     SELECT ra.quantity, ra.price, a.amenity_name
     FROM reservation_amenities ra
@@ -57,7 +55,6 @@ $amStmt->close();
 
 $total = $room_cost + $amenities_total;
 
-// Handle reference number submission (for GCash/Card without ref at booking time)
 $success_msg = "";
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["submit_reference"])) {
     $ref = sanitize_input($_POST["reference_number"]);
@@ -69,13 +66,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["submit_reference"])) 
     $upd->execute();
     $upd->close();
     $success_msg = "Reference number submitted! We'll verify your payment shortly.";
-    // Refresh data
     header("Location: /booking-confirmation.php?r={$reservation_id}&t=" . urlencode(base64_encode($data["email"])) . "&updated=1");
     exit();
 }
 if (isset($_GET["updated"])) {
     $success_msg = "Reference number submitted! We'll verify your payment shortly.";
-    // Re-fetch updated payment status
     $refetch = $conn->prepare("SELECT payment_status, reference_number FROM payments WHERE reservation_id=? ORDER BY payment_id DESC LIMIT 1");
     $refetch->bind_param("i", $reservation_id);
     $refetch->execute();
@@ -87,7 +82,6 @@ if (isset($_GET["updated"])) {
     }
 }
 
-// Status helpers
 function reservationBadge($s) {
     $map = [
         'Pending'   => ['#f59e0b','#fffbeb','⏳'],
@@ -393,9 +387,7 @@ function paymentBadge($s) {
 
     <div class="confirm-page">
 
-        <!-- Hero -->
         <div class="confirm-hero">
-            <!-- <div class="confirm-hero-icon"></div> -->
             <div>
                 <h1>Booking Received!</h1>
                 <p>Thank you, <?= htmlspecialchars($data["first_name"]); ?>. Your reservation is being processed.</p>

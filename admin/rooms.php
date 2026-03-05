@@ -2,7 +2,6 @@
 require_once __DIR__ . "/../php/config.php";
 require_once __DIR__ . "/../php/admin_auth.php";
 
-// ── Add / Edit ─────────────────────────────────────────────────
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     $room_number     = sanitize_input($_POST["room_number"]);
@@ -11,7 +10,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $price_per_night = (float) $_POST["price_per_night"];
     $room_status     = sanitize_input($_POST["room_status"]);
 
-    // Handle image upload
     $new_image = "";
     if (isset($_FILES["room_image"]) && $_FILES["room_image"]["error"] === 0) {
         $upload_dir = "../uploads/rooms/";
@@ -23,11 +21,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 
     if (!empty($_POST["room_id"])) {
-        // ── UPDATE ──
         $room_id = (int) $_POST["room_id"];
 
         if ($new_image) {
-            // Update with new image
             $stmt = $conn->prepare(
                 "UPDATE rooms
                  SET room_number=?, room_type=?, max_capacity=?, price_per_night=?, room_status=?, image_path=?
@@ -38,7 +34,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $price_per_night, $room_status, $new_image, $room_id
             );
         } else {
-            // Keep existing image
             $stmt = $conn->prepare(
                 "UPDATE rooms
                  SET room_number=?, room_type=?, max_capacity=?, price_per_night=?, room_status=?
@@ -53,7 +48,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $stmt->close();
 
     } else {
-        // ── INSERT ──
+        //INSERT
         $image_path = $new_image;
         $stmt = $conn->prepare(
             "INSERT INTO rooms (room_number, room_type, max_capacity, price_per_night, room_status, image_path)
@@ -71,7 +66,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     exit();
 }
 
-// ── Delete ─────────────────────────────────────────────────────
+// DELETE
 if (isset($_GET["delete"])) {
     $room_id = (int) $_GET["delete"];
     $stmt = $conn->prepare("DELETE FROM rooms WHERE room_id=?");
@@ -82,7 +77,7 @@ if (isset($_GET["delete"])) {
     exit();
 }
 
-// ── Edit — fetch room data ──────────────────────────────────────
+// EDIT
 $edit_room = null;
 if (isset($_GET["edit"])) {
     $room_id = (int) $_GET["edit"];
@@ -93,7 +88,6 @@ if (isset($_GET["edit"])) {
     $stmt->close();
 }
 
-// ── Counts for filter tabs ──────────────────────────────────────
 $count_all         = $conn->query("SELECT COUNT(*) as c FROM rooms")->fetch_assoc()["c"];
 $count_available   = $conn->query("SELECT COUNT(*) as c FROM rooms WHERE room_status='available'")->fetch_assoc()["c"];
 $count_occupied    = $conn->query("SELECT COUNT(*) as c FROM rooms WHERE room_status='occupied'")->fetch_assoc()["c"];
@@ -112,7 +106,7 @@ $rooms = $conn->query("SELECT * FROM rooms ORDER BY room_number ASC");
 <body>
     <?php require_once __DIR__ . '/sidebar.php'; ?>
 
-    <!-- ── Add / Edit Room Modal ─────────────────────────── -->
+    <!--  Add / Edit Room Modal  -->
     <div id="roomModal" class="modal">
         <div class="modal-content">
             <button type="button" class="modal-close" onclick="closeRoomModal()">&times;</button>
@@ -159,7 +153,6 @@ $rooms = $conn->query("SELECT * FROM rooms ORDER BY room_number ASC");
                     <label style="font-size:12px;font-weight:600;color:#64748b;display:block;margin-bottom:4px">
                         Room Image <span id="imgRequiredNote">*</span>
                     </label>
-                    <!-- existing image preview (edit mode only) -->
                     <div id="currentImgWrap" style="display:none;margin-bottom:8px">
                         <img id="currentImg" src="" alt="Current" style="width:100%;max-height:140px;object-fit:cover;border-radius:8px;border:1px solid #e2e8f0">
                         <p style="font-size:11px;color:#94a3b8;margin:4px 0 0">Leave file empty to keep current image.</p>
@@ -174,7 +167,6 @@ $rooms = $conn->query("SELECT * FROM rooms ORDER BY room_number ASC");
         </div>
     </div>
 
-    <!-- ── Room Detail Modal ─────────────────────────────── -->
     <div id="roomDetailModal" class="modal">
         <div class="modal-content">
             <button type="button" class="modal-close" onclick="closeRoomDetailModal()">&times;</button>
@@ -331,7 +323,6 @@ $rooms = $conn->query("SELECT * FROM rooms ORDER BY room_number ASC");
     </main>
 
     <script>
-    // ── Room data from PHP ──────────────────────────────────────
     const roomData = <?= json_encode(
         array_map(fn($r) => [
             'id'       => $r['room_id'],
@@ -350,7 +341,6 @@ $rooms = $conn->query("SELECT * FROM rooms ORDER BY room_number ASC");
 
     let currentDetailId = null;
 
-    // ── Add modal ──────────────────────────────────────────────
     function openAddModal() {
         document.getElementById('modalTitle').textContent    = 'Add Room';
         document.getElementById('formSubmitBtn').textContent = 'Add Room';
@@ -362,7 +352,6 @@ $rooms = $conn->query("SELECT * FROM rooms ORDER BY room_number ASC");
         document.getElementById('roomModal').classList.add('show');
     }
 
-    // ── Edit modal ─────────────────────────────────────────────
     function openEditModal(roomId) {
         const room = roomData.find(r => r.id == roomId);
         if (!room) return;
@@ -377,12 +366,10 @@ $rooms = $conn->query("SELECT * FROM rooms ORDER BY room_number ASC");
         document.getElementById('f_price').value        = room.price;
         document.getElementById('f_status').value       = room.status;
 
-        // Show existing image
         const imgWrap = document.getElementById('currentImgWrap');
         document.getElementById('currentImg').src = room.image;
         imgWrap.style.display = 'block';
 
-        // Image not required on edit (can keep existing)
         document.getElementById('f_image').required = false;
         document.getElementById('imgRequiredNote').textContent = '(optional — leave blank to keep current)';
         document.getElementById('f_image').value = '';
@@ -398,9 +385,7 @@ $rooms = $conn->query("SELECT * FROM rooms ORDER BY room_number ASC");
         if (e.target === this) closeRoomModal();
     });
 
-    // ── Room Detail Modal ──────────────────────────────────────
     function openRoomDetailModal(event, cardEl) {
-        // Prevent triggering when clicking action links
         if (event.target.closest('a')) return;
 
         const card = cardEl || event.currentTarget;
@@ -437,7 +422,6 @@ $rooms = $conn->query("SELECT * FROM rooms ORDER BY room_number ASC");
         }
     }
 
-    // ── Status filter ──────────────────────────────────────────
     let activeFilter = 'all';
 
     function filterByStatus(status, el) {
@@ -447,7 +431,6 @@ $rooms = $conn->query("SELECT * FROM rooms ORDER BY room_number ASC");
         applySearch();
     }
 
-    // ── Search ─────────────────────────────────────────────────
     function applySearch() {
         const q    = document.getElementById('roomSearch').value.toLowerCase();
         const cards = document.querySelectorAll('#roomsGrid .room-card');
@@ -469,7 +452,6 @@ $rooms = $conn->query("SELECT * FROM rooms ORDER BY room_number ASC");
         document.getElementById('noRoomsMsg').style.display = visible === 0 ? 'block' : 'none';
     }
 
-    // ── Auto-open edit modal if ?edit= in URL ──────────────────
     <?php if ($edit_room): ?>
     document.addEventListener('DOMContentLoaded', () => openEditModal(<?= $edit_room["room_id"]; ?>));
     <?php endif; ?>

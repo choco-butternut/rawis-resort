@@ -1,14 +1,12 @@
 <?php
 require_once __DIR__ . '/php/config.php';
 
-// Get distinct room types for filter dropdown
 $room_types_result = $conn->query("SELECT DISTINCT room_type FROM rooms WHERE room_status='available' ORDER BY room_type ASC");
 $room_types = [];
 while ($rt = $room_types_result->fetch_assoc()) {
     $room_types[] = $rt['room_type'];
 }
 
-// Get min/max price for filter
 $price_range = $conn->query("SELECT MIN(price_per_night) as min_price, MAX(price_per_night) as max_price FROM rooms WHERE room_status='available'")->fetch_assoc();
 $min_price = (int) ($price_range['min_price'] ?? 0);
 $max_price = (int) ($price_range['max_price'] ?? 10000);
@@ -283,11 +281,10 @@ while ($r = $rooms->fetch_assoc()) {
 <div class="rooms-page">
     <?php require_once __DIR__ . '/php/header.php'; ?>
 
-    <!-- ══════════════ RESERVATION MODAL ══════════════ -->
+    <!-- RESERVATION MODAL -->
     <div id="reserveModal" class="rm-overlay">
         <div class="rm-shell">
 
-            <!-- Header -->
             <div class="rm-header">
                 <div class="rm-header-left">
                     <span class="rm-badge"><i class="fas fa-calendar-check"></i></span>
@@ -306,7 +303,6 @@ while ($r = $rooms->fetch_assoc()) {
 
                 <div class="rm-body">
 
-                    <!-- ── COL 1 : Guest Info ── -->
                     <div class="rm-col rm-col-guest">
                         <p class="rm-col-heading"><i class="fas fa-user"></i> Guest Information</p>
 
@@ -384,12 +380,10 @@ while ($r = $rooms->fetch_assoc()) {
                         </div>
                     </div>
 
-                    <!-- ── COL 2 : Amenities ── -->
                     <div class="rm-col rm-col-amenities">
                         <p class="rm-col-heading"><i class="fas fa-concierge-bell"></i> Add-on Amenities</p>
                         <div class="rm-amenities-list">
                             <?php
-                            // Re-query amenities since the pointer was already used
                             $amenities2 = $conn->query("SELECT * FROM amenities WHERE amenity_status='Available'");
                             while($amenity = $amenities2->fetch_assoc()): ?>
                                 <div class="rm-amenity-card" id="acard_<?= $amenity['amenity_id']; ?>">
@@ -421,7 +415,6 @@ while ($r = $rooms->fetch_assoc()) {
                         </div>
                     </div>
 
-                    <!-- ── COL 3 : Live Summary ── -->
                     <div class="rm-col rm-col-summary">
                         <p class="rm-col-heading"><i class="fas fa-receipt"></i> Reservation Summary</p>
 
@@ -473,10 +466,10 @@ while ($r = $rooms->fetch_assoc()) {
             </form>
         </div>
     </div>
-    <!-- ══════════════ END RESERVATION MODAL ══════════════ -->
+    
 
     <style>
-    /* ════════════════ RESERVATION MODAL STYLES ════════════════ */
+    /* RESERVATION MODAL STYLES  */
     .rm-overlay {
         display: none;
         position: fixed;
@@ -768,7 +761,6 @@ while ($r = $rooms->fetch_assoc()) {
     /* ════════════════ END MODAL STYLES ════════════════ */
     </style>
 
-    <!-- Room Detail Modal -->
     <div id="roomDetailModal">
         <div class="room-detail-content">
             <div class="room-detail-image-wrap">
@@ -821,7 +813,6 @@ while ($r = $rooms->fetch_assoc()) {
         <h1>Room Options</h1>
     </div>
 
-    <!-- Filter Bar -->
     <div class="filter-bar">
         <div class="filter-group">
             <label><i class="fas fa-bed"></i> Room Type</label>
@@ -939,7 +930,6 @@ while ($r = $rooms->fetch_assoc()) {
     let currentRoomImage  = '';
 
     function openModal(roomId, price, type, number, image) {
-        // Support calling from detail modal (passes all args) or from card (looks up data)
         if (price === undefined) {
             const card = document.querySelector(`.room-card[data-room-id="${roomId}"]`);
             if (card) {
@@ -958,14 +948,12 @@ while ($r = $rooms->fetch_assoc()) {
         document.getElementById("rm-room-label").textContent =
             currentRoomType + (currentRoomNumber ? ' — Room ' + currentRoomNumber : '');
 
-        // Set summary room image
         const img = document.getElementById('rm-room-img');
         img.src = currentRoomImage;
 
         document.getElementById("rm-room-label").textContent =
             currentRoomType + (currentRoomNumber ? ' · Room ' + currentRoomNumber : '');
 
-        // Reset checkboxes & qty
         document.querySelectorAll('.rm-amenity-cb').forEach(cb => {
             cb.checked = false;
             const id = cb.dataset.id;
@@ -974,7 +962,6 @@ while ($r = $rooms->fetch_assoc()) {
             document.getElementById('qty_' + id).value = 1;
         });
 
-        // Reset date inputs
         document.getElementById('modal_checkin').value  = '';
         document.getElementById('modal_checkout').value = '';
 
@@ -990,7 +977,6 @@ while ($r = $rooms->fetch_assoc()) {
         if (e.target === this) closeModal();
     });
 
-    // Toggle qty row visibility when checkbox changes
     document.querySelectorAll('.rm-amenity-cb').forEach(cb => {
         cb.addEventListener('change', function() {
             const id = this.dataset.id;
@@ -1027,7 +1013,6 @@ while ($r = $rooms->fetch_assoc()) {
             nights = Math.max(0, Math.round((d2 - d1) / 86400000));
         }
 
-        // Summary dates
         document.getElementById('sum-room-name').textContent =
             currentRoomType + (currentRoomNumber ? ' · Rm ' + currentRoomNumber : '');
         document.getElementById('sum-checkin').textContent  = checkin  ? formatDate(checkin)  : '—';
@@ -1037,7 +1022,6 @@ while ($r = $rooms->fetch_assoc()) {
         const roomCost = currentRoomPrice * nights;
         document.getElementById('sum-room-cost').textContent = formatPHP(roomCost);
 
-        // Amenities
         let amenitiesTotal = 0;
         let amenityHTML = '';
         document.querySelectorAll('.rm-amenity-cb:checked').forEach(cb => {
@@ -1063,7 +1047,6 @@ while ($r = $rooms->fetch_assoc()) {
         return d.toLocaleDateString('en-PH', { month:'short', day:'numeric', year:'numeric' });
     }
 
-    // Live recalc on date change
     document.getElementById('modal_checkin').addEventListener('change', recalc);
     document.getElementById('modal_checkout').addEventListener('change', recalc);
     document.querySelectorAll('.rm-amenity-qty input[type="number"]').forEach(inp => {
@@ -1128,7 +1111,6 @@ while ($r = $rooms->fetch_assoc()) {
             return true;
         });
 
-        // Sort
         visible.sort((a, b) => {
             const aPrice = parseFloat(a.dataset.price);
             const bPrice = parseFloat(b.dataset.price);
@@ -1141,7 +1123,6 @@ while ($r = $rooms->fetch_assoc()) {
             return 0;
         });
 
-        // Hide all, then re-append sorted visible ones
         cards.forEach(c => c.style.display = 'none');
         const grid = document.getElementById('roomGrid');
         visible.forEach(c => {
@@ -1164,7 +1145,6 @@ while ($r = $rooms->fetch_assoc()) {
         applyFilters();
     }
 
-    // Attach listeners
     ['filterType','filterCapacity','filterSort'].forEach(id => {
         document.getElementById(id).addEventListener('change', applyFilters);
     });
@@ -1172,7 +1152,6 @@ while ($r = $rooms->fetch_assoc()) {
         document.getElementById(id).addEventListener('input', applyFilters);
     });
 
-    // Init count
     applyFilters();
     </script>
 </div>

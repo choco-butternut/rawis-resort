@@ -4,17 +4,16 @@ require_once __DIR__ . "/../php/admin_auth.php";
 
 $today = date('Y-m-d');
 
-// ── Stat counts ────────────────────────────────────────────────
 $arrivals_today = $conn->query("
     SELECT COUNT(*) AS c FROM reservations
     WHERE check_in_date = '$today'
-    AND reservation_status IN ('Confirmed','Checked-in')
+    AND reservation_status = 'Confirmed'
 ")->fetch_assoc()["c"];
 
 $departures_today = $conn->query("
     SELECT COUNT(*) AS c FROM reservations
     WHERE check_out_date = '$today'
-    AND reservation_status IN ('Confirmed','Checked-in','Checked-out')
+    AND reservation_status IN ('Confirmed', 'Completed')
 ")->fetch_assoc()["c"];
 
 $pending_count = $conn->query("
@@ -33,23 +32,42 @@ $maintenance_rooms = $conn->query("
     SELECT COUNT(*) AS c FROM rooms WHERE room_status='maintenance'
 ")->fetch_assoc()["c"];
 
-// ── Sales totals ───────────────────────────────────────────────
 $sales_today = $conn->query("
-    SELECT COALESCE(SUM(amount_paid),0) AS t FROM payments
-    WHERE DATE(payment_date) = '$today' AND payment_status='Completed'
+    SELECT COALESCE(SUM(p.amount_paid), 0) AS t
+    FROM payments p
+    JOIN reservations r ON r.reservation_id = p.reservation_id
+    WHERE DATE(p.payment_date) = '$today'
+      AND p.payment_status = 'Completed'
+      AND r.reservation_status != 'Cancelled'
 ")->fetch_assoc()["t"];
 
 $sales_week = $conn->query("
-    SELECT COALESCE(SUM(amount_paid),0) AS t FROM payments
-    WHERE payment_date >= DATE_SUB('$today', INTERVAL 7 DAY) AND payment_status='Completed'
+    SELECT COALESCE(SUM(p.amount_paid), 0) AS t
+    FROM payments p
+    JOIN reservations r ON r.reservation_id = p.reservation_id
+    WHERE p.payment_date >= DATE_SUB('$today', INTERVAL 7 DAY)
+      AND p.payment_status = 'Completed'
+      AND r.reservation_status != 'Cancelled'
 ")->fetch_assoc()["t"];
 
 $sales_month = $conn->query("
-    SELECT COALESCE(SUM(amount_paid),0) AS t FROM payments
-    WHERE YEAR(payment_date)=YEAR('$today') AND MONTH(payment_date)=MONTH('$today') AND payment_status='Completed'
+    SELECT COALESCE(SUM(p.amount_paid), 0) AS t
+    FROM payments p
+    JOIN reservations r ON r.reservation_id = p.reservation_id
+    WHERE YEAR(p.payment_date)  = YEAR('$today')
+      AND MONTH(p.payment_date) = MONTH('$today')
+      AND p.payment_status = 'Completed'
+      AND r.reservation_status != 'Cancelled'
 ")->fetch_assoc()["t"];
 
-// ── Recent reservations (last 5) ───────────────────────────────
+$sales_all = $conn->query("
+    SELECT COALESCE(SUM(p.amount_paid), 0) AS t
+    FROM payments p
+    JOIN reservations r ON r.reservation_id = p.reservation_id
+    WHERE p.payment_status = 'Completed'
+      AND r.reservation_status != 'Cancelled'
+")->fetch_assoc()["t"];
+
 $recent_res = $conn->query("
     SELECT r.reservation_id, u.first_name, u.last_name,
            rm.room_type, r.check_in_date, r.check_out_date, r.reservation_status
@@ -60,7 +78,6 @@ $recent_res = $conn->query("
     LIMIT 5
 ");
 
-// ── Pending payments count (awaiting verification) ─────────────
 $awaiting_count = $conn->query("
     SELECT COUNT(*) AS c FROM payments WHERE payment_status='Awaiting Verification'
 ")->fetch_assoc()["c"];
@@ -82,7 +99,6 @@ $awaiting_count = $conn->query("
             <hr class="header-line">
         </div>
 
-        <!-- ── Stat Cards ───────────────────────────────────── -->
         <div class="dashboard-grid">
 
             <div class="stat-card">
@@ -137,10 +153,8 @@ $awaiting_count = $conn->query("
 
         </div>
 
-        <!-- ── Lower Section ────────────────────────────────── -->
         <div class="dashboard-lower-section">
 
-            <!-- Recent Reservations -->
             <div class="recent-res">
                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
                     <h1 class="reservations-head">Recent Reservations</h1>
@@ -178,12 +192,11 @@ $awaiting_count = $conn->query("
                 </table>
             </div>
 
-            <!-- Sales Overview -->
             <div class="sales-overview-card">
                 <div class="sales-header">
                     <i class="fas fa-chart-line"></i>
                     <h3>Sales Overview</h3>
-                    <p>Completed payments only.</p>
+                    <p>Completed payments, excluding cancelled reservations.</p>
                 </div>
                 <div class="sales-metrics">
                     <div class="metric">
@@ -197,6 +210,10 @@ $awaiting_count = $conn->query("
                     <div class="metric">
                         <span>This Month</span>
                         <strong>₱<?= number_format($sales_month, 2); ?></strong>
+                    </div>
+                    <div class="metric" style="border-top:1px solid #e5e7eb;padding-top:10px;margin-top:4px">
+                        <span>All Time</span>
+                        <strong style="color:#1d4ed8">₱<?= number_format($sales_all, 2); ?></strong>
                     </div>
                 </div>
             </div>
