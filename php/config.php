@@ -1,8 +1,8 @@
 <?php
 
 define("DB_HOST","localhost");
-define("DB_USER","rawis_user");   
-define("DB_PASS","password");     
+define("DB_USER","root");   
+define("DB_PASS","gabmontes");     
 define("DB_NAME","rawis_resort_db");
 
 $conn = new mysqli(DB_HOST,DB_USER,DB_PASS,DB_NAME);

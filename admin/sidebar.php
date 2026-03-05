@@ -28,12 +28,12 @@ $current_page = basename($_SERVER['PHP_SELF']);
             <li class="<?= ($current_page == 'rooms.php') ? 'active' : ''; ?>">
                 <a href="rooms.php"><i class="fas fa-bed"></i> Rooms</a>
             </li>
-            <li class="<?= ($current_page == 'reports.php') ? 'active' : ''; ?>">
+            <!-- <li class="<?= ($current_page == 'reports.php') ? 'active' : ''; ?>">
                 <a href="reports.php"><i class="fas fa-chart-line"></i> Reports</a>
-            </li>
-            <li class="<?= ($current_page == 'settings.php') ? 'active' : ''; ?>">
+            </li> -->
+            <!-- <li class="<?= ($current_page == 'settings.php') ? 'active' : ''; ?>">
                 <a href="settings.php"><i class="fa-solid fa-gear"></i> Settings</a>
-            </li>
+            </li> -->
         </ul>
     </nav>
 

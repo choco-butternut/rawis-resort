@@ -20,7 +20,7 @@
             <ul>
                 <li><a href="index.php" class="<?= $currentPage === 'index.php' ? 'active' : '' ?>">Home</a></li>
                 <li><a href="rooms.php" class="<?= $currentPage === 'rooms.php' ? 'active' : '' ?>">Rooms</a></li>
-                <li><a href="facilities.php" class="<?= $currentPage === 'facilities.php' ? 'active' : '' ?>">Facilities</a></li>
+                <!-- <li><a href="facilities.php" class="<?= $currentPage === 'facilities.php' ? 'active' : '' ?>">Facilities</a></li> -->
                 <li><a href="amenities.php" class="<?= $currentPage === 'amenities.php' ? 'active' : '' ?>">Amenities</a></li>
             </ul>
         </nav>

@@ -36,7 +36,7 @@ $rooms = $conn->query("SELECT * FROM rooms WHERE room_status='available'");
             </div>
 
             <div class="cta">
-                <button type="button">FIND ME A ROOM</button>
+                <button id="findRoomId" type="button">FIND ME A ROOM</button>
             </div>
 
         </div>
@@ -46,6 +46,11 @@ $rooms = $conn->query("SELECT * FROM rooms WHERE room_status='available'");
 
     <?php require_once __DIR__ . '/php/footer.php'; ?> 
     
+    <script>
+        document.getElementById("findRoomId").addEventListener("click",function(){
+            window.location.href="rooms.php"
+        })
 
+    </script>
 </body>
 </html>

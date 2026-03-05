@@ -11,7 +11,7 @@ if($_SERVER["REQUEST_METHOD"] === "POST"){
     $address       = sanitize_input($_POST["address"]);
     $check_in      = $_POST["check_in_date"];
     $check_out     = $_POST["check_out_date"];
-    $num_guests    = (int) $_POST["num_guests"];
+    $num_guests    = 0;
     $extra_requests = sanitize_input($_POST["extra_requests"]);
 
     $stmt = $conn->prepare(

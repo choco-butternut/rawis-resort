@@ -30,7 +30,8 @@ $rooms = $conn->query("SELECT * FROM rooms WHERE room_status='available'");
                     <input type="hidden" name="room_id" id="room_id">
 
                     <h3>Reserve Room</h3>
-
+                    
+                    <h4>Guest Information</h4>
                     <input type="text" name="first_name" placeholder="First Name" required>
                     <input type="text" name="last_name" placeholder="Last Name" required>
                     <input type="email" name="email" placeholder="Email" required>
@@ -47,7 +48,8 @@ $rooms = $conn->query("SELECT * FROM rooms WHERE room_status='available'");
                         <input type="date" name="check_out_date" required>
                     </div>
 
-                    <input type="number" name="num_guests" placeholder="Number of Guests" required>
+                    <!-- DIRI NAIN ADA KAILANGAN MAYDA NAMAN LIMIT HIT GUEST HIT ROOM -->
+                    <!-- <input type="number" name="num_guests" placeholder="Number of Guests" required> -->
 
                     <h4>Select Amenities</h4>
 
