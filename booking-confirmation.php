@@ -395,7 +395,7 @@ function paymentBadge($s) {
 
         <!-- Hero -->
         <div class="confirm-hero">
-            <div class="confirm-hero-icon">🏖️</div>
+            <!-- <div class="confirm-hero-icon"></div> -->
             <div>
                 <h1>Booking Received!</h1>
                 <p>Thank you, <?= htmlspecialchars($data["first_name"]); ?>. Your reservation is being processed.</p>

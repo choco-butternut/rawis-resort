@@ -355,9 +355,9 @@ while ($r = $rooms->fetch_assoc()) {
                         <div class="rm-field">
                             <label>Payment Method <span class="req">*</span></label>
                             <select name="payment_method" id="modal_pay_method" onchange="toggleRefField()" required>
-                                <option value="Cash">💵 Cash — Pay on arrival</option>
-                                <option value="GCash">📱 GCash</option>
-                                <option value="Card">💳 Credit / Debit Card</option>
+                                <option value="Cash">Cash — Pay on arrival</option>
+                                <option value="GCash">GCash</option>
+                                <option value="Card">Credit / Debit Card</option>
                             </select>
                         </div>
 

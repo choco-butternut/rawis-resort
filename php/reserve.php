@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/php/config.php';
+require_once __DIR__ . '/config.php';
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
     header("Location: /rooms.php");
