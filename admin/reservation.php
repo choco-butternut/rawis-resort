@@ -363,8 +363,8 @@ function payBadge($s) {
                            data-checkin="<?= date("M d, Y", strtotime($row["check_in_date"])); ?>"
                            data-checkout="<?= date("M d, Y", strtotime($row["check_out_date"])); ?>"
                            data-status="<?= htmlspecialchars($row["reservation_status"]); ?>"
-                           data-pay-method="<?= htmlspecialchars($row["payment_method"] ?? "—"); ?>"
-                           data-pay-status="<?= htmlspecialchars($row["payment_status"] ?? "—"); ?>"
+                           data-pay-method="<?= htmlspecialchars($row["payment_method"] ?? "-"); ?>"
+                           data-pay-status="<?= htmlspecialchars($row["payment_status"] ?? "-"); ?>"
                            data-pay-ref="<?= htmlspecialchars($row["reference_number"] ?? ""); ?>"
                            data-pay-amount="<?= number_format($total, 2); ?>"
                            onclick="openReservationModal(event)">
