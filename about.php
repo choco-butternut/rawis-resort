@@ -239,7 +239,7 @@ require_once "php/config.php";
             <div class="value-card">
                 <div class="value-icon"><i class="fas fa-heart"></i></div>
                 <h3>Warm Hospitality</h3>
-                <p>We treat every guest like family — attentive, genuine, and always ready to help.</p>
+                <p>We treat every guest like family - attentive, genuine, and always ready to help.</p>
             </div>
             <div class="value-card">
                 <div class="value-icon"><i class="fas fa-leaf"></i></div>

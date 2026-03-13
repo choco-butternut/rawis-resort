@@ -769,6 +769,7 @@ body {
 .status-pill.available { background-color: #5a7d5a; }
 .status-pill.occupied { background-color: #d94343; }
 .status-pill.maintenance { background-color: #f39c12; }
+.status-pill.unavailable { background:#fee2e2; color:#dc2626; }
 
 .card-actions a {
     color: #333;

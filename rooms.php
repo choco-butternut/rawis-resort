@@ -197,7 +197,7 @@ while ($r = $rooms->fetch_assoc()) {
         }
         .rm-close:hover { background: #fdf0ee; border-color: #c0392b; color: #c0392b; }
 
-        /* Body — 3 columns */
+        /* Body - 3 columns */
         .rm-body {
             display: grid;
             grid-template-columns: 1.1fr 1fr 0.85fr;
@@ -584,7 +584,7 @@ while ($r = $rooms->fetch_assoc()) {
                         <div class="rm-field">
                             <label>Payment Method <span class="req">*</span></label>
                             <select name="payment_method" id="modal_pay_method" onchange="toggleRefField()" required>
-                                <option value="Cash">Cash — Pay on arrival</option>
+                                <option value="Cash">Cash - Pay on arrival</option>
                                 <option value="GCash">GCash</option>
                                 <option value="Card">Credit / Debit Card</option>
                             </select>
@@ -657,19 +657,19 @@ while ($r = $rooms->fetch_assoc()) {
                         <div class="rm-summary-block">
                             <div class="rm-summary-row">
                                 <span>Room</span>
-                                <strong id="sum-room-name">—</strong>
+                                <strong id="sum-room-name">-</strong>
                             </div>
                             <div class="rm-summary-row">
                                 <span>Check-in</span>
-                                <strong id="sum-checkin">—</strong>
+                                <strong id="sum-checkin">-</strong>
                             </div>
                             <div class="rm-summary-row">
                                 <span>Check-out</span>
-                                <strong id="sum-checkout">—</strong>
+                                <strong id="sum-checkout">-</strong>
                             </div>
                             <div class="rm-summary-row">
                                 <span>Nights</span>
-                                <strong id="sum-nights">—</strong>
+                                <strong id="sum-nights">-</strong>
                             </div>
                         </div>
 
@@ -765,7 +765,7 @@ while ($r = $rooms->fetch_assoc()) {
     }
     .rm-close:hover { background: #fee2e2; border-color: #fca5a5; color: #dc2626; }
 
-    /* Body — 3 columns */
+    /* Body - 3 columns */
     .rm-body {
         display: grid;
         grid-template-columns: 1.1fr 1fr 0.85fr;
@@ -1178,7 +1178,7 @@ while ($r = $rooms->fetch_assoc()) {
 
         document.getElementById("room_id").value = roomId;
         document.getElementById("rm-room-label").textContent =
-            currentRoomType + (currentRoomNumber ? ' — Room ' + currentRoomNumber : '');
+            currentRoomType + (currentRoomNumber ? ' - Room ' + currentRoomNumber : '');
 
         const img = document.getElementById('rm-room-img');
         img.src = currentRoomImage;
@@ -1247,9 +1247,9 @@ while ($r = $rooms->fetch_assoc()) {
 
         document.getElementById('sum-room-name').textContent =
             currentRoomType + (currentRoomNumber ? ' · Rm ' + currentRoomNumber : '');
-        document.getElementById('sum-checkin').textContent  = checkin  ? formatDate(checkin)  : '—';
-        document.getElementById('sum-checkout').textContent = checkout ? formatDate(checkout) : '—';
-        document.getElementById('sum-nights').textContent   = nights > 0 ? nights + ' night' + (nights > 1 ? 's' : '') : '—';
+        document.getElementById('sum-checkin').textContent  = checkin  ? formatDate(checkin)  : '-';
+        document.getElementById('sum-checkout').textContent = checkout ? formatDate(checkout) : '-';
+        document.getElementById('sum-nights').textContent   = nights > 0 ? nights + ' night' + (nights > 1 ? 's' : '') : '-';
 
         const roomCost = currentRoomPrice * nights;
         document.getElementById('sum-room-cost').textContent = formatPHP(roomCost);
