@@ -511,19 +511,8 @@ while ($r = $rooms->fetch_assoc()) {
     </style>
 </head>
 <body class="customer-page">
-<<<<<<< HEAD
-    <div class="rooms-page">
-        <?php require_once __DIR__ . '/php/header.php'; ?>
-        
-        <div id="reserveModal">
-            <div class="modal-content">
-                <button type="button" class="modal-close" onclick="closeModal()"><i class="fa-solid fa-times"></i></button>
-                <form method="POST" action="/rawis-resort/php/reserve.php">
-                    <input type="hidden" name="room_id" id="room_id">
-=======
 <div class="rooms-page">
     <?php require_once __DIR__ . '/php/header.php'; ?>
->>>>>>> 90c0f830ce5498e69e8d2f66d49299b4c320c7d9
 
     <!-- RESERVATION MODAL -->
     <div id="reserveModal" class="rm-overlay">

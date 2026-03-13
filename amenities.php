@@ -16,83 +16,7 @@ $result = $conn->query($sql);
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <style>
-        /* ── Page Header ── */
-        .amenities-hero {
-            background: url('assets/images/facilities-banner.jpg') center/cover no-repeat;
-            position: relative;
-            height: 300px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            color: #fff;
-        }
-        .amenities-hero::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.50);
-        }
-        .amenities-hero::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border-top: 5px solid #bbcc81;
-            border-bottom: 5px solid #bbcc81;
-            z-index: 3;
-            pointer-events: none;
-        }
-        .amenities-hero-content {
-            position: relative;
-            z-index: 4;
-        }
-        .amenities-hero-content h1 {
-            font-family: 'The Seasons', serif;
-            font-size: 44px;
-            font-weight: 300;
-            margin: 0 0 10px;
-            letter-spacing: 0.04em;
-            text-shadow: 2px 2px 6px rgba(0,0,0,0.5);
-        }
-        .amenities-hero-content p {
-            font-family: Poppins, sans-serif;
-            font-size: 16px;
-            opacity: 0.88;
-            margin: 0 auto;
-        }
-
-        /* ── Container ── */
-        .amenities-container {
-            width: 90%;
-            max-width: 1100px;
-            margin: 60px auto 80px;
-        }
-
-        /* ── Section Label ── */
-        .section-label {
-            font-size: 12px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.12em;
-            color: #bbcc81;
-            margin-bottom: 8px;
-            font-family: Poppins, sans-serif;
-        }
-        .section-heading {
-            font-family: 'The Seasons', serif;
-            font-size: 36px;
-            font-weight: 400;
-            color: #341f0c;
-            margin: 0 0 10px;
-        }
-        .section-divider {
-            width: 52px;
-            height: 4px;
-            background: linear-gradient(to right, #bbcc81, #334937);
-            border-radius: 2px;
-            margin-bottom: 40px;
-        }
-
+       
         /* ── Grid ── */
         .amenities-grid {
             display: grid;
@@ -208,18 +132,11 @@ $result = $conn->query($sql);
 <body class="customer-page">
     <?php require_once __DIR__ . '/php/header.php'; ?>
 
-    <div class="amenities-hero">
-        <div class="amenities-hero-content">
-            <h1>Our Amenities</h1>
-            <p>Everything you need for a perfect stay at Rawis Resort Hotel</p>
-        </div>
+    <div class="page-header">
+        <h1>Amenities</h1>
     </div>
 
     <div class="amenities-container">
-
-        <p class="section-label">What We Offer</p>
-        <h2 class="section-heading">Resort Amenities</h2>
-        <div class="section-divider"></div>
 
         <?php if ($result->num_rows > 0): ?>
             <div class="amenities-grid">

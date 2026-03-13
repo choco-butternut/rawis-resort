@@ -32,49 +32,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <style>
-        /* ── Hero ── */
-        .contact-hero {
-            position: relative;
-            background: url('assets/images/facilities-banner.jpg') center/cover no-repeat;
-            height: 300px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            color: #fff;
-        }
-        .contact-hero::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.52);
-        }
-        .contact-hero::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border-top: 5px solid #bbcc81;
-            border-bottom: 5px solid #bbcc81;
-            z-index: 3;
-            pointer-events: none;
-        }
-        .contact-hero-content {
-            position: relative;
-            z-index: 4;
-        }
-        .contact-hero-content h1 {
-            font-family: 'The Seasons', serif;
-            font-size: 44px;
-            font-weight: 300;
-            margin: 0 0 10px;
-            text-shadow: 2px 2px 6px rgba(0,0,0,0.5);
-        }
-        .contact-hero-content p {
-            font-family: Poppins, sans-serif;
-            font-size: 16px;
-            opacity: 0.88;
-            margin: 0;
-        }
+        
 
         /* ── Layout ── */
         .contact-wrapper {
@@ -364,11 +322,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <body class="customer-page">
     <?php require_once __DIR__ . '/php/header.php'; ?>
 
-    <div class="contact-hero">
-        <div class="contact-hero-content">
-            <h1>Contact Us</h1>
-            <p>We'd love to hear from you. Reach out anytime!</p>
-        </div>
+    <div class="page-header">
+        <h1>Contact Us</h1>
     </div>
 
     <div class="contact-wrapper">

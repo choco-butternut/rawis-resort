@@ -14,53 +14,7 @@ require_once "php/config.php";
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <style>
-        /* ── Hero ── */
-        .about-hero {
-            position: relative;
-            background: url('assets/images/facilities-banner.jpg') center/cover no-repeat;
-            height: 300px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            color: #fff;
-        }
-        .about-hero::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.52);
-        }
-        .about-hero::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border-top: 5px solid #bbcc81;
-            border-bottom: 5px solid #bbcc81;
-            z-index: 3;
-            pointer-events: none;
-        }
-        .about-hero-content {
-            position: relative;
-            z-index: 4;
-        }
-        .about-hero-content h1 {
-            font-family: 'The Seasons', serif;
-            font-size: 44px;
-            font-weight: 300;
-            margin: 0 0 10px;
-            letter-spacing: 0.04em;
-            text-shadow: 2px 2px 6px rgba(0,0,0,0.5);
-        }
-        .about-hero-content p {
-            font-family: Poppins, sans-serif;
-            font-size: 16px;
-            opacity: 0.88;
-            max-width: 520px;
-            margin: 0 auto;
-            line-height: 1.6;
-        }
-
+       
         /* ── Container ── */
         .about-container {
             width: 90%;
@@ -245,11 +199,8 @@ require_once "php/config.php";
 <body class="customer-page">
     <?php require_once __DIR__ . '/php/header.php'; ?>
 
-    <div class="about-hero">
-        <div class="about-hero-content">
-            <h1>About Rawis Resort Hotel</h1>
-            <p>A beachside retreat in the heart of Eastern Samar, built for rest and real connection.</p>
-        </div>
+    <div class="page-header">
+        <h1>About Us</h1>
     </div>
 
     <div class="about-container">
