@@ -6,16 +6,44 @@ $error   = "";
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $name    = sanitize_input($_POST["name"] ?? "");
-    $email   = sanitize_input($_POST["email"] ?? "");
+    // $email   = sanitize_input($_POST["email"] ?? "");
     $subject = sanitize_input($_POST["subject"] ?? "");
     $message = sanitize_input($_POST["message"] ?? "");
 
-    if (empty($name) || empty($email) || empty($message)) {
+    if (empty($name) || empty($message)) {
         $error = "Please fill in all required fields.";
-    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $error = "Please enter a valid email address.";
-    } else {
-        $success = true;
+    }else {
+        require_once __DIR__ . '/vendor/autoload.php';
+
+        $mail = new PHPMailer\PHPMailer\PHPMailer(true);
+        try {
+            $mail->isSMTP();
+            $mail->Host       = 'smtp.gmail.com';
+            $mail->SMTPAuth   = true;
+            $mail->Username   = 'gabrielmontes155@gmail.com'; // your Gmail
+            $mail->Password   = 'wihu zwps uivp xtll';     // Gmail App Password
+            $mail->SMTPSecure = 'tls';
+            $mail->Port       = 587;
+
+            $mail->setFrom('gabrielmontes155@gmail.com', 'Rawis Resort Hotel');
+            $mail->addAddress('gabrielmontes155@gmail.com', 'Gabriel');
+            $mail->addReplyTo('gabrielmontes155@gmail.com', $name);
+
+            $mail->isHTML(true);
+            $mail->Subject = $subject ? "Contact Form: $subject" : "New Contact Form Message";
+            $mail->Body    = "
+                <h3>New message from Rawis Resort Hotel contact form</h3>
+                <p><strong>Name:</strong> {$name}</p>
+                <p><strong>Subject:</strong> {$subject}</p>
+                <p><strong>Message:</strong><br>" . nl2br(htmlspecialchars($message)) . "</p>
+            ";
+            $mail->AltBody = "Name: $name\nSubject: $subject\nMessage: $message";
+
+            $mail->send();
+            $success = true;
+        } catch (Exception $e) {
+            $error = "Message could not be sent. Please try again later.";
+        }
     }
 }
 ?>
@@ -404,11 +432,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             <label>Your Name <span class="req">*</span></label>
                             <input type="text" name="name" placeholder="Juan dela Cruz"
                                    value="<?= htmlspecialchars($_POST['name'] ?? ''); ?>" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Email Address <span class="req">*</span></label>
-                            <input type="email" name="email" placeholder="you@email.com"
-                                   value="<?= htmlspecialchars($_POST['email'] ?? ''); ?>" required>
                         </div>
                     </div>
 

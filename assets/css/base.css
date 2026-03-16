@@ -322,6 +322,8 @@ body > * {
 .room-info {
     margin: 3% 5%;
     position: relative;
+    display: flex;
+    flex-direction: column;
 }
 
 .room-details {
@@ -331,9 +333,7 @@ body > * {
 }
 
 .room-price-tag {
-    position: absolute;
     height: 70px;
-    right: -25px;
     width: 180px;
     background-color: #bbcc81;
     color: #333;
@@ -342,13 +342,12 @@ body > * {
     font-weight: bold;
     box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
     z-index: 10;
-
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 4px;
     font-family: 'The Seasons', serif;
-    margin: 2px;
+    align-self: flex-end; 
 }
 
 .room-price-tag .currency {
@@ -389,8 +388,11 @@ body > * {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: auto;
+    margin-top: 12px;
+    padding: 0 20px 16px 20px;
+    gap: 10px;
 }
+
 
 .details-link {
     color: #333;

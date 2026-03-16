@@ -20,8 +20,14 @@ $result = $conn->query($sql);
         /* ── Grid ── */
         .amenities-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 30px;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+        }
+
+        .amenities-container {
+            max-width: 1400px;
+            margin: 40px auto;
+            padding: 0 40px;
         }
 
         /* ── Card ── */
@@ -53,6 +59,12 @@ $result = $conn->query($sql);
             justify-content: center;
             font-size: 48px;
             color: rgba(255,255,255,0.7);
+        }
+
+        .amenity-card-img,
+        .amenity-card-img-placeholder {
+            height: 280px;
+            width: 500px;
         }
         .amenity-card-body {
             padding: 22px 24px 26px;
@@ -126,6 +138,16 @@ $result = $conn->query($sql);
         }
         .amenities-empty p {
             font-size: 16px;
+        }
+
+        .amenity-card-name { font-size: 28px; }
+        .amenity-card-desc { font-size: 15px; }
+        .amenity-price     { font-size: 24px; }
+        @media (max-width: 900px) {
+            .amenities-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 580px) {
+            .amenities-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
