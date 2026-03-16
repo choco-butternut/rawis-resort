@@ -1,4 +1,9 @@
 <?php
+require_once __DIR__ . '/vendor/autoload.php';
+
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+$dotenv->load();
+
 require_once "php/config.php";
 
 $success = false;
@@ -20,14 +25,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $mail->isSMTP();
             $mail->Host       = 'smtp.gmail.com';
             $mail->SMTPAuth   = true;
-            $mail->Username   = 'gabrielmontes155@gmail.com'; // your Gmail
-            $mail->Password   = 'wihu zwps uivp xtll';     // Gmail App Password
+            $mail->Username = $_ENV['MAIL_USERNAME'];
+            $mail->Password = $_ENV['MAIL_PASSWORD'];
             $mail->SMTPSecure = 'tls';
             $mail->Port       = 587;
 
-            $mail->setFrom('gabrielmontes155@gmail.com', 'Rawis Resort Hotel');
-            $mail->addAddress('gabrielmontes155@gmail.com', 'Gabriel');
-            $mail->addReplyTo('gabrielmontes155@gmail.com', $name);
+            $mail->setFrom($_ENV['MAIL_USERNAME'], 'Rawis Resort Hotel');
+            $mail->addAddress($_ENV['MAIL_USERNAME'], 'Gabriel');
+            $mail->addReplyTo($_ENV['MAIL_USERNAME'], $name);
 
             $mail->isHTML(true);
             $mail->Subject = $subject ? "Contact Form: $subject" : "New Contact Form Message";

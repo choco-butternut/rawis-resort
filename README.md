@@ -6,6 +6,7 @@ Website created for Rawis Resort
 install necessary packages
 
 ```
+composer require vlucas/phpdotenv
 composer require phpmailer/phpmailer
 ```
 
