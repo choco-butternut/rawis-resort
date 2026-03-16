@@ -201,11 +201,13 @@ while ($r = $rooms->fetch_assoc()) {
         .rm-body {
             display: grid;
             grid-template-columns: 1.1fr 1fr 0.85fr;
-            overflow-y: auto;
             flex: 1;
+            min-height: 0;
+            overflow: hidden;
         }
-        .rm-col { padding: 24px 22px; overflow-y: auto; }
+        .rm-col { padding: 24px 22px; overflow-y: auto; min-height: 0; }
         .rm-col + .rm-col { border-left: 1px solid #ede8e1; }
+        .rm-col-guest { overflow-y: auto; }
         .rm-col-summary { background: #faf8f5; }
 
         .rm-col-heading {
@@ -590,25 +592,69 @@ while ($r = $rooms->fetch_assoc()) {
                             </select>
                         </div>
 
-                        <div class="rm-field" id="ref-field" style="display:none">
-                            <label>Reference Number <span style="color:#aaa;font-weight:400">(optional)</span></label>
-                            <input type="text" name="reference_number" placeholder="Transaction/approval code">
-                            <small style="color:#888;font-size:11px;margin-top:4px;display:block">
-                                You can also submit this on your confirmation page.
-                            </small>
-                        </div>
-
-                        <div id="cash-note"  class="rm-pay-note rm-pay-note-cash">
+                        <!-- CASH NOTE -->
+                        <div id="cash-note" class="rm-pay-note rm-pay-note-cash">
                             <i class="fas fa-info-circle"></i>
                             Your booking will be <strong>pending</strong> until you pay at the front desk on check-in.
                         </div>
-                        <div id="gcash-note" class="rm-pay-note rm-pay-note-gcash" style="display:none">
-                            <i class="fas fa-mobile-alt"></i>
-                            Send payment to GCash <strong>0977 183 7288</strong>. Submit your reference number to get confirmed.
+
+                        <!-- GCASH SECTION -->
+                        <div id="gcash-section" style="display:none">
+                            <div class="rm-gcash-box">
+                                <p class="rm-gcash-title"><i class="fas fa-mobile-alt"></i> Scan to Pay via GCash</p>
+                                <div class="rm-qr-wrapper">
+                                    <img src="/assets/gcash-qr.jpeg" alt="GCash QR" class="rm-qr-img"
+                                        onerror="this.style.display='none';document.getElementById('rm-qr-fallback').style.display='flex'">
+                                    <div id="rm-qr-fallback" style="display:none;flex-direction:column;align-items:center;padding:20px;background:#eff6ff;border-radius:10px;border:2px dashed #93c5fd">
+                                        <i class="fas fa-qrcode" style="font-size:40px;color:#3b82f6;margin-bottom:8px"></i>
+                                        <p style="margin:0;color:#1d4ed8;font-weight:600;font-size:13px">QR not available</p>
+                                        <p style="margin:4px 0 0;color:#64748b;font-size:12px">Send manually to number below</p>
+                                    </div>
+                                </div>
+                                <div class="rm-gcash-number">
+                                    Send to: <strong>0977 183 7288</strong> <small>(Rawis Resort Hotel)</small>
+                                </div>
+                            </div>
+                            <div class="rm-field" style="margin-top:12px">
+                                <label>GCash Reference Number <span class="req">*</span></label>
+                                <input type="text" name="reference_number" id="gcash-ref-input"
+                                    placeholder="e.g. 2024031512345678" maxlength="30">
+                                <small style="color:#888;font-size:11px;margin-top:4px;display:block">
+                                    Found in GCash app → Transaction History. You can also submit this after booking.
+                                </small>
+                            </div>
                         </div>
-                        <div id="card-note"  class="rm-pay-note rm-pay-note-card" style="display:none">
-                            <i class="fas fa-credit-card"></i>
-                            Provide your card transaction reference. Our team will verify and confirm your booking.
+
+                        <!-- CARD SECTION -->
+                        <div id="card-section" style="display:none">
+                            <div class="rm-field">
+                                <label>Cardholder Name <span class="req">*</span></label>
+                                <input type="text" name="card_name" id="card-name-input" placeholder="Juan Dela Cruz" maxlength="60">
+                            </div>
+                            <div class="rm-field">
+                                <label>Card Number <span class="req">*</span></label>
+                                <div style="position:relative">
+                                    <input type="text" name="card_number" id="rm-card-number"
+                                        placeholder="1234 5678 9012 3456" maxlength="19"
+                                        oninput="rmFormatCard(this)" style="padding-right:44px">
+                                    <span id="rm-card-brand" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:18px"></span>
+                                </div>
+                            </div>
+                            <div class="rm-field-row">
+                                <div class="rm-field">
+                                    <label>Expiry <span class="req">*</span></label>
+                                    <input type="text" name="card_expiry" id="card-expiry-input"
+                                        placeholder="MM / YY" maxlength="7" oninput="rmFormatExpiry(this)">
+                                </div>
+                                <div class="rm-field">
+                                    <label>CVV <span class="req">*</span></label>
+                                    <input type="password" name="card_cvv" id="card-cvv-input" placeholder="•••" maxlength="4">
+                                </div>
+                            </div>
+                            <div class="rm-pay-note rm-pay-note-card">
+                                <i class="fas fa-lock"></i>
+                                Card details are used for manual verification only. Our team will confirm your booking.
+                            </div>
                         </div>
                     </div>
 
@@ -991,6 +1037,31 @@ while ($r = $rooms->fetch_assoc()) {
     .rm-pay-note-gcash { background:#eff6ff; color:#1e40af; border:1px solid #bfdbfe; }
     .rm-pay-note-card  { background:#f5f3ff; color:#5b21b6; border:1px solid #ddd6fe; }
     /* ════════════════ END MODAL STYLES ════════════════ */
+
+    /* GCash box in modal */
+.rm-gcash-box {
+    background: linear-gradient(135deg, #eff6ff, #dbeafe);
+    border: 1px solid #93c5fd;
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+}
+.rm-gcash-title {
+    font-size: 13px; font-weight: 700; color: #1d4ed8; margin: 0 0 12px;
+}
+.rm-qr-wrapper { margin: 0 auto 10px; width: 120px; }
+.rm-qr-img {
+    width: 120px; height: 120px;
+    border-radius: 10px; border: 2px solid #3b82f6;
+    object-fit: contain; background: #fff;
+}
+.rm-gcash-number {
+    font-size: 12px; color: #1e3a5f;
+    display: flex; align-items: center; justify-content: center;
+    gap: 5px; flex-wrap: wrap;
+}
+.rm-gcash-number strong { font-size: 15px; color: #1d4ed8; }
+.rm-gcash-number small  { color: #64748b; font-size: 11px; }
     </style>
 
     <div id="roomDetailModal">
@@ -1149,10 +1220,47 @@ while ($r = $rooms->fetch_assoc()) {
     <script>
     function toggleRefField() {
         const method = document.getElementById('modal_pay_method').value;
-        document.getElementById('ref-field').style.display   = method !== 'Cash' ? '' : 'none';
-        document.getElementById('cash-note').style.display   = method === 'Cash'  ? '' : 'none';
-        document.getElementById('gcash-note').style.display  = method === 'GCash' ? '' : 'none';
-        document.getElementById('card-note').style.display   = method === 'Card'  ? '' : 'none';
+
+        // Hide all
+        document.getElementById('cash-note').style.display    = 'none';
+        document.getElementById('gcash-section').style.display = 'none';
+        document.getElementById('card-section').style.display  = 'none';
+
+        // Clear required flags
+        document.getElementById('gcash-ref-input').required  = false;
+        document.getElementById('card-name-input').required  = false;
+        document.getElementById('rm-card-number').required   = false;
+        document.getElementById('card-expiry-input').required = false;
+        document.getElementById('card-cvv-input').required   = false;
+
+        if (method === 'Cash') {
+            document.getElementById('cash-note').style.display = '';
+        } else if (method === 'GCash') {
+            document.getElementById('gcash-section').style.display = '';
+            document.getElementById('gcash-ref-input').required = true;
+        } else if (method === 'Card') {
+            document.getElementById('card-section').style.display = '';
+            document.getElementById('card-name-input').required  = true;
+            document.getElementById('rm-card-number').required   = true;
+            document.getElementById('card-expiry-input').required = true;
+            document.getElementById('card-cvv-input').required   = true;
+        }
+    }
+
+    function rmFormatCard(input) {
+        let v = input.value.replace(/\D/g, '').substring(0, 16);
+        input.value = v.replace(/(.{4})/g, '$1 ').trim();
+        const brand = document.getElementById('rm-card-brand');
+        if      (/^4/.test(v))      brand.innerHTML = '<i class="fab fa-cc-visa" style="color:#1a1f71"></i>';
+        else if (/^5[1-5]/.test(v)) brand.innerHTML = '<i class="fab fa-cc-mastercard" style="color:#eb001b"></i>';
+        else if (/^3[47]/.test(v))  brand.innerHTML = '<i class="fab fa-cc-amex" style="color:#2e77bc"></i>';
+        else                        brand.innerHTML = '';
+    }
+
+    function rmFormatExpiry(input) {
+        let v = input.value.replace(/\D/g, '').substring(0, 4);
+        if (v.length >= 2) v = v.substring(0,2) + ' / ' + v.substring(2);
+        input.value = v;
     }
 
     // ── Reserve Modal ──
