@@ -976,7 +976,7 @@ while ($r = $rooms->fetch_assoc()) {
                                 <div class="rm-gcash-box">
                                     <p class="rm-gcash-title"><i class="fas fa-mobile-alt"></i> Send via GCash</p>
                                     <div class="rm-qr-wrapper">
-                                        <img src="assets/images/gcash-qr.png" alt="GCash QR" class="rm-qr-img"
+                                        <img src="/assets/gcash-qr.jpeg" alt="GCash QR" class="rm-qr-img"
                                              onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                                         <div class="rm-qr-fallback" style="display:none">
                                             <i class="fas fa-qrcode"></i>
