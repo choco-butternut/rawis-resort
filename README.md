@@ -2,6 +2,14 @@
 Website created for Rawis Resort
 
 # Initialization
+
+install necessary packages
+
+```
+composer require vlucas/phpdotenv
+composer require phpmailer/phpmailer
+```
+
 ## For linux
 
 create database

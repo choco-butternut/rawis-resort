@@ -90,13 +90,13 @@ if (isset($_POST["update_status"])) {
     if ($new_status === 'Confirmed') {
         $sp = $conn->prepare(
             "UPDATE payments SET payment_status='Completed'
-             WHERE reservation_id=? AND payment_status IN ('Pending','Awaiting Verification')
-             ORDER BY payment_id DESC LIMIT 1"
+            WHERE reservation_id=?
+            ORDER BY payment_id DESC LIMIT 1"
         );
         $sp->bind_param("i", $reservation_id);
         $sp->execute(); $sp->close();
 
-        if ($room_id && $check_in_date <= $today) {
+        if ($room_id) {
             $sr = $conn->prepare("UPDATE rooms SET room_status='occupied' WHERE room_id=?");
             $sr->bind_param("i", $room_id);
             $sr->execute(); $sr->close();
@@ -133,6 +133,21 @@ if (isset($_POST["update_status"])) {
             $sr->bind_param("i", $room_id);
             $sr->execute(); $sr->close();
         }
+    }
+
+    if ($new_status === 'Pending') {
+        if ($room_id) {
+            $sr = $conn->prepare("UPDATE rooms SET room_status='available' WHERE room_id=?");
+            $sr->bind_param("i", $room_id);
+            $sr->execute(); $sr->close();
+        }
+
+        $sp = $conn->prepare(
+            "UPDATE payments SET payment_status='Pending'
+             WHERE reservation_id=? ORDER BY payment_id DESC LIMIT 1"
+        );
+        $sp->bind_param("i", $reservation_id);
+        $sp->execute(); $sp->close();
     }
 
     header("Location: reservation.php"); exit();
@@ -292,7 +307,7 @@ function payBadge($s) {
 
         <?php if (isset($_GET["msg"])): ?>
             <?php if ($_GET["msg"] === "verified"): ?>
-                <div class="admin-alert success">✅ Payment verified. Reservation confirmed successfully.</div>
+                <div class="admin-alert success"> Payment verified. Reservation confirmed successfully.</div>
             <?php elseif ($_GET["msg"] === "rejected"): ?>
                 <div class="admin-alert error">✗ Payment rejected. Reservation cancelled.</div>
             <?php endif; ?>

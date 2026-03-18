@@ -1,3 +1,11 @@
 
 uploads/*
 unused/*
+
+vendor/*
+
+
+composer.json
+composer.lock
+
+.env

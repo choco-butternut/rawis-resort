@@ -80,13 +80,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["form_type"]) && $_POS
 
 if (isset($_GET["delete_room"])) {
     $stmt = $conn->prepare("DELETE FROM rooms WHERE room_id=?");
-    $stmt->bind_param("i", (int)$_GET["delete_room"]);
+    $delete_id = intval($_GET['delete_room']);
+    $stmt->bind_param("i", $delete_id);
     $stmt->execute(); $stmt->close();
     header("Location: facilities.php?tab=rooms"); exit();
 }
 if (isset($_GET["delete_amenity"])) {
     $stmt = $conn->prepare("DELETE FROM amenities WHERE amenity_id=?");
-    $stmt->bind_param("i", (int)$_GET["delete_amenity"]);
+    $delete_id = intval($_GET['delete_amenity']);
+    $stmt->bind_param("i", $delete_id);
     $stmt->execute(); $stmt->close();
     header("Location: facilities.php?tab=amenities"); exit();
 }
