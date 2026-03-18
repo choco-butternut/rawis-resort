@@ -35,6 +35,28 @@ $rooms = $conn->query("SELECT * FROM rooms WHERE room_status='available'");
                 </p>
             </div>
 
+            <div class="card-stack">                
+
+                <div class="card-item">
+                    <div class="card-image" style="background-image: url('path/to/rooms.jpg');">
+                        <div class="card-overlay">
+                            <h3>Rooms</h3>
+                            <a href="#" class="view-details">View Details</a>
+                        </div>
+                    </div>
+                </div>
+                
+
+                <div class="card-item">
+                    <div class="card-image" style="background-image: url('path/to/amenities.jpg');">
+                        <div class="card-overlay">
+                            <h3>Amenities</h3>
+                            <a href="#" class="view-details">View Details</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="cta">
                 <button id="findRoomId" type="button">BOOK NOW</button>
             </div>

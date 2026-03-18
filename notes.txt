@@ -1,0 +1,48 @@
+😢😢😢😢😢😢😢😢😢😢😢 - kathlyn
+
+
+
+- admin side
+
+
+
+
+
+- customer side
+1. magpprepopulate an dates ddto ht detail view tas pwede pa hiya iadjust, pero dapat automatic nga igccheck ht 
+system kun mayda ba available hit na room type an dates nga gin adjust. kun dire na available, igddisable an button
+tas babalyuan hin "this kinempet is not chenelen"
+2. waray na 'add on ameneties'
+3. it modal ht kanan reservation, ighimo hiya nga parang 2nd page la kun tikang anay ha detail view nga modal (if possible!!!!)
+4. same ht 1, kun binutangan hin dates before pumili room, ig prepopulate nala an dates ha reservation pero pede pa maedit
+5. tanggala it email ngan address
+
+
+
+
+
+it photos nga uploaded ha rooms and amenities*, igssync ddto ht cards
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+guys mag iba ngani it amenities ngan facilities ano ba!!!! ahahha chouz
+
+
+
+
+
+
+
+
