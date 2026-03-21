@@ -27,750 +27,6 @@ while ($r = $rooms->fetch_assoc()) {
     <title>Rawis Resort Hotel</title>
     <link rel="stylesheet" href="assets/css/base.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <style>
-        /* ══════════════════════════════════════
-           FILTER BAR
-        ══════════════════════════════════════ */
-        .filter-bar {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            align-items: flex-end;
-            background: #fff;
-            border: 1px solid #ede8e1;
-            border-radius: 12px;
-            padding: 18px 24px;
-            margin: 20px auto;
-            max-width: 1100px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
-        }
-        .filter-group {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-            flex: 1;
-            min-width: 140px;
-        }
-        .filter-group.price-group {
-            flex: 1.8;
-            min-width: 220px;
-        }
-        .filter-group label {
-            font-family: Poppins, sans-serif;
-            font-size: 11px;
-            font-weight: 700;
-            color: #531e07;
-            text-transform: uppercase;
-            letter-spacing: 0.06em;
-        }
-        .filter-group select,
-        .filter-group input[type="number"] {
-            padding: 9px 12px;
-            border: 1.5px solid #e2ddd8;
-            border-radius: 8px;
-            font-family: Poppins, sans-serif;
-            font-size: 14px;
-            background: #faf8f6;
-            color: #341f0c;
-            outline: none;
-            transition: border-color 0.2s, box-shadow 0.2s;
-        }
-        .filter-group select:focus,
-        .filter-group input[type="number"]:focus {
-            border-color: #bbcc81;
-            box-shadow: 0 0 0 3px rgba(187,204,129,0.18);
-        }
-        .price-range-row {
-            display: flex;
-            gap: 6px;
-            align-items: center;
-        }
-        .price-range-row span {
-            color: #aaa;
-            font-size: 13px;
-            flex-shrink: 0;
-        }
-        .price-range-row input {
-            width: 90px;
-            min-width: 0;
-            flex: 1;
-        }
-        .btn-filter-reset {
-            padding: 9px 20px;
-            background: #faf8f6;
-            border: 1.5px solid #e2ddd8;
-            border-radius: 8px;
-            font-family: Poppins, sans-serif;
-            font-size: 14px;
-            cursor: pointer;
-            color: #531e07;
-            font-weight: 500;
-            transition: background 0.2s, border-color 0.2s;
-            height: fit-content;
-            align-self: flex-end;
-        }
-        .btn-filter-reset:hover {
-            background: #ede8e1;
-            border-color: #bbcc81;
-        }
-        .filter-results-count {
-            font-family: Poppins, sans-serif;
-            font-size: 13px;
-            color: #888;
-            margin: 0 auto 10px;
-            max-width: 1100px;
-            padding: 0 4px;
-        }
-
-        /* ══════════════════════════════════════
-           MULTI-STEP RESERVATION MODAL
-        ══════════════════════════════════════ */
-        .rm-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(52,31,12,0.60);
-            backdrop-filter: blur(5px);
-            z-index: 2000;
-            align-items: center;
-            justify-content: center;
-            padding: 16px;
-        }
-        .rm-overlay.show { display: flex; }
-
-        .rm-shell {
-            background: #fff;
-            border-radius: 22px;
-            width: 100%;
-            max-width: 720px;
-            max-height: 93vh;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 40px 100px rgba(52,31,12,0.28);
-            animation: rmSlide 0.3s cubic-bezier(.22,.68,0,1.18);
-        }
-        @keyframes rmSlide {
-            from { transform: translateY(44px) scale(0.96); opacity: 0; }
-            to   { transform: none; opacity: 1; }
-        }
-
-        /* Header */
-        .rm-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 18px 26px;
-            border-bottom: 1px solid #ede8e1;
-            background: #faf8f5;
-            flex-shrink: 0;
-        }
-        .rm-header-left { display: flex; align-items: center; gap: 14px; }
-        .rm-badge {
-            width: 42px; height: 42px;
-            background: linear-gradient(135deg, #bbcc81, #334937);
-            border-radius: 12px;
-            display: flex; align-items: center; justify-content: center;
-            color: #fff; font-size: 17px; flex-shrink: 0;
-        }
-        .rm-title {
-            font-family: 'The Seasons', serif;
-            margin: 0; font-size: 20px; font-weight: 400; color: #341f0c;
-        }
-        .rm-subtitle {
-            font-family: Poppins, sans-serif;
-            margin: 2px 0 0; font-size: 12px; color: #8a7060;
-        }
-        .rm-close {
-            width: 34px; height: 34px;
-            border: 1px solid #e2ddd8; border-radius: 8px;
-            background: #fff; cursor: pointer; font-size: 14px; color: #8a7060;
-            display: flex; align-items: center; justify-content: center;
-            transition: all 0.15s;
-        }
-        .rm-close:hover { background: #fdf0ee; border-color: #c0392b; color: #c0392b; }
-
-        /* Stepper */
-        .rm-stepper {
-            display: flex;
-            align-items: center;
-            padding: 16px 30px;
-            background: #faf8f5;
-            border-bottom: 1px solid #ede8e1;
-            flex-shrink: 0;
-        }
-        .rm-step {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-            flex-shrink: 0;
-        }
-        .rm-step-circle {
-            width: 36px; height: 36px;
-            border-radius: 50%;
-            background: #e8e3dc;
-            color: #a89080;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 14px;
-            transition: background 0.3s, color 0.3s, box-shadow 0.3s;
-        }
-        .rm-step span {
-            font-family: Poppins, sans-serif;
-            font-size: 10px;
-            color: #a89080;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            transition: color 0.3s;
-            white-space: nowrap;
-        }
-        .rm-step.active .rm-step-circle {
-            background: linear-gradient(135deg, #bbcc81, #334937);
-            color: #fff;
-            box-shadow: 0 4px 14px rgba(187,204,129,0.45);
-        }
-        .rm-step.active span { color: #334937; }
-        .rm-step.done .rm-step-circle { background: #334937; color: #fff; }
-        .rm-step.done span { color: #334937; }
-        .rm-step-line {
-            flex: 1;
-            height: 2px;
-            background: #e8e3dc;
-            margin: 0 6px;
-            margin-bottom: 18px;
-            transition: background 0.4s;
-        }
-        .rm-step-line.done { background: #334937; }
-
-        /* Steps wrapper */
-        .rm-steps-wrap {
-            position: relative;
-            flex: 1;
-            overflow: hidden;
-        }
-        .rm-step-panel {
-            display: none;
-            flex-direction: column;
-            height: 100%;
-        }
-        .rm-step-panel.active {
-            display: flex;
-            animation: panelIn 0.28s ease;
-        }
-        @keyframes panelIn {
-            from { opacity: 0; transform: translateX(18px); }
-            to   { opacity: 1; transform: none; }
-        }
-        @keyframes panelInBack {
-            from { opacity: 0; transform: translateX(-18px); }
-            to   { opacity: 1; transform: none; }
-        }
-        .rm-step-panel.slide-back { animation: panelInBack 0.28s ease; }
-
-        .rm-panel-inner {
-            flex: 1;
-            overflow-y: auto;
-            padding: 22px 28px;
-        }
-        .rm-panel-inner::-webkit-scrollbar { width: 5px; }
-        .rm-panel-inner::-webkit-scrollbar-track { background: transparent; }
-        .rm-panel-inner::-webkit-scrollbar-thumb { background: #ddd; border-radius: 10px; }
-
-        /* Nav footer */
-        .rm-nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 14px 28px;
-            border-top: 1px solid #ede8e1;
-            background: #faf8f5;
-            flex-shrink: 0;
-        }
-        .rm-nav-confirm { justify-content: flex-start; }
-        .rm-btn-next {
-            padding: 11px 24px;
-            background: linear-gradient(135deg, #bbcc81 0%, #334937 100%);
-            color: #fff;
-            border: none;
-            border-radius: 50px;
-            font-family: Poppins, sans-serif;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex; align-items: center; gap: 8px;
-            transition: opacity 0.2s, transform 0.15s;
-        }
-        .rm-btn-next:hover { opacity: 0.88; transform: translateY(-1px); }
-        .rm-btn-ghost {
-            padding: 10px 18px;
-            background: transparent;
-            border: 1.5px solid #ddd;
-            border-radius: 50px;
-            font-family: Poppins, sans-serif;
-            font-size: 13px;
-            color: #8a7060;
-            cursor: pointer;
-            display: flex; align-items: center; gap: 7px;
-            transition: background 0.15s;
-        }
-        .rm-btn-ghost:hover { background: #f0ece6; }
-
-        /* Section labels */
-        .rm-section-label {
-            font-family: Poppins, sans-serif;
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: #8a7060;
-            margin: 0 0 14px;
-            display: flex; align-items: center; gap: 7px;
-        }
-        .rm-section-label i { color: #bbcc81; }
-
-        /* Fields */
-        .rm-fields-wrap { margin-top: 16px; }
-        .rm-field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .rm-field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
-        .rm-field label {
-            font-family: Poppins, sans-serif;
-            font-size: 12px;
-            font-weight: 600;
-            color: #5a4030;
-        }
-        .rm-field input,
-        .rm-field select,
-        .rm-field textarea {
-            padding: 9px 12px;
-            border: 1.5px solid #e2ddd8;
-            border-radius: 9px;
-            font-family: Poppins, sans-serif;
-            font-size: 13px;
-            color: #341f0c;
-            background: #faf8f5;
-            transition: border-color 0.2s;
-            outline: none;
-            box-sizing: border-box;
-        }
-        .rm-field input:focus,
-        .rm-field select:focus,
-        .rm-field textarea:focus { border-color: #bbcc81; background: #fff; }
-        .rm-field textarea { resize: vertical; }
-        .req { color: #e53e3e; }
-
-        /* Room preview (step 1) */
-        .rm-panel-hero {
-            position: relative;
-            border-radius: 14px;
-            overflow: hidden;
-            height: 120px;
-            margin-bottom: 20px;
-        }
-        .rm-room-preview { width: 100%; height: 100%; object-fit: cover; }
-        .rm-room-chip {
-            position: absolute;
-            bottom: 10px; left: 12px;
-            background: rgba(52,31,12,0.75);
-            color: #fff;
-            font-family: Poppins, sans-serif;
-            font-size: 12px;
-            font-weight: 600;
-            padding: 4px 12px;
-            border-radius: 20px;
-            backdrop-filter: blur(4px);
-        }
-
-        /* Amenity grid (step 2) */
-        .rm-amenities-header { margin-bottom: 16px; }
-        .rm-amenity-hint { font-family: Poppins, sans-serif; font-size: 13px; color: #8a7060; margin: -8px 0 0; }
-        .rm-amenity-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 12px;
-            margin-bottom: 16px;
-        }
-        .rm-amenity-card {
-            border: 1.5px solid #e2ddd8;
-            border-radius: 12px;
-            overflow: hidden;
-            background: #faf8f5;
-            transition: border-color 0.2s, box-shadow 0.2s;
-        }
-        .rm-amenity-card:hover { border-color: #bbcc81; box-shadow: 0 4px 14px rgba(187,204,129,0.2); }
-        .rm-amenity-img { width: 100%; height: 80px; object-fit: cover; }
-        .rm-amenity-img-placeholder {
-            width: 100%; height: 80px;
-            background: linear-gradient(135deg, #ede8e1, #e2ddd8);
-            display: flex; align-items: center; justify-content: center;
-            color: #bbb; font-size: 22px;
-        }
-        .rm-amenity-info { padding: 8px 10px 4px; }
-        .rm-amenity-name { font-family: Poppins, sans-serif; font-size: 13px; font-weight: 600; color: #341f0c; margin: 0 0 2px; }
-        .rm-amenity-price { font-family: Poppins, sans-serif; font-size: 11px; color: #8a7060; margin: 0; }
-        .rm-amenity-qty {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            padding: 8px 10px;
-            border-top: 1px solid #ede8e1;
-        }
-        .qty-btn {
-            width: 26px; height: 26px;
-            border: 1.5px solid #ddd;
-            border-radius: 6px;
-            background: #fff;
-            font-size: 15px;
-            cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-            color: #334937;
-            transition: background 0.15s;
-        }
-        .qty-btn:hover { background: #bbcc81; color: #fff; border-color: #bbcc81; }
-        .qty-input {
-            width: 38px;
-            text-align: center;
-            border: 1.5px solid #ddd;
-            border-radius: 6px;
-            font-family: Poppins, sans-serif;
-            font-size: 13px;
-            font-weight: 600;
-            color: #341f0c;
-            padding: 3px 0;
-        }
-        .rm-no-amenities {
-            font-family: Poppins, sans-serif;
-            font-size: 13px; color: #aaa;
-            grid-column: 1/-1; text-align: center; padding: 30px 0;
-        }
-        .rm-amenity-summary-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 14px;
-            background: #f0ece6;
-            border-radius: 10px;
-            font-family: Poppins, sans-serif;
-            font-size: 13px;
-            color: #5a4030;
-        }
-        .rm-amenity-summary-bar strong { color: #334937; font-size: 15px; }
-
-        /* Payment options (step 3) */
-        .rm-pay-options { display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px; }
-        .rm-pay-card {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            padding: 14px 16px;
-            border: 2px solid #e2ddd8;
-            border-radius: 12px;
-            cursor: pointer;
-            background: #faf8f5;
-            transition: border-color 0.2s, background 0.2s;
-        }
-        .rm-pay-card input[type="radio"] { display: none; }
-        .rm-pay-card.rm-pay-selected { border-color: #334937; background: #f0f5ee; }
-        .rm-pay-icon {
-            width: 42px; height: 42px;
-            border-radius: 10px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 18px;
-            flex-shrink: 0;
-        }
-        .rm-pay-icon.cash  { background: #ecfdf5; color: #059669; }
-        .rm-pay-icon.gcash { background: #eff6ff; color: #1d4ed8; }
-        .rm-pay-icon.card  { background: #f5f3ff; color: #7c3aed; }
-        .rm-pay-text { flex: 1; }
-        .rm-pay-text strong { font-family: Poppins, sans-serif; font-size: 14px; color: #341f0c; display: block; }
-        .rm-pay-text span   { font-family: Poppins, sans-serif; font-size: 12px; color: #8a7060; }
-        .rm-pay-check { color: #ccc; font-size: 20px; transition: color 0.2s; }
-        .rm-pay-card.rm-pay-selected .rm-pay-check { color: #334937; }
-
-        /* Payment detail boxes */
-        .rm-pay-detail {
-            display: none;
-            padding: 14px 16px;
-            border-radius: 12px;
-            font-family: Poppins, sans-serif;
-            font-size: 13px;
-            margin-top: 4px;
-            line-height: 1.6;
-        }
-        .rm-pay-detail.show { display: block; }
-        .rm-pay-note-cash  { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
-        .rm-pay-note-gcash { background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; }
-        .rm-pay-note-card  { background: #f5f3ff; color: #5b21b6; border: 1px solid #ddd6fe; }
-        .rm-pay-note-cash i,
-        .rm-pay-note-gcash i,
-        .rm-pay-note-card i { margin-right: 6px; }
-
-        /* GCash box */
-        .rm-gcash-box { text-align: center; margin-bottom: 12px; }
-        .rm-gcash-title { font-size: 13px; font-weight: 700; margin: 0 0 10px; }
-        .rm-qr-wrapper { margin: 0 auto 10px; width: 110px; }
-        .rm-qr-img {
-            width: 110px; height: 110px;
-            border-radius: 10px; border: 2px solid #93c5fd;
-            object-fit: contain; background: #fff;
-        }
-        .rm-qr-fallback {
-            width: 110px; height: 110px;
-            border-radius: 10px; border: 2px dashed #93c5fd;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 36px; color: #93c5fd;
-        }
-        .rm-gcash-number { font-size: 13px; font-weight: 600; }
-        .rm-ref-field { display: flex; flex-direction: column; gap: 5px; }
-        .rm-ref-field label { font-size: 12px; font-weight: 600; color: #1e40af; }
-        .rm-ref-field input {
-            padding: 9px 12px;
-            border: 1.5px solid #bfdbfe;
-            border-radius: 9px;
-            font-family: Poppins, sans-serif;
-            font-size: 13px;
-            background: #fff;
-        }
-
-        /* Card fields */
-        .rm-card-fields { display: flex; flex-direction: column; gap: 10px; }
-        .rm-card-num-wrap { position: relative; display: flex; align-items: center; }
-        .rm-card-num-wrap input {
-            flex: 1; padding: 9px 12px;
-            border: 1.5px solid #ddd6fe;
-            border-radius: 9px;
-            font-family: Poppins, sans-serif;
-            font-size: 13px; background: #fff;
-        }
-        #rm-card-brand { position: absolute; right: 10px; font-size: 22px; }
-
-        /* Confirm step (step 4) */
-        .rm-confirm-layout {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 22px;
-        }
-        .rm-confirm-left, .rm-confirm-right { display: flex; flex-direction: column; }
-        .rm-summary-room-img {
-            position: relative; border-radius: 12px;
-            overflow: hidden; height: 110px; margin-bottom: 16px;
-        }
-        .rm-summary-room-img img { width: 100%; height: 100%; object-fit: cover; }
-        .confirm-room-chip {
-            position: absolute; bottom: 8px; left: 10px;
-            background: rgba(52,31,12,0.75); color: #fff;
-            font-family: Poppins, sans-serif; font-size: 11px; font-weight: 600;
-            padding: 3px 10px; border-radius: 20px; backdrop-filter: blur(4px);
-        }
-        .rm-confirm-block { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
-        .rm-confirm-row {
-            display: flex; justify-content: space-between; align-items: center;
-            font-family: Poppins, sans-serif; font-size: 13px;
-        }
-        .rm-confirm-row span { color: #8a7060; }
-        .rm-confirm-row strong { color: #341f0c; font-size: 13px; text-align: right; max-width: 60%; }
-        .rm-total-row strong { font-size: 16px; color: #334937; }
-        .rm-summary-divider { height: 1px; background: #ede8e1; margin: 8px 0; }
-
-        /* Pay recap */
-        .rm-pay-recap {
-            padding: 14px;
-            border: 1.5px solid #e2ddd8;
-            border-radius: 12px;
-            background: #faf8f5;
-            font-family: Poppins, sans-serif;
-            font-size: 13px;
-            color: #341f0c;
-            margin-bottom: 16px;
-        }
-        .rm-pay-recap .method-pill {
-            display: inline-flex; align-items: center; gap: 6px;
-            font-size: 13px; font-weight: 700;
-            padding: 5px 14px; border-radius: 20px; margin-bottom: 8px;
-        }
-        .method-pill.cash  { background: #ecfdf5; color: #059669; }
-        .method-pill.gcash { background: #eff6ff; color: #1d4ed8; }
-        .method-pill.card  { background: #f5f3ff; color: #7c3aed; }
-        .rm-pay-recap p { margin: 6px 0 0; font-size: 12px; color: #8a7060; line-height: 1.6; }
-        .rm-pay-recap .ref-line { margin-top: 8px; font-size: 12px; color: #334937; font-weight: 600; }
-
-        /* Confirm CTA */
-        .rm-confirm-cta { display: flex; flex-direction: column; gap: 8px; margin-top: auto; }
-        .rm-btn-confirm {
-            width: 100%;
-            padding: 13px;
-            background: linear-gradient(to right, #bbcc81 10%, #334937 80%);
-            color: #fff;
-            border: none;
-            border-radius: 50px;
-            font-family: Poppins, sans-serif;
-            font-size: 15px;
-            font-weight: 700;
-            cursor: pointer;
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.2);
-            box-shadow: 0 4px 16px rgba(51,73,55,0.3);
-            transition: opacity 0.2s, transform 0.15s;
-        }
-        .rm-btn-confirm:hover { opacity: 0.9; transform: translateY(-1px); }
-        .rm-btn-cancel {
-            width: 100%;
-            padding: 10px;
-            background: transparent;
-            color: #8a7060;
-            border: 1px solid #ddd;
-            border-radius: 50px;
-            font-family: Poppins, sans-serif;
-            font-size: 13px;
-            cursor: pointer;
-            transition: background 0.15s;
-        }
-        .rm-btn-cancel:hover { background: #f1ece6; }
-
-        /* ══════════════════════════════════════
-           ROOM DETAIL MODAL
-        ══════════════════════════════════════ */
-        #roomDetailModal {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(52,31,12,0.58);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-        #roomDetailModal.show { display: flex; }
-        .room-detail-content {
-            background: #fff;
-            border-radius: 18px;
-            width: 90%;
-            max-width: 700px;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: 0 20px 60px rgba(52,31,12,0.25);
-            animation: slideUp 0.25s ease;
-        }
-        @keyframes slideUp {
-            from { transform: translateY(30px); opacity: 0; }
-            to   { transform: translateY(0); opacity: 1; }
-        }
-        .room-detail-image {
-            width: 100%; height: 260px;
-            object-fit: cover;
-            border-radius: 14px 14px 0 0;
-        }
-        .room-detail-body { padding: 28px 32px; }
-        .room-detail-header {
-            display: flex; justify-content: space-between;
-            align-items: flex-start; margin-bottom: 16px;
-        }
-        .room-detail-header h2 {
-            font-family: 'The Seasons', serif;
-            margin: 0; font-size: 26px; font-weight: 400; color: #341f0c;
-        }
-        .room-detail-price { text-align: right; }
-        .room-detail-price .big-price {
-            font-family: 'The Seasons', serif;
-            font-size: 28px; font-weight: 400; color: #334937;
-        }
-        .room-detail-price .per-night {
-            font-family: Poppins, sans-serif;
-            font-size: 12px; color: #888;
-        }
-        .room-meta {
-            display: flex; gap: 20px; flex-wrap: wrap;
-            margin-bottom: 20px; padding: 16px;
-            background: #faf8f5; border-radius: 10px;
-            border: 1px solid #ede8e1;
-        }
-        .room-meta-item {
-            display: flex; align-items: center; gap: 8px;
-            font-family: Poppins, sans-serif;
-            font-size: 14px; color: #531e07;
-        }
-        .room-meta-item i { color: #bbcc81; width: 16px; }
-        .detail-status-pill {
-            display: inline-block; padding: 4px 14px;
-            border-radius: 20px;
-            font-family: Poppins, sans-serif;
-            font-size: 12px; font-weight: 600; text-transform: capitalize;
-        }
-        .detail-status-pill.available   { background: #e8f0d8; color: #2d5a27; }
-        .detail-status-pill.occupied    { background: #fde8e8; color: #9b2226; }
-        .detail-status-pill.maintenance { background: #fff8f0; color: #8e4a0f; }
-        .room-detail-divider { border: none; border-top: 1px solid #ede8e1; margin: 20px 0; }
-        .detail-section-title {
-            font-family: Poppins, sans-serif;
-            font-size: 11px; font-weight: 700;
-            text-transform: uppercase; letter-spacing: 0.08em;
-            color: #aaa; margin-bottom: 10px;
-        }
-        #detailDescription {
-            font-family: Poppins, sans-serif;
-            color: #555; font-size: 14px; line-height: 1.75;
-        }
-        .room-detail-actions { display: flex; gap: 12px; margin-top: 24px; }
-        .btn-detail-book {
-            flex: 1; padding: 12px;
-            background: linear-gradient(to right, #bbcc81 10%, #334937 80%);
-            color: #fff; border: none; border-radius: 50px;
-            font-family: Poppins, sans-serif;
-            font-size: 15px; font-weight: 700; cursor: pointer;
-            text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
-            box-shadow: 0 4px 14px rgba(51,73,55,0.25);
-            transition: opacity 0.2s, transform 0.15s;
-        }
-        .btn-detail-book:hover { opacity: 0.9; transform: translateY(-1px); }
-        .btn-detail-close {
-            padding: 12px 24px;
-            background: #faf8f5; color: #531e07;
-            border: 1.5px solid #e2ddd8; border-radius: 50px;
-            font-family: Poppins, sans-serif;
-            font-size: 15px; cursor: pointer;
-            transition: background 0.2s, border-color 0.2s;
-        }
-        .btn-detail-close:hover { background: #ede8e1; border-color: #bbcc81; }
-        .modal-x-btn {
-            position: absolute; top: 14px; right: 18px;
-            background: rgba(52,31,12,0.4);
-            border: none; color: #fff; border-radius: 50%;
-            width: 32px; height: 32px; font-size: 16px; cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-            transition: background 0.15s;
-        }
-        .modal-x-btn:hover { background: rgba(52,31,12,0.65); }
-        .room-detail-image-wrap { position: relative; }
-
-        /* ══════════════════════════════════════
-           NO RESULTS
-        ══════════════════════════════════════ */
-        .no-results {
-            text-align: center; padding: 60px 20px;
-            color: #aaa; display: none;
-            font-family: Poppins, sans-serif;
-        }
-        .no-results i { font-size: 48px; margin-bottom: 12px; color: #bbcc81; }
-
-        /* ══════════════════════════════════════
-           RESPONSIVE
-        ══════════════════════════════════════ */
-        @media (max-width: 640px) {
-            .rm-shell {
-                max-width: 100%;
-                border-radius: 16px 16px 0 0;
-                position: fixed; bottom: 0; top: auto;
-                max-height: 95vh;
-            }
-            .rm-overlay { align-items: flex-end; }
-            .rm-confirm-layout { grid-template-columns: 1fr; }
-            .rm-stepper { padding: 12px 16px; }
-            .rm-stepper .rm-step span { display: none; }
-            .rm-panel-inner { padding: 16px 18px; }
-            .rm-nav { padding: 12px 18px; }
-            .rm-field-row { grid-template-columns: 1fr; }
-        }
-    </style>
 </head>
 <body class="customer-page">
 <div class="rooms-page">
@@ -779,7 +35,7 @@ while ($r = $rooms->fetch_assoc()) {
     <!-- ══════════════════════════════════════
          MULTI-STEP RESERVATION MODAL
     ══════════════════════════════════════ -->
-    <div id="reserveModal" class="rm-overlay">
+    <!-- <div id="reserveModal" class="rm-overlay">
         <div class="rm-shell">
 
             <div class="rm-header">
@@ -824,7 +80,7 @@ while ($r = $rooms->fetch_assoc()) {
 
                 <div class="rm-steps-wrap">
 
-                    <!-- STEP 1 — Guest Information -->
+                    # STEP 1 — Guest Information #
                     <div class="rm-step-panel active" id="panel-1">
                         <div class="rm-panel-inner">
                             <div class="rm-panel-hero">
@@ -882,7 +138,7 @@ while ($r = $rooms->fetch_assoc()) {
                         </div>
                     </div>
 
-                    <!-- STEP 2 — Amenities -->
+                    # STEP 2 — Amenities #
                     <div class="rm-step-panel" id="panel-2">
                         <div class="rm-panel-inner">
                             <div class="rm-amenities-header">
@@ -933,7 +189,7 @@ while ($r = $rooms->fetch_assoc()) {
                         </div>
                     </div>
 
-                    <!-- STEP 3 — Payment -->
+                    # STEP 3 — Payment #
                     <div class="rm-step-panel" id="panel-3">
                         <div class="rm-panel-inner">
                             <p class="rm-section-label"><i class="fas fa-wallet"></i> Choose Payment Method</p>
@@ -1030,7 +286,7 @@ while ($r = $rooms->fetch_assoc()) {
                         </div>
                     </div>
 
-                    <!-- STEP 4 — Confirm -->
+                    # STEP 4 — Confirm #
                     <div class="rm-step-panel" id="panel-4">
                         <div class="rm-panel-inner rm-confirm-layout">
                             <div class="rm-confirm-left">
@@ -1077,10 +333,109 @@ while ($r = $rooms->fetch_assoc()) {
                         </div>
                     </div>
 
-                </div><!-- /.rm-steps-wrap -->
+                </div>
             </form>
-        </div><!-- /.rm-shell -->
-    </div><!-- /.rm-overlay -->
+        </div>
+    </div> -->  
+
+    <!-- STEP 1 — Reservation Form (NEW STRUCTURE) -->
+    <div id="reserveModal" class="rm-overlay">
+            <div class="rm-step-panel active" id="panel-1">
+
+                <div class="reservation-container">
+
+                    <!-- HEADER -->
+                    <div class="reservation-header">
+                        <h2>Reservation Form</h2>
+                        <p>Please complete the form below. Your registration will be verified prior to your arrival.</p>
+                        <button type="button" class="rm-close" onclick="closeModal()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+
+                    <div class="reservation-body">
+
+                        <!-- LEFT SIDE -->
+                        <div class="reservation-left">
+
+                            <h3>Guest Information</h3>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>First Name</label>
+                                    <input type="text" name="first_name" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Last Name</label>
+                                    <input type="text" name="last_name" required>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Phone Number</label>
+                                <input type="text" name="phone_number" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Special Request</label>
+                                <textarea name="extra_requests" placeholder="Any special requests or notes..."></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Payment Method</label>
+                                <select id="payment_method_ui" onchange="selectPayMethod(this.value)">
+                                    <option value="Cash">Cash - Pay on arrival</option>
+                                    <option value="GCash">GCash</option>
+                                    <option value="Card">Card</option>
+                                </select>
+                            </div>
+
+                        </div>
+
+                        <!-- RIGHT SIDE -->
+                        <div class="reservation-right">
+
+                            <h3>Reservation Summary</h3>
+
+                            <div class="summary-card">
+
+                                <h4 id="rm-room-label">Pakto Butlaw</h4>
+
+                                <img id="rm-room-img" src="" alt="pakigawing responsive nlng po here">
+
+                                <div class="summary-details">
+                                    <div><span>Check-in</span><span id="sum-checkin">—</span></div>
+                                    <div><span>Check-out</span><span id="sum-checkout">—</span></div>
+                                    <div><span>Nights</span><span id="sum-nights">—</span></div>
+                                    <div><span>Room Price</span><span id="sum-room-cost">₱0</span></div>
+                                    <div><span>(1x) Extra Guest</span><span>₱0</span></div>
+                                    <div><span>(2x) Extra Bed</span><span>₱0</span></div>
+                                </div>
+
+                                <div class="summary-total">
+                                    <span>Total</span>
+                                    <strong id="sum-total">₱0</strong>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- FOOTER -->
+                    <div class="reservation-footer">
+                        <button type="button" class="btn-cancel" onclick="closeModal()">Cancel</button>
+                        <button type="button" class="btn-confirm" onclick="goStep(2)">
+                            <i class="fas fa-check-circle"></i> Confirm Reservation
+                        </button>
+                    </div>
+
+                </div>
+
+            </div>
+    </div>        
 
     <!-- ══════════════════════════════════════
          ROOM DETAIL MODAL
@@ -1135,6 +490,14 @@ while ($r = $rooms->fetch_assoc()) {
                             </ul>
                         </div>
                         <div class="amenity-col">
+                            <h5><i class="fas fa-concierge-bell"></i> Services</h5>
+                            <ul>
+                                <li>Parking Area</li>
+                                <li>Laundry Services</li>
+                                <li>Housekeeping (daily)</li>
+                            </ul>
+                        </div>
+                        <div class="amenity-col">
                             <h5><i class="fas fa-utensils"></i> Food and Drinks</h5>
                             <ul>
                                 <li>Coffee/tea maker</li>
@@ -1145,11 +508,21 @@ while ($r = $rooms->fetch_assoc()) {
                             </ul>
                         </div>
                         <div class="amenity-col">
-                            <h5><i class="fas fa-concierge-bell"></i> Services & Facilities</h5>
+                            <h5><i class="fas fa-tv"></i> Entertainment</h5>
                             <ul>
-                                <li>Parking Area</li>
-                                <li>Laundry Services</li>
-                                <li>Swimming Pool Access</li>
+                                <li>Smart TV</li>
+                            </ul>
+                        </div>
+                        <div class="amenity-col">
+                            <h5><i class="fas fa-swimming-pool"></i> Free Access Facilities</h5>
+                            <ul>
+                                <li>Swimming Pool</li>
+                                <li>Night Acoustic Band</li>
+                            </ul>
+                        </div>
+                        <div class="amenity-col">
+                            <h5><i class="fas fa-wifi"></i> Connectivity</h5>
+                            <ul>
                                 <li>Free Wi-Fi</li>
                             </ul>
                         </div>
@@ -1162,18 +535,18 @@ while ($r = $rooms->fetch_assoc()) {
                         
                         <div class="card-section">
                             <h4><i class="fas fa-calendar-alt"></i> STAY DETAILS</h4>
-                            <div class="input-group">
+                            <div class="date-row">
                                 <label>Check-in:</label>
                                 <input type="date" id="inputCheckIn" class="date-input">
                             </div>
-                            <div class="input-group">
+                            <div class="date-row">
                                 <label>Check-out:</label>
                                 <input type="date" id="inputCheckOut" class="date-input">
                             </div>
                         </div>
 
                         <div class="card-section">
-                            <h4><i class="fas fa-user-plus"></i> CUSTOMIZE</h4>
+                            <h4><i class="fas fa-user-plus"></i> CUSTOMIZE YOUR STAY</h4>
                             <div class="counter-row">
                                 <span>Extra Guest</span>
                                 <div class="counter-ctrl">
@@ -1193,8 +566,11 @@ while ($r = $rooms->fetch_assoc()) {
                         </div>
 
                         <div class="price-footer">
-                            <span>Estimated Total</span>
-                            <span class="total-amount">₱<span id="estimatedTotalPrice">0.00</span></span>
+                            <div class="price-divider"></div>
+                            <div class="price-row">
+                                <span>Estimated Total</span>
+                                <span class="total-amount">₱<span id="estimatedTotalPrice">0.00</span></span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1321,34 +697,65 @@ while ($r = $rooms->fetch_assoc()) {
     let currentRoomImage  = '';
     let currentStep       = 1;
 
+    // function openModal(roomId, price, type, number, image) {
+    //     if (price === undefined) {
+    //         const card = document.querySelector(`.room-card[data-room-id="${roomId}"]`);
+    //         if (card) {
+    //             price  = parseFloat(card.dataset.price);
+    //             type   = card.dataset.type;
+    //             number = card.dataset.roomNumber;
+    //             image  = card.dataset.image;
+    //         }
+    //     }
+    //     currentRoomPrice  = parseFloat(price)  || 0;
+    //     currentRoomType   = type   || 'Room';
+    //     currentRoomNumber = number || '';
+    //     currentRoomImage  = image  || '';
+
+    //     document.getElementById('room_id').value = roomId;
+
+    //     const label = currentRoomType + (currentRoomNumber ? ' — Room ' + currentRoomNumber : '');
+    //     document.getElementById('rm-room-label').textContent = label;
+    //     document.getElementById('rm-room-img').src           = currentRoomImage;
+
+    //     const today = new Date().toISOString().split('T')[0];
+    //     document.getElementById('modal_checkin').min  = today;
+    //     document.getElementById('modal_checkout').min = today;
+
+    //     showStep(1, false);
+    //     document.getElementById('reserveModal').classList.add('show');
+    //     document.body.style.overflow = 'hidden';
+
+    //     setTimeout(() => {
+    //         updateReservationSummary();
+    //     }, 100);
+    // }
+
+    // ultra mega vibe coded kay dire nagana an modal han ginliwat ko an entire rm modal
     function openModal(roomId, price, type, number, image) {
-        if (price === undefined) {
-            const card = document.querySelector(`.room-card[data-room-id="${roomId}"]`);
-            if (card) {
-                price  = parseFloat(card.dataset.price);
-                type   = card.dataset.type;
-                number = card.dataset.roomNumber;
-                image  = card.dataset.image;
-            }
-        }
-        currentRoomPrice  = parseFloat(price)  || 0;
-        currentRoomType   = type   || 'Room';
+
+        currentRoomPrice  = parseFloat(price) || 0;
+        currentRoomType   = type || 'Room';
         currentRoomNumber = number || '';
-        currentRoomImage  = image  || '';
+        currentRoomImage  = image || '';
 
-        document.getElementById('room_id').value = roomId;
+        // Set hidden input if exists
+        const roomInput = document.getElementById('room_id');
+        if (roomInput) roomInput.value = roomId;
 
+        // Update UI
         const label = currentRoomType + (currentRoomNumber ? ' — Room ' + currentRoomNumber : '');
-        document.getElementById('rm-room-label').textContent = label;
-        document.getElementById('rm-room-img').src           = currentRoomImage;
-        document.getElementById('rm-room-chip').textContent  = label;
 
-        const today = new Date().toISOString().split('T')[0];
-        document.getElementById('modal_checkin').min  = today;
-        document.getElementById('modal_checkout').min = today;
+        const labelEl = document.getElementById('rm-room-label');
+        const imgEl   = document.getElementById('rm-room-img');
 
-        showStep(1, false);
-        document.getElementById('reserveModal').classList.add('show');
+        if (labelEl) labelEl.textContent = label;
+        if (imgEl) imgEl.src = currentRoomImage;
+
+        // Show modal
+        const modal = document.getElementById('reserveModal');
+        if (modal) modal.classList.add('show');
+
         document.body.style.overflow = 'hidden';
     }
 
@@ -1449,6 +856,7 @@ while ($r = $rooms->fetch_assoc()) {
 
     function selectPayMethod(method) {
         document.getElementById('hidden_pay_method').value = method;
+        updateReservationSummary();
         ['cash', 'gcash', 'card'].forEach(m => {
             document.getElementById('pay-opt-' + m)?.classList.remove('rm-pay-selected');
             document.getElementById('pay-detail-' + m)?.classList.remove('show');
@@ -1578,47 +986,79 @@ while ($r = $rooms->fetch_assoc()) {
         }
     }
 
+    // function formatPHP(n) {
+    //     return '₱' + n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    // }
+
     function formatPHP(n) {
-        return '₱' + n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        return '₱' + n.toLocaleString('en-PH', {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+        });
     }
 
-    function recalc() {
+    // function recalc() {
+    //     const checkin  = document.getElementById('modal_checkin').value;
+    //     const checkout = document.getElementById('modal_checkout').value;
+
+    //     let nights = 0;
+    //     if (checkin && checkout) {
+    //         const d1 = new Date(checkin), d2 = new Date(checkout);
+    //         nights = Math.max(0, Math.round((d2 - d1) / 86400000));
+    //     }
+
+    //     document.getElementById('sum-room-name').textContent =
+    //         currentRoomType + (currentRoomNumber ? ' · Rm ' + currentRoomNumber : '');
+    //     document.getElementById('sum-checkin').textContent  = checkin  ? formatDate(checkin)  : '-';
+    //     document.getElementById('sum-checkout').textContent = checkout ? formatDate(checkout) : '-';
+    //     document.getElementById('sum-nights').textContent   = nights > 0 ? nights + ' night' + (nights > 1 ? 's' : '') : '-';
+
+    //     const roomCost = currentRoomPrice * nights;
+    //     document.getElementById('sum-room-cost').textContent = formatPHP(roomCost);
+
+    //     let amenitiesTotal = 0;
+    //     let amenityHTML = '';
+    //     document.querySelectorAll('.rm-amenity-cb:checked').forEach(cb => {
+    //         const aid   = cb.dataset.id;
+    //         const price = parseFloat(cb.dataset.price);
+    //         const qty   = parseInt(document.getElementById('qty_' + aid).value || 1);
+    //         const sub   = price * qty;
+    //         amenitiesTotal += sub;
+    //         const name = document.querySelector(`#acard_${aid} .rm-amenity-name`).textContent;
+    //         amenityHTML += `<div class="sum-amenity-line">
+    //             <span>${name} ×${qty}</span>
+    //             <span>${formatPHP(sub)}</span>
+    //         </div>`;
+    //     });
+    //     document.getElementById('sum-amenities-list').innerHTML = amenityHTML;
+
+    //     const total = roomCost + amenitiesTotal;
+    //     document.getElementById('sum-total').textContent = formatPHP(total);
+    // }
+
+    function updateReservationSummary() {
         const checkin  = document.getElementById('modal_checkin').value;
         const checkout = document.getElementById('modal_checkout').value;
 
         let nights = 0;
+
         if (checkin && checkout) {
-            const d1 = new Date(checkin), d2 = new Date(checkout);
+            const d1 = new Date(checkin);
+            const d2 = new Date(checkout);
             nights = Math.max(0, Math.round((d2 - d1) / 86400000));
         }
 
-        document.getElementById('sum-room-name').textContent =
-            currentRoomType + (currentRoomNumber ? ' · Rm ' + currentRoomNumber : '');
-        document.getElementById('sum-checkin').textContent  = checkin  ? formatDate(checkin)  : '-';
-        document.getElementById('sum-checkout').textContent = checkout ? formatDate(checkout) : '-';
-        document.getElementById('sum-nights').textContent   = nights > 0 ? nights + ' night' + (nights > 1 ? 's' : '') : '-';
+        // DISPLAY DATES
+        document.getElementById('sum-checkin').textContent  = checkin ? formatDate(checkin) : '—';
+        document.getElementById('sum-checkout').textContent = checkout ? formatDate(checkout) : '—';
+        document.getElementById('sum-nights').textContent   = nights ? nights + ' night' + (nights > 1 ? 's' : '') : '—';
 
+        // ROOM COST
         const roomCost = currentRoomPrice * nights;
         document.getElementById('sum-room-cost').textContent = formatPHP(roomCost);
 
-        let amenitiesTotal = 0;
-        let amenityHTML = '';
-        document.querySelectorAll('.rm-amenity-cb:checked').forEach(cb => {
-            const aid   = cb.dataset.id;
-            const price = parseFloat(cb.dataset.price);
-            const qty   = parseInt(document.getElementById('qty_' + aid).value || 1);
-            const sub   = price * qty;
-            amenitiesTotal += sub;
-            const name = document.querySelector(`#acard_${aid} .rm-amenity-name`).textContent;
-            amenityHTML += `<div class="sum-amenity-line">
-                <span>${name} ×${qty}</span>
-                <span>${formatPHP(sub)}</span>
-            </div>`;
-        });
-        document.getElementById('sum-amenities-list').innerHTML = amenityHTML;
-
-        const total = roomCost + amenitiesTotal;
-        document.getElementById('sum-total').textContent = formatPHP(total);
+        // TOTAL (for now = room only)
+        document.getElementById('sum-total').textContent = formatPHP(roomCost);
     }
 
     function formatDate(str) {
@@ -1626,66 +1066,86 @@ while ($r = $rooms->fetch_assoc()) {
         return d.toLocaleDateString('en-PH', { month:'short', day:'numeric', year:'numeric' });
     }
 
-    document.getElementById('modal_checkin').addEventListener('change', recalc);
-    document.getElementById('modal_checkout').addEventListener('change', recalc);
+    // document.getElementById('modal_checkin').addEventListener('change', recalc);
+    // document.getElementById('modal_checkout').addEventListener('change', recalc);
+    document.getElementById('modal_checkin').addEventListener('change', updateReservationSummary);
+    document.getElementById('modal_checkout').addEventListener('change', updateReservationSummary);
     document.querySelectorAll('.rm-amenity-qty input[type="number"]').forEach(inp => {
         inp.addEventListener('input', recalc);
     });
 
     // ── Room Detail Modal ── gab gin ai ko la in an mga additional sensya na agad kun may nahibang hihih
     let detailRoomPrice = 0;
+
+    function recalcDetail() {
+        const checkin  = document.getElementById('inputCheckIn').value;
+        const checkout = document.getElementById('inputCheckOut').value;
+        let nights = 0;
+        if (checkin && checkout) {
+            const d1 = new Date(checkin), d2 = new Date(checkout);
+            nights = Math.max(0, Math.round((d2 - d1) / 86400000));
+        }
+
+        const total = detailRoomPrice * nights;
+        document.getElementById('estimatedTotalPrice').textContent =
+            total ? total.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00';
+    }
+
+    // function openDetailModal(e, card) {
+    //     e.preventDefault();
+    //     const d = card.dataset;
+
+    //     detailRoomPrice = parseFloat(d.price) || 0;
+
+    //     document.getElementById('detailImage').src          = d.image;
+    //     document.getElementById('detailType').textContent   = d.type;
+    //     document.getElementById('detailNumber').textContent = d.roomNumber;
+    //     document.getElementById('detailCapacity').textContent = d.capacity;
+    //     document.getElementById('detailPrice').textContent   = 'PHP ' + Number(d.price).toLocaleString();
+
+    //     const today = new Date();
+    //     const tomorrow = new Date(today);
+    //     tomorrow.setDate(today.getDate() + 1);
+    //     document.getElementById('inputCheckIn').value = today.toISOString().split('T')[0];
+    //     document.getElementById('inputCheckOut').value = tomorrow.toISOString().split('T')[0];
+
+    //     document.getElementById('extraGuest').value = 0;
+    //     document.getElementById('extraBed').value = 0;
+
+    //     recalcDetail();
+    //     document.getElementById('roomDetailModal').classList.add('show');
+    // }
+    
+    // e2 rin
     function openDetailModal(e, card) {
         e.preventDefault();
-        const d = card.dataset;
 
-        detailRoomPrice = parseFloat(d.price);
+        const modal = document.getElementById('roomDetailModal');
 
-        document.getElementById('detailImage').src      = d.image;
-        document.getElementById('detailType').textContent  = d.type;
-        document.getElementById('detailNumber').textContent = d.roomNumber;
-        document.getElementById('detailCapacity').textContent = d.capacity;
-        document.getElementById('detailPrice').textContent = 'PHP ' + Number(d.price).toLocaleString();
-        // document.getElementById('detailDescription').textContent = d.description;
+        // Get data from clicked card
+        const type     = card.dataset.type;
+        const number   = card.dataset.roomNumber;
+        const price    = card.dataset.price;
+        const image    = card.dataset.image;
+        const capacity = card.dataset.capacity;
 
-        // const pill = document.getElementById('detailStatus');
-        // pill.textContent = d.status.charAt(0).toUpperCase() + d.status.slice(1);
-        // pill.className = 'detail-status-pill ' + d.status.toLowerCase();
+        // Populate modal UI
+        document.getElementById('detailType').textContent = type || '';
+        document.getElementById('detailNumber').textContent = number || '';
+        document.getElementById('detailCapacity').textContent = capacity || '';
+        document.getElementById('detailPrice').textContent =
+            "₱" + parseFloat(price || 0).toLocaleString();
+        document.getElementById('detailImage').src = image || '';
 
-        const today = new Date();
-        const tomorrow = new Date(today);
-        tomorrow.setDate(today.getDate() + 1);
-        document.getElementById('inputCheckIn').value = today.toISOString().split('T')[0];
-        document.getElementById('inputCheckOut').value = tomorrow.toISOString().split('T')[0];
+        // Store data for booking
+        modal.dataset.roomId = card.dataset.roomId;
+        modal.dataset.price  = price;
+        modal.dataset.type   = type;
+        modal.dataset.number = number;
+        modal.dataset.image  = image;
 
-        document.getElementById('extraGuest').value = 0;
-        document.getElementById('extraBed').value = 0;
-    /* ══════════════════════════════════════════════
-       ROOM DETAIL MODAL
-    ══════════════════════════════════════════════ */
-    function openDetailModal(e, card) {
-        e.preventDefault();
-        const d = card.dataset;
-        document.getElementById('detailImage').src                = d.image;
-        document.getElementById('detailType').textContent         = d.type;
-        document.getElementById('detailType2').textContent        = d.type;
-        document.getElementById('detailNumber').textContent       = d.roomNumber;
-        document.getElementById('detailCapacity').textContent     = d.capacity;
-        document.getElementById('detailPrice').textContent        = 'PHP ' + Number(d.price).toLocaleString();
-        document.getElementById('detailDescription').textContent  = d.description;
-
-        const pill = document.getElementById('detailStatus');
-        pill.textContent = d.status.charAt(0).toUpperCase() + d.status.slice(1);
-        pill.className   = 'detail-status-pill ' + d.status.toLowerCase();
-
-        const btn = document.getElementById('detailBookBtn');
-        btn.dataset.roomId = d.roomId;
-        btn.dataset.price  = d.price;
-        btn.dataset.type   = d.type;
-        btn.dataset.number = d.roomNumber;
-        btn.dataset.image  = d.image;
-
-        recalcDetail();
-        document.getElementById('roomDetailModal').classList.add('show');
+        // Show modal
+        modal.classList.add('show');
     }
 
     function closeDetailModal() {
@@ -1702,6 +1162,19 @@ while ($r = $rooms->fetch_assoc()) {
     });
     document.getElementById('inputCheckIn').addEventListener('change', recalcDetail);
     document.getElementById('inputCheckOut').addEventListener('change', recalcDetail);
+
+    function bookFromDetail() {
+        const modal = document.getElementById('roomDetailModal');
+
+        const roomId = modal.dataset.roomId;
+        const price  = modal.dataset.price;
+        const type   = modal.dataset.type;
+        const number = modal.dataset.number;
+        const image  = modal.dataset.image;
+
+        closeDetailModal();
+        openModal(roomId, price, type, number, image);
+    }
 
     /* ══════════════════════════════════════════════
        FILTER & SORT
