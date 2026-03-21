@@ -87,7 +87,6 @@ CREATE TABLE reservation_amenities (
     reservation_id INT NOT NULL,
     amenity_id INT NOT NULL,
     quantity INT DEFAULT 1,
-    price DECIMAL(10,2) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     PRIMARY KEY (reservation_id, amenity_id),
