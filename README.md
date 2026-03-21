@@ -51,7 +51,9 @@ CREATE TABLE rooms (
     max_capacity INT NOT NULL,
     price_per_night DECIMAL(10,2) NOT NULL,
     room_status VARCHAR(20) NOT NULL,
-    image_path TEXT
+    image_path TEXT,
+    extra_guest_fee DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    extra_bed_fee   DECIMAL(10,2) NOT NULL DEFAULT 0.00
 );
 
 CREATE TABLE reservations (

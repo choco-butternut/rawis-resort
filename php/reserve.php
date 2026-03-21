@@ -65,7 +65,7 @@ if ($existingUser) {
     $ins->close();
 }
 
-$num_guests = 1; 
+$num_guests = 1;
 $res = $conn->prepare(
     "INSERT INTO reservations
      (guest_id, room_id, check_in_date, check_out_date, num_guests, reservation_status, extra_requests, created_at)
@@ -81,34 +81,18 @@ if (!empty($_POST["amenities"])) {
         $amenity_id = (int) $amenity_id;
         $quantity   = isset($_POST["quantity"][$amenity_id]) ? (int) $_POST["quantity"][$amenity_id] : 1;
 
-        $priceRes = $conn->query("SELECT price FROM amenities WHERE amenity_id=$amenity_id");
-        $priceRow = $priceRes->fetch_assoc();
-        $price    = $priceRow["price"];
-
         $am = $conn->prepare(
-            "INSERT INTO reservation_amenities (reservation_id, amenity_id, quantity, price)
-             VALUES (?, ?, ?, ?)"
+            "INSERT INTO reservation_amenities (reservation_id, amenity_id, quantity)
+             VALUES (?, ?, ?)"
         );
-        $am->bind_param("iiid", $reservation_id, $amenity_id, $quantity, $price);
+        $am->bind_param("iii", $reservation_id, $amenity_id, $quantity);
         $am->execute();
         $am->close();
     }
 }
 
 $nights = (new DateTime($check_in))->diff(new DateTime($check_out))->days;
-$room_total = $room["price_per_night"] * $nights;
-
-$amTotal = 0;
-$amRes = $conn->prepare(
-    "SELECT SUM(price * quantity) as total FROM reservation_amenities WHERE reservation_id=?"
-);
-$amRes->bind_param("i", $reservation_id);
-$amRes->execute();
-$amRow = $amRes->get_result()->fetch_assoc();
-$amTotal = $amRow["total"] ?? 0;
-$amRes->close();
-
-$total_amount = $room_total + $amTotal;
+$total_amount = $room["price_per_night"] * $nights;
 
 if ($payment_method === "Cash") {
     $payment_status = "Pending";

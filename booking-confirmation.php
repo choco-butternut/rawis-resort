@@ -34,9 +34,10 @@ if (!$data || strtolower($data["email"]) !== strtolower($token_email)) {
 
 $nights = (new DateTime($data["check_in_date"]))->diff(new DateTime($data["check_out_date"]))->days;
 $room_cost = $data["price_per_night"] * $nights;
+$total = $room_cost;
 
 $amStmt = $conn->prepare("
-    SELECT ra.quantity, ra.price, a.amenity_name
+    SELECT ra.quantity, a.amenity_name
     FROM reservation_amenities ra
     JOIN amenities a ON ra.amenity_id = a.amenity_id
     WHERE ra.reservation_id = ?
@@ -45,15 +46,10 @@ $amStmt->bind_param("i", $reservation_id);
 $amStmt->execute();
 $amenities_result = $amStmt->get_result();
 $amenities_list = [];
-$amenities_total = 0;
 while ($row = $amenities_result->fetch_assoc()) {
-    $sub = $row["price"] * $row["quantity"];
-    $amenities_total += $sub;
-    $amenities_list[] = $row + ["subtotal" => $sub];
+    $amenities_list[] = $row;
 }
 $amStmt->close();
-
-$total = $room_cost + $amenities_total;
 
 $success_msg = "";
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["submit_reference"])) {
@@ -116,14 +112,12 @@ function paymentBadge($s) {
     <style>
         * { box-sizing: border-box; }
 
-        /* ── Page wrapper ── */
         .confirm-page {
             max-width: 940px;
             margin: 40px auto 80px;
             padding: 0 18px;
         }
 
-        /* ── Hero banner ── */
         .confirm-hero {
             background: linear-gradient(to right, #bbcc81 10%, #334937 80%);
             border-radius: 18px;
@@ -178,7 +172,6 @@ function paymentBadge($s) {
             font-size: 30px; font-weight: 400; letter-spacing: 0.04em;
         }
 
-        /* ── Alert ── */
         .alert-success {
             background: #f0f7e6;
             border: 1px solid #bbcc81;
@@ -192,7 +185,6 @@ function paymentBadge($s) {
             display: flex; align-items: center; gap: 10px;
         }
 
-        /* ── Grid ── */
         .confirm-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -200,7 +192,6 @@ function paymentBadge($s) {
         }
         .confirm-grid .full-width { grid-column: 1 / -1; }
 
-        /* ── Cards ── */
         .card {
             background: #fff;
             border-radius: 16px;
@@ -220,7 +211,6 @@ function paymentBadge($s) {
         }
         .card-title i { color: #bbcc81; }
 
-        /* ── Info rows ── */
         .info-row {
             display: flex;
             justify-content: space-between;
@@ -234,7 +224,6 @@ function paymentBadge($s) {
         .info-row .label { color: #888; }
         .info-row .value { font-weight: 600; color: #341f0c; text-align: right; }
 
-        /* ── Room inline card ── */
         .room-card-inline {
             display: flex;
             gap: 16px;
@@ -260,7 +249,6 @@ function paymentBadge($s) {
             margin-top: 4px;
         }
 
-        /* ── Date strip ── */
         .date-strip {
             display: flex;
             align-items: center;
@@ -311,7 +299,6 @@ function paymentBadge($s) {
             white-space: nowrap;
         }
 
-        /* ── Status badge ── */
         .status-badge {
             display: inline-block;
             padding: 4px 14px;
@@ -322,7 +309,6 @@ function paymentBadge($s) {
             border: 1.5px solid;
         }
 
-        /* ── Cost breakdown ── */
         .cost-row {
             display: flex;
             justify-content: space-between;
@@ -342,7 +328,16 @@ function paymentBadge($s) {
         .cost-row.total-row span:first-child { font-size: 15px; font-weight: 700; color: #341f0c; }
         .cost-row.total-row span:last-child  { font-size: 20px; font-weight: 800; color: #334937; }
 
-        /* ── Payment method ── */
+        .amenity-list {
+            font-family: Poppins, sans-serif;
+            font-size: 14px;
+            color: #555;
+            padding: 8px 0;
+            border-bottom: 1px dashed #ede8e1;
+        }
+        .amenity-list:last-of-type { border-bottom: none; }
+        .amenity-list span { display: inline-block; margin-right: 8px; }
+
         .pm-icon {
             display: inline-flex; align-items: center; gap: 7px;
             font-family: Poppins, sans-serif;
@@ -353,7 +348,6 @@ function paymentBadge($s) {
         .pm-gcash { color: #531e07; }
         .pm-card  { color: #8e4a0f; }
 
-        /* ── Instructions ── */
         .instructions-box {
             background: #faf8f5;
             border-radius: 12px;
@@ -377,7 +371,6 @@ function paymentBadge($s) {
             font-size: 12px; font-weight: 700; flex-shrink: 0;
         }
 
-        /* ── Reference form ── */
         .ref-form {
             margin-top: 14px;
             padding: 16px;
@@ -415,7 +408,6 @@ function paymentBadge($s) {
         }
         .ref-form button:hover { opacity: 0.88; }
 
-        /* ── Action buttons ── */
         .confirm-actions {
             display: flex; gap: 12px; margin-top: 24px; flex-wrap: wrap;
         }
@@ -550,12 +542,20 @@ function paymentBadge($s) {
                     <span><?= htmlspecialchars($data["room_type"]); ?> × <?= $nights; ?> night<?= $nights > 1 ? 's' : ''; ?></span>
                     <span>₱<?= number_format($room_cost, 2); ?></span>
                 </div>
-                <?php foreach ($amenities_list as $a): ?>
-                <div class="cost-row">
-                    <span><?= htmlspecialchars($a["amenity_name"]); ?> ×<?= $a["quantity"]; ?></span>
-                    <span>₱<?= number_format($a["subtotal"], 2); ?></span>
+                <?php if (!empty($amenities_list)): ?>
+                <div class="cost-row" style="flex-direction: column; gap: 4px;">
+                    <span style="color:#888; font-size:12px; text-transform:uppercase; letter-spacing:0.06em;">Included Amenities</span>
+                    <?php foreach ($amenities_list as $a): ?>
+                        <div class="amenity-list">
+                            <i class="fas fa-check" style="color:#bbcc81; font-size:11px;"></i>
+                            <span><?= htmlspecialchars($a["amenity_name"]); ?></span>
+                            <?php if ($a["quantity"] > 1): ?>
+                                <span style="color:#aaa;">×<?= $a["quantity"]; ?></span>
+                            <?php endif; ?>
+                        </div>
+                    <?php endforeach; ?>
                 </div>
-                <?php endforeach; ?>
+                <?php endif; ?>
                 <div class="cost-row total-row">
                     <span>Total</span>
                     <span>₱<?= number_format($total, 2); ?></span>
@@ -668,9 +668,8 @@ function paymentBadge($s) {
                 <?php endif; ?>
             </div>
 
-        </div><!-- /.confirm-grid -->
+        </div>
 
-        <!-- Actions -->
         <div class="confirm-actions">
             <a href="/rooms.php" class="btn-secondary">
                 <i class="fas fa-arrow-left"></i> Browse More Rooms

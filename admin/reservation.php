@@ -5,7 +5,6 @@ require_once __DIR__ . "/../php/admin_auth.php";
 if (isset($_POST["verify_payment"])) {
     $reservation_id = (int) $_POST["reservation_id"];
 
-    
     $stmt = $conn->prepare(
         "UPDATE payments SET payment_status='Completed' WHERE reservation_id=? ORDER BY payment_id DESC LIMIT 1"
     );
@@ -13,7 +12,6 @@ if (isset($_POST["verify_payment"])) {
     $stmt->execute();
     $stmt->close();
 
-    
     $stmt2 = $conn->prepare(
         "UPDATE reservations SET reservation_status='Confirmed' WHERE reservation_id=?"
     );
@@ -25,7 +23,6 @@ if (isset($_POST["verify_payment"])) {
     exit();
 }
 
-
 if (isset($_POST["reject_payment"])) {
     $reservation_id = (int) $_POST["reservation_id"];
     $reject_reason  = sanitize_input($_POST["reject_reason"] ?? "Payment could not be verified.");
@@ -33,10 +30,8 @@ if (isset($_POST["reject_payment"])) {
     $stmt = $conn->prepare(
         "UPDATE payments SET payment_status='Rejected', notes=? WHERE reservation_id=? ORDER BY payment_id DESC LIMIT 1"
     );
-    
     $stmt->bind_param("si", $reject_reason, $reservation_id);
     if (!$stmt->execute()) {
-        
         $stmt->close();
         $stmt = $conn->prepare(
             "UPDATE payments SET payment_status='Rejected' WHERE reservation_id=? ORDER BY payment_id DESC LIMIT 1"
@@ -60,7 +55,6 @@ if (isset($_POST["reject_payment"])) {
 if (isset($_POST["update_status"])) {
     $reservation_id = (int) $_POST["reservation_id"];
     $new_status     = sanitize_input($_POST["reservation_status"]);
-    $today          = date('Y-m-d');
 
     $allowed = ['Pending', 'Confirmed', 'Completed', 'Cancelled'];
     if (!in_array($new_status, $allowed)) {
@@ -68,7 +62,7 @@ if (isset($_POST["update_status"])) {
     }
 
     $info = $conn->prepare("
-        SELECT p.payment_status, r.room_id, r.check_in_date, r.check_out_date
+        SELECT p.payment_status, r.room_id
         FROM reservations r
         LEFT JOIN payments p ON p.reservation_id = r.reservation_id
         WHERE r.reservation_id = ?
@@ -79,9 +73,8 @@ if (isset($_POST["update_status"])) {
     $row = $info->get_result()->fetch_assoc();
     $info->close();
 
-    $room_id       = $row["room_id"]       ?? null;
-    $pay_status    = $row["payment_status"] ?? "Pending";
-    $check_in_date = $row["check_in_date"]  ?? null;
+    $room_id    = $row["room_id"]       ?? null;
+    $pay_status = $row["payment_status"] ?? "Pending";
 
     $stmt = $conn->prepare("UPDATE reservations SET reservation_status=? WHERE reservation_id=?");
     $stmt->bind_param("si", $new_status, $reservation_id);
@@ -90,8 +83,7 @@ if (isset($_POST["update_status"])) {
     if ($new_status === 'Confirmed') {
         $sp = $conn->prepare(
             "UPDATE payments SET payment_status='Completed'
-            WHERE reservation_id=?
-            ORDER BY payment_id DESC LIMIT 1"
+            WHERE reservation_id=? ORDER BY payment_id DESC LIMIT 1"
         );
         $sp->bind_param("i", $reservation_id);
         $sp->execute(); $sp->close();
@@ -201,7 +193,6 @@ function payBadge($s) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reservations | Admin</title>
     <style>
-        /* Payment badges */
         .pay-badge {
             display: inline-block;
             padding: 3px 10px;
@@ -216,7 +207,6 @@ function payBadge($s) {
         .pay-rejected  { background:#fef2f2; color:#991b1b; border:1px solid #fca5a5; }
         .pay-refunded  { background:#f5f3ff; color:#5b21b6; border:1px solid #c4b5fd; }
 
-        /* Verify / reject buttons inline */
         .btn-verify {
             padding: 5px 12px;
             background: #10b981;
@@ -241,7 +231,6 @@ function payBadge($s) {
         .btn-verify:hover { background: #059669; }
         .btn-reject:hover  { background: #dc2626; }
 
-        /* Alert banner */
         .admin-alert {
             padding: 12px 20px;
             border-radius: 10px;
@@ -251,10 +240,8 @@ function payBadge($s) {
         .admin-alert.success { background:#ecfdf5; color:#065f46; border:1px solid #6ee7b7; }
         .admin-alert.error   { background:#fef2f2; color:#991b1b; border:1px solid #fca5a5; }
 
-        /* Awaiting-verification row highlight */
         tr.row-awaiting { background: #eff6ff !important; }
 
-        /* Payment detail panel inside modal */
         .pay-detail-box {
             background: #f8fafc;
             border-radius: 10px;
@@ -285,7 +272,6 @@ function payBadge($s) {
             font-size: 14px;
         }
 
-        /* Method pill */
         .pm-pill {
             display: inline-flex; align-items: center; gap: 5px;
             font-size: 12px; font-weight: 600;
@@ -348,13 +334,7 @@ function payBadge($s) {
             </thead>
             <tbody>
                 <?php while ($row = $reservations->fetch_assoc()):
-                    $base = $row["base_amount"];
-                    $amQ  = $conn->prepare("SELECT SUM(price*quantity) as t FROM reservation_amenities WHERE reservation_id=?");
-                    $amQ->bind_param("i", $row["reservation_id"]);
-                    $amQ->execute();
-                    $amR  = $amQ->get_result()->fetch_assoc();
-                    $amQ->close();
-                    $total = $base + ($amR["t"] ?? 0);
+                    $total = $row["amount_paid"] ?? $row["base_amount"];
 
                     $rowClass = ($row["payment_status"] === "Awaiting Verification") ? "row-awaiting" : "";
 
@@ -472,7 +452,6 @@ function payBadge($s) {
             </div>
         </div>
 
-        <!-- Payment section -->
         <div class="pay-detail-box">
             <p style="margin:0 0 10px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#94a3b8">Payment Info</p>
             <div class="pay-detail-row">
