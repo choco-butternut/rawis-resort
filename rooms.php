@@ -449,8 +449,8 @@ while ($r = $rooms->fetch_assoc()) {
         if (currentRoomImage) { imgEl.src = currentRoomImage; imgEl.style.display = ''; }
         else { imgEl.style.display = 'none'; }
 
-        document.getElementById('modal_extra_guest').value = 0;
-        document.getElementById('modal_extra_bed').value   = 0;
+        document.getElementById('modal_extra_guest').value = extraGuests || 0;
+        document.getElementById('modal_extra_bed').value   = extraBeds || 0;
 
         // Show fee hints
         const guestHint = document.getElementById('modal-guest-fee-hint');
@@ -650,6 +650,8 @@ while ($r = $rooms->fetch_assoc()) {
         const modal       = document.getElementById('roomDetailModal');
         const checkIn     = document.getElementById('inputCheckIn').value;
         const checkOut    = document.getElementById('inputCheckOut').value;
+        const extraGuests  = parseInt(document.getElementById('extraGuest').value) || 0;
+        const extraBeds    = parseInt(document.getElementById('extraBed').value)   || 0;
 
         closeDetailModal();
 
@@ -662,7 +664,9 @@ while ($r = $rooms->fetch_assoc()) {
             modal.dataset.extraGuestFee,
             modal.dataset.extraBedFee,
             checkIn,
-            checkOut
+            checkOut,
+            extraGuests,
+            extraBeds
         );
     }
 
