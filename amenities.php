@@ -179,10 +179,10 @@ $result = $conn->query($sql);
                             <p class="amenity-card-desc"><?= htmlspecialchars($row['description']); ?></p>
 
                             <div class="amenity-card-footer">
-                                <div class="amenity-price">
+                                <!-- <div class="amenity-price">
                                     ₱<?= number_format($row['price'], 2); ?>
                                     <span>/add-on</span>
-                                </div>
+                                </div> -->
                                 <span class="amenity-status-pill <?= strtolower($row['amenity_status']); ?>">
                                     <?= htmlspecialchars($row['amenity_status']); ?>
                                 </span>
