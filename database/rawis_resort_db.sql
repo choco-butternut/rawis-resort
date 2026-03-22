@@ -1,9 +1,9 @@
 /*M!999999\- enable the sandbox mode */ 
--- MariaDB dump 10.19  Distrib 10.11.14-MariaDB, for debian-linux-gnu (x86_64)
+-- MariaDB dump 10.19-11.8.6-MariaDB, for debian-linux-gnu (x86_64)
 --
 -- Host: localhost    Database: rawis_resort_db
 -- ------------------------------------------------------
--- Server version	10.11.14-MariaDB-0ubuntu0.24.04.1
+-- Server version	11.8.6-MariaDB-2 from Debian
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -14,7 +14,7 @@
 /*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
-/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+/*M!100616 SET @OLD_NOTE_VERBOSITY=@@NOTE_VERBOSITY, NOTE_VERBOSITY=0 */;
 
 --
 -- Table structure for table `amenities`
@@ -38,6 +38,7 @@ CREATE TABLE `amenities` (
 -- Dumping data for table `amenities`
 --
 
+SET @OLD_AUTOCOMMIT=@@AUTOCOMMIT, @@AUTOCOMMIT=0;
 LOCK TABLES `amenities` WRITE;
 /*!40000 ALTER TABLE `amenities` DISABLE KEYS */;
 INSERT INTO `amenities` VALUES
@@ -52,6 +53,8 @@ INSERT INTO `amenities` VALUES
 (19,'High Powered Standby Generator','High-powered standby generator ensures uninterrupted power supply during outages.',NULL,'Available','2026-03-21 10:49:39');
 /*!40000 ALTER TABLE `amenities` ENABLE KEYS */;
 UNLOCK TABLES;
+COMMIT;
+SET AUTOCOMMIT=@OLD_AUTOCOMMIT;
 
 --
 -- Table structure for table `payments`
@@ -73,17 +76,22 @@ CREATE TABLE `payments` (
   PRIMARY KEY (`payment_id`),
   KEY `fk_payment_reservation` (`reservation_id`),
   CONSTRAINT `fk_payment_reservation` FOREIGN KEY (`reservation_id`) REFERENCES `reservations` (`reservation_id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `payments`
 --
 
+SET @OLD_AUTOCOMMIT=@@AUTOCOMMIT, @@AUTOCOMMIT=0;
 LOCK TABLES `payments` WRITE;
 /*!40000 ALTER TABLE `payments` DISABLE KEYS */;
+INSERT INTO `payments` VALUES
+(12,16,79900.00,'Cash','Pending','',NULL,'2026-03-22 14:22:15',NULL);
 /*!40000 ALTER TABLE `payments` ENABLE KEYS */;
 UNLOCK TABLES;
+COMMIT;
+SET AUTOCOMMIT=@OLD_AUTOCOMMIT;
 
 --
 -- Table structure for table `reservation_amenities`
@@ -108,10 +116,13 @@ CREATE TABLE `reservation_amenities` (
 -- Dumping data for table `reservation_amenities`
 --
 
+SET @OLD_AUTOCOMMIT=@@AUTOCOMMIT, @@AUTOCOMMIT=0;
 LOCK TABLES `reservation_amenities` WRITE;
 /*!40000 ALTER TABLE `reservation_amenities` DISABLE KEYS */;
 /*!40000 ALTER TABLE `reservation_amenities` ENABLE KEYS */;
 UNLOCK TABLES;
+COMMIT;
+SET AUTOCOMMIT=@OLD_AUTOCOMMIT;
 
 --
 -- Table structure for table `reservations`
@@ -130,22 +141,29 @@ CREATE TABLE `reservations` (
   `reservation_status` enum('Pending','Confirmed','Cancelled','Completed') DEFAULT 'Pending',
   `extra_requests` text DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `extra_guests` int(11) NOT NULL DEFAULT 0,
+  `extra_beds` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`reservation_id`),
   KEY `guest_id` (`guest_id`),
   KEY `room_id` (`room_id`),
   CONSTRAINT `reservations_ibfk_1` FOREIGN KEY (`guest_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
   CONSTRAINT `reservations_ibfk_2` FOREIGN KEY (`room_id`) REFERENCES `rooms` (`room_id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `reservations`
 --
 
+SET @OLD_AUTOCOMMIT=@@AUTOCOMMIT, @@AUTOCOMMIT=0;
 LOCK TABLES `reservations` WRITE;
 /*!40000 ALTER TABLE `reservations` DISABLE KEYS */;
+INSERT INTO `reservations` VALUES
+(16,15,6,'2026-03-22','2026-04-08',1,'Pending','0','2026-03-22 14:22:15',4,4);
 /*!40000 ALTER TABLE `reservations` ENABLE KEYS */;
 UNLOCK TABLES;
+COMMIT;
+SET AUTOCOMMIT=@OLD_AUTOCOMMIT;
 
 --
 -- Table structure for table `rooms`
@@ -169,22 +187,25 @@ CREATE TABLE `rooms` (
   `bed_type` varchar(50) NOT NULL DEFAULT 'Double',
   PRIMARY KEY (`room_id`),
   UNIQUE KEY `room_number` (`room_number`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `rooms`
 --
 
+SET @OLD_AUTOCOMMIT=@@AUTOCOMMIT, @@AUTOCOMMIT=0;
 LOCK TABLES `rooms` WRITE;
 /*!40000 ALTER TABLE `rooms` DISABLE KEYS */;
 INSERT INTO `rooms` VALUES
-(6,'1','Premier Single Room',2,2500.00,'available','uploads/rooms/1774181353_premier-single.png',300.00,250.00,1,1,'Double'),
-(7,'2','Premier Twin Room',2,2600.00,'available','uploads/rooms/1774181489_premier-twin.png',300.00,250.00,1,2,'Twin'),
-(8,'3','Superior Twin Room',2,3000.00,'available','uploads/rooms/1774181724_superior-twin.png',300.00,250.00,1,2,'Twin'),
-(9,'4','Superior Quadruple Room',4,3500.00,'available','uploads/rooms/1774182400_superior-quadruple.png',300.00,250.00,1,2,'Double');
+(6,'1','Premier Single Room',2,2500.00,'available','uploads/rooms/1774187106_premier-single.png',300.00,250.00,1,1,'Double'),
+(7,'2','Premier Twin Room',2,2600.00,'available','uploads/rooms/1774187113_premier-twin.png',300.00,250.00,1,2,'Twin'),
+(8,'3','Superior Twin Room',2,3000.00,'available','uploads/rooms/1774187121_superior-twin.png',300.00,250.00,1,2,'Twin'),
+(9,'4','Superior Quadruple Room',4,3500.00,'available','uploads/rooms/1774187127_superior-quadruple.png',300.00,250.00,1,2,'Double');
 /*!40000 ALTER TABLE `rooms` ENABLE KEYS */;
 UNLOCK TABLES;
+COMMIT;
+SET AUTOCOMMIT=@OLD_AUTOCOMMIT;
 
 --
 -- Table structure for table `users`
@@ -204,13 +225,14 @@ CREATE TABLE `users` (
   `role` enum('admin','guest') NOT NULL DEFAULT 'guest',
   PRIMARY KEY (`id`),
   UNIQUE KEY `username` (`username`)
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `users`
 --
 
+SET @OLD_AUTOCOMMIT=@@AUTOCOMMIT, @@AUTOCOMMIT=0;
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
 INSERT INTO `users` VALUES
@@ -223,9 +245,13 @@ INSERT INTO `users` VALUES
 (10,'rfsdf sdfsdfs_1774100011','','rfsdf','sdfsdfs','23131233','2026-03-21 13:33:31','guest'),
 (11,'ewr fsd_1774100090','','ewr','fsd','23131233','2026-03-21 13:34:50','guest'),
 (12,'asdasdasasd asdasdd_1774179412','','asdasdasasd','asdasdd','12313131','2026-03-22 11:36:52','guest'),
-(13,'asdasd asdasd_1774179448','','asdasd','asdasd','asdasda','2026-03-22 11:37:28','guest');
+(13,'asdasd asdasd_1774179448','','asdasd','asdasd','asdasda','2026-03-22 11:37:28','guest'),
+(14,'aSAs asas_1774187291','','aSAs','asas','asaS','2026-03-22 13:48:11','guest'),
+(15,'asdad asdasd_1774187388','','sdasd','zdasd','09611440750','2026-03-22 13:49:48','guest');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
+COMMIT;
+SET AUTOCOMMIT=@OLD_AUTOCOMMIT;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -234,6 +260,6 @@ UNLOCK TABLES;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
-/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+/*M!100616 SET NOTE_VERBOSITY=@OLD_NOTE_VERBOSITY */;
 
--- Dump completed on 2026-03-22 20:31:55
+-- Dump completed on 2026-03-23  7:50:23
