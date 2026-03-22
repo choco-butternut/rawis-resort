@@ -1164,9 +1164,10 @@ body > * {
 .reservation-container {
     background: #fff;
     max-width: 950px;
+    max-height: calc(100vh - 40px);
     margin: 2% auto;
     border-radius: 15px;
-    overflow: hidden;
+    overflow-y: auto;
     display: flex;
     flex-direction: column;
     box-shadow: 0 20px 40px rgba(0,0,0,0.2);

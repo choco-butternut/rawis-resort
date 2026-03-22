@@ -118,61 +118,7 @@ while ($r = $rooms->fetch_assoc()) {
                                     </select>
                                 </div>
 
-                                <!-- GCash Panel -->
-                                <div id="gcash-panel" style="display:none">
-                                    <div style="background:#f0f6ff;border:1.5px solid #93c5fd;border-radius:12px;padding:16px;text-align:center;margin-bottom:12px">
-                                        <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#1d4ed8;margin:0 0 10px">Scan to Pay via GCash</p>
-                                        <img src="assets/images/gcash-qr.png"
-                                             alt="GCash QR Code"
-                                             onerror="this.style.display='none';document.getElementById('gcash-qr-fallback').style.display='flex'"
-                                             style="width:160px;height:160px;object-fit:contain;border-radius:10px;border:2px solid #bfdbfe;margin:0 auto;display:block">
-                                        <div id="gcash-qr-fallback" style="display:none;width:160px;height:160px;background:#dbeafe;border-radius:10px;border:2px dashed #93c5fd;margin:0 auto;align-items:center;justify-content:center;flex-direction:column;gap:6px">
-                                            <i class="fas fa-qrcode" style="font-size:48px;color:#93c5fd"></i>
-                                            <span style="font-size:11px;color:#1d4ed8;font-weight:600">QR Code</span>
-                                        </div>
-                                        <p style="margin:12px 0 2px;font-size:13px;color:#555">Send to GCash number</p>
-                                        <p style="font-size:20px;font-weight:800;color:#1d4ed8;letter-spacing:.05em;margin:0">0977 183 7288</p>
-                                        <p style="font-size:11px;color:#7c746b;margin:4px 0 0">Rawis Resort Hotel</p>
-                                    </div>
-                                    <div class="form-group" style="margin-bottom:0">
-                                        <label>GCash Reference Number</label>
-                                        <input type="text" id="gcash_ref_input" placeholder="e.g. 2024031512345678"
-                                               oninput="document.getElementById('hidden_ref_number').value=this.value">
-                                    </div>
-                                </div>
-
-                                <!-- Card Panel -->
-                                <div id="card-panel" style="display:none">
-                                    <div style="background:#fdf6f0;border:1.5px solid #dbb595;border-radius:12px;padding:16px;margin-bottom:4px">
-                                        <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#8e4a0f;margin:0 0 14px;display:flex;align-items:center;gap:6px">
-                                            <i class="fas fa-lock"></i> Card Details
-                                        </p>
-                                        <div class="form-group">
-                                            <label>Card Number</label>
-                                            <input type="text" id="card_number_input" placeholder="1234 5678 9012 3456"
-                                                   maxlength="19" autocomplete="cc-number"
-                                                   oninput="formatCardNumber(this)" style="letter-spacing:.08em;font-size:15px">
-                                        </div>
-                                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-                                            <div class="form-group" style="margin-bottom:0">
-                                                <label>Expiry Date</label>
-                                                <input type="text" id="card_expiry_input" placeholder="MM / YY"
-                                                       maxlength="7" autocomplete="cc-exp"
-                                                       oninput="formatExpiry(this)">
-                                            </div>
-                                            <div class="form-group" style="margin-bottom:0">
-                                                <label>CVC</label>
-                                                <input type="password" id="card_cvc_input" placeholder="•••"
-                                                       maxlength="4" autocomplete="cc-csc"
-                                                       style="letter-spacing:.2em">
-                                            </div>
-                                        </div>
-                                        <p style="font-size:11px;color:#7c746b;margin:12px 0 0;display:flex;align-items:center;gap:5px">
-                                            <i class="fas fa-shield-alt" style="color:#dbb595"></i>
-                                            Your card details are used only to process this reservation.
-                                        </p>
-                                    </div>
-                                </div>
+                                
 
                             </div>
 
@@ -204,6 +150,65 @@ while ($r = $rooms->fetch_assoc()) {
 
                             </div>
 
+                        </div>
+
+                        <!-- PAYMENT PANELS — full width, outside the two-column split -->
+                        <div id="gcash-panel" style="display:none; padding: 0 25px 16px;">
+                            <div style="background:#f0f6ff;border:1.5px solid #93c5fd;border-radius:12px;padding:20px;display:flex;flex-direction:column;align-items:center;gap:12px">
+                                <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#1d4ed8;margin:0">Scan to Pay via GCash</p>
+                                <img src="assets/images/gcash-qr.png" alt="GCash QR Code"
+                                    onerror="this.style.display='none';document.getElementById('gcash-qr-fallback').style.display='flex'"
+                                    style="width:160px;height:160px;object-fit:contain;border-radius:10px;border:2px solid #bfdbfe;display:block">
+                                <div id="gcash-qr-fallback" style="display:none;width:160px;height:160px;background:#dbeafe;border-radius:10px;border:2px dashed #93c5fd;align-items:center;justify-content:center;flex-direction:column;gap:6px">
+                                    <i class="fas fa-qrcode" style="font-size:48px;color:#93c5fd"></i>
+                                    <span style="font-size:11px;color:#1d4ed8;font-weight:600">QR Code</span>
+                                </div>
+                                <div style="text-align:center">
+                                    <p style="margin:0 0 2px;font-size:13px;color:#555">Send to GCash number</p>
+                                    <p style="font-size:20px;font-weight:800;color:#1d4ed8;letter-spacing:.05em;margin:0">0977 183 7288</p>
+                                    <p style="font-size:11px;color:#7c746b;margin:4px 0 0">Rawis Resort Hotel</p>
+                                </div>
+                                <div style="width:100%;max-width:400px">
+                                    <label style="display:block;font-size:12px;font-weight:600;color:#666;margin-bottom:6px">GCash Reference Number</label>
+                                    <input type="text" id="gcash_ref_input" placeholder="e.g. 2024031512345678"
+                                        oninput="document.getElementById('hidden_ref_number').value=this.value"
+                                        style="width:100%;padding:12px;border:1px solid #ddd;border-radius:8px;font-family:Poppins,sans-serif;font-size:0.9rem;box-sizing:border-box">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="card-panel" style="display:none; padding: 0 25px 16px;">
+                            <div style="background:#fdf6f0;border:1.5px solid #dbb595;border-radius:12px;padding:20px;">
+                                <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#8e4a0f;margin:0 0 16px;display:flex;align-items:center;gap:6px">
+                                    <i class="fas fa-lock"></i> Card Details
+                                </p>
+                                <div style="margin-bottom:14px">
+                                    <label style="display:block;font-size:12px;font-weight:600;color:#666;margin-bottom:6px">Card Number</label>
+                                    <input type="text" id="card_number_input" placeholder="1234 5678 9012 3456"
+                                        maxlength="19" autocomplete="cc-number"
+                                        oninput="formatCardNumber(this)"
+                                        style="width:100%;padding:12px;border:1px solid #ddd;border-radius:8px;letter-spacing:.08em;font-size:15px;font-family:Poppins,sans-serif;box-sizing:border-box">
+                                </div>
+                                <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+                                    <div>
+                                        <label style="display:block;font-size:12px;font-weight:600;color:#666;margin-bottom:6px">Expiry Date</label>
+                                        <input type="text" id="card_expiry_input" placeholder="MM / YY"
+                                            maxlength="7" autocomplete="cc-exp"
+                                            oninput="formatExpiry(this)"
+                                            style="width:100%;padding:12px;border:1px solid #ddd;border-radius:8px;font-family:Poppins,sans-serif;box-sizing:border-box">
+                                    </div>
+                                    <div>
+                                        <label style="display:block;font-size:12px;font-weight:600;color:#666;margin-bottom:6px">CVC</label>
+                                        <input type="password" id="card_cvc_input" placeholder="•••"
+                                            maxlength="4" autocomplete="cc-csc"
+                                            style="width:100%;padding:12px;border:1px solid #ddd;border-radius:8px;letter-spacing:.2em;font-family:Poppins,sans-serif;box-sizing:border-box">
+                                    </div>
+                                </div>
+                                <p style="font-size:11px;color:#7c746b;margin:14px 0 0;display:flex;align-items:center;gap:5px">
+                                    <i class="fas fa-shield-alt" style="color:#dbb595"></i>
+                                    Your card details are used only to process this reservation.
+                                </p>
+                            </div>
                         </div>
 
                         <!-- FOOTER -->
