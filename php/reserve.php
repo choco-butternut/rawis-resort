@@ -16,6 +16,12 @@ $extra_requests = sanitize_input($_POST["extra_requests"] ?? "");
 $payment_method = sanitize_input($_POST["payment_method"] ?? "Cash");
 $reference_number = sanitize_input($_POST["reference_number"] ?? "");
 
+$card_last4 = null;
+if ($payment_method === 'Card' && preg_match('/CARD-XXXX-(\d{4})$/', $reference_number, $m)) {
+    $card_last4 = $m[1];
+    $reference_number = $card_last4; // store just the last4 as the reference
+}
+
 $today = date('Y-m-d');
 if ($check_in < $today) {
     header("Location: /rooms.php?error=invalid_date");
@@ -38,7 +44,7 @@ if (!$room) {
 }
 
 $userStmt = $conn->prepare("SELECT id FROM users WHERE phone_number=?");
-$userStmt->bind_param("s", $email);
+$userStmt->bind_param("s", $phone_number);
 $userStmt->execute();
 $existingUser = $userStmt->get_result()->fetch_assoc();
 $userStmt->close();
@@ -55,7 +61,7 @@ if ($existingUser) {
     $username = $first_name . " " . $last_name . "_" . time();
     $ins = $conn->prepare(
         "INSERT INTO users (username, password, first_name, last_name, phone_number, role)
-         VALUES (?, '', ?, ?, ?, ?, ?, 'guest')"
+         VALUES (?, '', ?, ?, ?, 'guest')"
     );
     $ins->bind_param("ssss", $username, $first_name, $last_name, $phone_number);
     $ins->execute();
@@ -99,12 +105,12 @@ if ($payment_method === "Cash") {
 }
 
 $pay = $conn->prepare(
-    "INSERT INTO payments (reservation_id, amount_paid, payment_method, payment_status, reference_number)
-     VALUES (?, ?, ?, ?, ?)"
+    "INSERT INTO payments (reservation_id, amount_paid, payment_method, payment_status, reference_number, card_last4)
+     VALUES (?, ?, ?, ?, ?, ?)"
 );
-$pay->bind_param("idsss", $reservation_id, $total_amount, $payment_method, $payment_status, $reference_number);
+$pay->bind_param("idssss", $reservation_id, $total_amount, $payment_method, $payment_status, $reference_number, $card_last4);
 $pay->execute();
 $pay->close();
 
-header("Location: /booking-confirmation.php?r=" . $reservation_id . "&t=" . urlencode(base64_encode($email)));
+header("Location: /booking-confirmation.php?r=" . $reservation_id);
 exit();

@@ -118,6 +118,62 @@ while ($r = $rooms->fetch_assoc()) {
                                     </select>
                                 </div>
 
+                                <!-- GCash Panel -->
+                                <div id="gcash-panel" style="display:none">
+                                    <div style="background:#f0f6ff;border:1.5px solid #93c5fd;border-radius:12px;padding:16px;text-align:center;margin-bottom:12px">
+                                        <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#1d4ed8;margin:0 0 10px">Scan to Pay via GCash</p>
+                                        <img src="assets/images/gcash-qr.png"
+                                             alt="GCash QR Code"
+                                             onerror="this.style.display='none';document.getElementById('gcash-qr-fallback').style.display='flex'"
+                                             style="width:160px;height:160px;object-fit:contain;border-radius:10px;border:2px solid #bfdbfe;margin:0 auto;display:block">
+                                        <div id="gcash-qr-fallback" style="display:none;width:160px;height:160px;background:#dbeafe;border-radius:10px;border:2px dashed #93c5fd;margin:0 auto;align-items:center;justify-content:center;flex-direction:column;gap:6px">
+                                            <i class="fas fa-qrcode" style="font-size:48px;color:#93c5fd"></i>
+                                            <span style="font-size:11px;color:#1d4ed8;font-weight:600">QR Code</span>
+                                        </div>
+                                        <p style="margin:12px 0 2px;font-size:13px;color:#555">Send to GCash number</p>
+                                        <p style="font-size:20px;font-weight:800;color:#1d4ed8;letter-spacing:.05em;margin:0">0977 183 7288</p>
+                                        <p style="font-size:11px;color:#7c746b;margin:4px 0 0">Rawis Resort Hotel</p>
+                                    </div>
+                                    <div class="form-group" style="margin-bottom:0">
+                                        <label>GCash Reference Number</label>
+                                        <input type="text" id="gcash_ref_input" placeholder="e.g. 2024031512345678"
+                                               oninput="document.getElementById('hidden_ref_number').value=this.value">
+                                    </div>
+                                </div>
+
+                                <!-- Card Panel -->
+                                <div id="card-panel" style="display:none">
+                                    <div style="background:#fdf6f0;border:1.5px solid #dbb595;border-radius:12px;padding:16px;margin-bottom:4px">
+                                        <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#8e4a0f;margin:0 0 14px;display:flex;align-items:center;gap:6px">
+                                            <i class="fas fa-lock"></i> Card Details
+                                        </p>
+                                        <div class="form-group">
+                                            <label>Card Number</label>
+                                            <input type="text" id="card_number_input" placeholder="1234 5678 9012 3456"
+                                                   maxlength="19" autocomplete="cc-number"
+                                                   oninput="formatCardNumber(this)" style="letter-spacing:.08em;font-size:15px">
+                                        </div>
+                                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                                            <div class="form-group" style="margin-bottom:0">
+                                                <label>Expiry Date</label>
+                                                <input type="text" id="card_expiry_input" placeholder="MM / YY"
+                                                       maxlength="7" autocomplete="cc-exp"
+                                                       oninput="formatExpiry(this)">
+                                            </div>
+                                            <div class="form-group" style="margin-bottom:0">
+                                                <label>CVC</label>
+                                                <input type="password" id="card_cvc_input" placeholder="•••"
+                                                       maxlength="4" autocomplete="cc-csc"
+                                                       style="letter-spacing:.2em">
+                                            </div>
+                                        </div>
+                                        <p style="font-size:11px;color:#7c746b;margin:12px 0 0;display:flex;align-items:center;gap:5px">
+                                            <i class="fas fa-shield-alt" style="color:#dbb595"></i>
+                                            Your card details are used only to process this reservation.
+                                        </p>
+                                    </div>
+                                </div>
+
                             </div>
 
                             <!-- RIGHT SIDE -->
@@ -463,6 +519,9 @@ while ($r = $rooms->fetch_assoc()) {
         document.getElementById('modal_checkout').min   = today;
 
         updateReservationSummary();
+        // Reset payment panels
+        document.getElementById('payment_method_ui').value = 'Cash';
+        selectPayMethod('Cash');
         document.getElementById('reserveModal').classList.add('show');
         document.body.style.overflow = 'hidden';
     }
@@ -528,6 +587,37 @@ while ($r = $rooms->fetch_assoc()) {
 
     function selectPayMethod(method) {
         document.getElementById('hidden_pay_method').value = method;
+
+        document.getElementById('gcash-panel').style.display = method === 'GCash' ? '' : 'none';
+        document.getElementById('card-panel').style.display  = method === 'Card'  ? '' : 'none';
+
+        // Clear fields when switching away
+        if (method !== 'GCash') {
+            const gr = document.getElementById('gcash_ref_input');
+            if (gr) gr.value = '';
+        }
+        if (method !== 'Card') {
+            ['card_number_input','card_expiry_input','card_cvc_input'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = '';
+            });
+        }
+        document.getElementById('hidden_ref_number').value = '';
+    }
+
+    function formatCardNumber(input) {
+        let v = input.value.replace(/\D/g, '').substring(0, 16);
+        input.value = v.replace(/(.{4})/g, '$1 ').trim();
+        // Store last 4 digits as reference
+        if (v.length >= 4) {
+            document.getElementById('hidden_ref_number').value = 'CARD-XXXX-' + v.slice(-4);
+        }
+    }
+
+    function formatExpiry(input) {
+        let v = input.value.replace(/\D/g, '').substring(0, 4);
+        if (v.length >= 3) v = v.substring(0,2) + ' / ' + v.substring(2);
+        input.value = v;
     }
 
     /* ══════════════════════════════════════
