@@ -297,6 +297,9 @@ while ($a = $amenities_result->fetch_assoc()) $amenities_arr[] = $a;
                 <div class="detail-item"><label>Price / Night</label><p id="d_price"></p></div>
                 <div class="detail-item"><label>Extra Guest Fee / Night</label><p id="d_extra_guest_fee"></p></div>
                 <div class="detail-item"><label>Extra Bed Fee / Night</label><p id="d_extra_bed_fee"></p></div>
+                <div class="detail-item"><label>No. of Bedrooms</label><p id="d_num_bedrooms"></p></div>
+                <div class="detail-item"><label>No. of Beds</label><p id="d_num_beds"></p></div>
+                <div class="detail-item"><label>Bed Type</label><p id="d_bed_type"></p></div>
                 <div class="detail-item"><label>Status</label><p id="d_status"></p></div>
             </div>
             <div style="display:flex;gap:10px;margin-top:20px">
