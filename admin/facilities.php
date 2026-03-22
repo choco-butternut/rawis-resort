@@ -395,7 +395,7 @@ while ($a = $amenities_result->fetch_assoc()) $amenities_arr[] = $a;
                          data-status="<?= htmlspecialchars($row["room_status"]); ?>"
                          data-image="../<?= htmlspecialchars($row["image_path"] ?: 'assets/images/default-room.jpg'); ?>"
                          style="cursor:pointer"
-                         onclick="openRoomDetailModal(event)">
+                         onclick="handleRoomCardClick(event, this)">
 
                         <div class="room-image">
                             <img src="../<?= $row["image_path"] ?: 'assets/images/default-room.jpg'; ?>" alt="Room Image">
@@ -426,10 +426,6 @@ while ($a = $amenities_result->fetch_assoc()) $amenities_arr[] = $a;
                                     <?= ucfirst($row["room_status"]); ?>
                                 </span>
                                 <div class="card-actions">
-                                    <a href="#" title="View"
-                                       onclick="event.stopPropagation(); openRoomDetailModal(event, document.querySelector('[data-room-id=\'<?= $row["room_id"]; ?>\']')); return false;">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
                                     <a href="#" title="Edit"
                                        onclick="event.stopPropagation(); openEditRoomModal(<?= $row["room_id"]; ?>); return false;">
                                         <i class="fas fa-edit"></i>
@@ -483,7 +479,7 @@ while ($a = $amenities_result->fetch_assoc()) $amenities_arr[] = $a;
                          data-amenity-status="<?= htmlspecialchars($row["amenity_status"]); ?>"
                          data-amenity-image="../<?= htmlspecialchars($row["image_path"] ?: 'assets/images/default-room.jpg'); ?>"
                          style="cursor:pointer"
-                         onclick="openAmenityDetailModal(event)">
+                         onclick="handleAmenityCardClick(event, this)">
 
                         <div class="room-image">
                             <img src="../<?= $row["image_path"] ?: 'assets/images/default-room.jpg'; ?>" alt="<?= htmlspecialchars($row["amenity_name"]); ?>">
@@ -507,10 +503,6 @@ while ($a = $amenities_result->fetch_assoc()) $amenities_arr[] = $a;
                                     <?= $row["amenity_status"]; ?>
                                 </span>
                                 <div class="card-actions">
-                                    <a href="#" title="View"
-                                       onclick="event.stopPropagation(); openAmenityDetailModal(event, document.querySelector('[data-amenity-id=\'<?= $row["amenity_id"]; ?>\']')); return false;">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
                                     <a href="#" title="Edit"
                                        onclick="event.stopPropagation(); openEditAmenityModal(<?= $row["amenity_id"]; ?>); return false;">
                                         <i class="fas fa-edit"></i>
@@ -565,9 +557,66 @@ while ($a = $amenities_result->fetch_assoc()) $amenities_arr[] = $a;
         history.replaceState(null, '', '?tab=' + tab);
     }
 
-    //room modal
+    /* ── Room card click handler ──
+       Opens the detail modal only when clicking the card itself,
+       not when clicking an action link (edit / delete). */
+    function handleRoomCardClick(event, card) {
+        if (event.target.closest('a')) return; // let links handle themselves
+        openRoomDetailModal(card);
+    }
+
+    function handleAmenityCardClick(event, card) {
+        if (event.target.closest('a')) return;
+        openAmenityDetailModal(card);
+    }
+
+    // ── Room detail modal ──
     let currentDetailRoomId = null;
 
+    function openRoomDetailModal(card) {
+        currentDetailRoomId = card.dataset.roomId;
+
+        const room = roomData.find(r => String(r.id) === String(currentDetailRoomId));
+
+        document.getElementById('detailRoomImg').src      = card.dataset.image;
+        document.getElementById('d_number').textContent   = card.dataset.roomNumber;
+        document.getElementById('d_type').textContent     = card.dataset.roomType;
+        document.getElementById('d_capacity').textContent = card.dataset.capacity + ' guests';
+        document.getElementById('d_price').textContent    = '₱' + Number(card.dataset.priceRaw).toLocaleString('en-PH', {minimumFractionDigits:2});
+        document.getElementById('d_status').textContent   = card.dataset.status.charAt(0).toUpperCase() + card.dataset.status.slice(1);
+
+        const extraGuestFee = room ? parseFloat(room.extraGuestFee) : 0;
+        const extraBedFee   = room ? parseFloat(room.extraBedFee)   : 0;
+        document.getElementById('d_extra_guest_fee').textContent = extraGuestFee > 0 ? '₱' + extraGuestFee.toLocaleString('en-PH', {minimumFractionDigits:2}) : 'None';
+        document.getElementById('d_extra_bed_fee').textContent   = extraBedFee   > 0 ? '₱' + extraBedFee.toLocaleString('en-PH', {minimumFractionDigits:2})   : 'None';
+        document.getElementById('d_num_bedrooms').textContent    = (room ? room.numBedrooms : 1) + ' bedroom(s)';
+        document.getElementById('d_num_beds').textContent        = (room ? room.numBeds     : 1) + ' bed(s)';
+        document.getElementById('d_bed_type').textContent        = room ? room.bedType : '-';
+
+        document.getElementById('roomDetailModal').classList.add('show');
+    }
+
+    function closeRoomDetailModal() {
+        document.getElementById('roomDetailModal').classList.remove('show');
+    }
+
+    document.getElementById('roomDetailModal').addEventListener('click', function(e) {
+        if (e.target === this) closeRoomDetailModal();
+    });
+
+    function editRoomFromDetail() {
+        closeRoomDetailModal();
+        openEditRoomModal(currentDetailRoomId);
+    }
+
+    function deleteRoomFromDetail() {
+        if (!currentDetailRoomId) return;
+        const room = roomData.find(r => String(r.id) === String(currentDetailRoomId));
+        if (confirm('Delete room ' + (room ? room.number : '') + '?'))
+            window.location.href = 'facilities.php?delete_room=' + currentDetailRoomId;
+    }
+
+    // ── Room add / edit modal ──
     function openAddRoomModal() {
         document.getElementById('roomModalTitle').textContent = 'Add Room';
         document.getElementById('roomSubmitBtn').textContent  = 'Add Room';
@@ -580,70 +629,73 @@ while ($a = $amenities_result->fetch_assoc()) $amenities_arr[] = $a;
     }
 
     function openEditRoomModal(roomId) {
-        const room = roomData.find(r => r.id == roomId);
+        const room = roomData.find(r => String(r.id) === String(roomId));
         if (!room) return;
-        document.getElementById('roomModalTitle').textContent = 'Edit Room';
-        document.getElementById('roomSubmitBtn').textContent  = 'Update Room';
-        document.getElementById('formRoomId').value           = room.id;
-        document.getElementById('f_room_number').value        = room.number;
-        document.getElementById('f_room_type').value          = room.type;
-        document.getElementById('f_max_capacity').value       = room.capacity;
-        document.getElementById('f_price').value              = room.price;
-        document.getElementById('f_status').value             = room.status;
-        document.getElementById('f_extra_guest_fee').value    = room.extraGuestFee || 0;
-        document.getElementById('f_extra_bed_fee').value      = room.extraBedFee   || 0;
-        document.getElementById('f_num_bedrooms').value = room.numBedrooms || 1;
-        document.getElementById('f_num_beds').value     = room.numBeds     || 1;
-        document.getElementById('f_bed_type').value     = room.bedType     || 'Double';
-        document.getElementById('currentRoomImg').src         = room.image;
+
+        document.getElementById('roomModalTitle').textContent  = 'Edit Room';
+        document.getElementById('roomSubmitBtn').textContent   = 'Update Room';
+        document.getElementById('formRoomId').value            = room.id;
+        document.getElementById('f_room_number').value         = room.number;
+        document.getElementById('f_room_type').value           = room.type;
+        document.getElementById('f_max_capacity').value        = room.capacity;
+        document.getElementById('f_price').value               = room.price;
+        document.getElementById('f_status').value              = room.status;
+        document.getElementById('f_extra_guest_fee').value     = room.extraGuestFee || 0;
+        document.getElementById('f_extra_bed_fee').value       = room.extraBedFee   || 0;
+        document.getElementById('f_num_beds').value            = room.numBeds       || 1;
+        document.getElementById('f_bed_type').value            = room.bedType       || 'Double';
+        document.getElementById('currentRoomImg').src          = room.image;
         document.getElementById('currentRoomImgWrap').style.display = 'block';
-        document.getElementById('f_room_image').required      = false;
-        document.getElementById('roomImgNote').textContent    = '(optional)';
-        document.getElementById('f_room_image').value         = '';
+        document.getElementById('f_room_image').required       = false;
+        document.getElementById('roomImgNote').textContent     = '(optional)';
+        document.getElementById('f_room_image').value          = '';
         document.getElementById('roomModal').classList.add('show');
     }
 
-    function closeRoomModal() { document.getElementById('roomModal').classList.remove('show'); }
-    document.getElementById('roomModal').addEventListener('click', e => { if (e.target === document.getElementById('roomModal')) closeRoomModal(); });
-
-    function openRoomDetailModal(event, cardEl) {
-        if (!cardEl && event.target.closest('a')) return;
-        const card = cardEl || event.currentTarget;
-        currentDetailRoomId = card.dataset.roomId;
-
-        const room = roomData.find(r => r.id == card.dataset.roomId);
-
-        document.getElementById('detailRoomImg').src        = card.dataset.image;
-        document.getElementById('d_number').textContent     = card.dataset.roomNumber;
-        document.getElementById('d_type').textContent       = card.dataset.roomType;
-        document.getElementById('d_capacity').textContent   = card.dataset.capacity + ' guests';
-        document.getElementById('d_price').textContent      = '₱' + Number(card.dataset.priceRaw).toLocaleString('en-PH', {minimumFractionDigits:2});
-        document.getElementById('d_status').textContent     = card.dataset.status.charAt(0).toUpperCase() + card.dataset.status.slice(1);
-
-        const extraGuestFee = room ? parseFloat(room.extraGuestFee) : 0;
-        const extraBedFee   = room ? parseFloat(room.extraBedFee)   : 0;
-        document.getElementById('d_extra_guest_fee').textContent = extraGuestFee > 0 ? '₱' + extraGuestFee.toLocaleString('en-PH', {minimumFractionDigits:2}) : 'None';
-        document.getElementById('d_extra_bed_fee').textContent   = extraBedFee   > 0 ? '₱' + extraBedFee.toLocaleString('en-PH', {minimumFractionDigits:2})   : 'None';
-        document.getElementById('d_num_bedrooms').textContent = (room ? room.numBedrooms : 1) + ' bedroom(s)';
-        document.getElementById('d_num_beds').textContent     = (room ? room.numBeds     : 1) + ' bed(s)';
-        document.getElementById('d_bed_type').textContent     = room ? room.bedType : '-';
-        document.getElementById('roomDetailModal').classList.add('show');
+    function closeRoomModal() {
+        document.getElementById('roomModal').classList.remove('show');
     }
 
-    function closeRoomDetailModal() { document.getElementById('roomDetailModal').classList.remove('show'); }
-    document.getElementById('roomDetailModal').addEventListener('click', e => { if (e.target === document.getElementById('roomDetailModal')) closeRoomDetailModal(); });
+    document.getElementById('roomModal').addEventListener('click', function(e) {
+        if (e.target === this) closeRoomModal();
+    });
 
-    function editRoomFromDetail() { closeRoomDetailModal(); if (currentDetailRoomId) openEditRoomModal(currentDetailRoomId); }
-    function deleteRoomFromDetail() {
-        if (!currentDetailRoomId) return;
-        const room = roomData.find(r => r.id == currentDetailRoomId);
-        if (confirm('Delete room ' + (room ? room.number : '') + '?'))
-            window.location.href = 'facilities.php?delete_room=' + currentDetailRoomId;
-    }
-
-    /* amenity modal */
+    // ── Amenity detail modal ──
     let currentDetailAmenityId = null;
 
+    function openAmenityDetailModal(card) {
+        currentDetailAmenityId = card.dataset.amenityId;
+
+        document.getElementById('detailAmenityImg').src  = card.dataset.amenityImage;
+        document.getElementById('da_name').textContent   = card.dataset.amenityName;
+        document.getElementById('da_desc').textContent   = card.dataset.amenityDesc || '-';
+        document.getElementById('da_price').textContent  = '₱' + Number(card.dataset.amenityPrice).toLocaleString('en-PH', {minimumFractionDigits:2});
+        document.getElementById('da_status').textContent = card.dataset.amenityStatus;
+
+        document.getElementById('amenityDetailModal').classList.add('show');
+    }
+
+    function closeAmenityDetailModal() {
+        document.getElementById('amenityDetailModal').classList.remove('show');
+    }
+
+    document.getElementById('amenityDetailModal').addEventListener('click', function(e) {
+        if (e.target === this) closeAmenityDetailModal();
+    });
+
+    function editAmenityFromDetail() {
+        closeAmenityDetailModal();
+        openEditAmenityModal(currentDetailAmenityId);
+    }
+
+    function deleteAmenityFromDetail() {
+        if (!currentDetailAmenityId) return;
+        const a = amenityData.find(x => String(x.id) === String(currentDetailAmenityId));
+        if (confirm('Delete amenity ' + (a ? a.name : '') + '?'))
+            window.location.href = 'facilities.php?delete_amenity=' + currentDetailAmenityId;
+    }
+
+    // ── Amenity add / edit modal ──
     function openAddAmenityModal() {
         document.getElementById('amenityModalTitle').textContent = 'Add Amenity';
         document.getElementById('amenitySubmitBtn').textContent  = 'Add Amenity';
@@ -656,8 +708,9 @@ while ($a = $amenities_result->fetch_assoc()) $amenities_arr[] = $a;
     }
 
     function openEditAmenityModal(amenityId) {
-        const a = amenityData.find(x => x.id == amenityId);
+        const a = amenityData.find(x => String(x.id) === String(amenityId));
         if (!a) return;
+
         document.getElementById('amenityModalTitle').textContent = 'Edit Amenity';
         document.getElementById('amenitySubmitBtn').textContent  = 'Update Amenity';
         document.getElementById('formAmenityId').value           = a.id;
@@ -673,33 +726,15 @@ while ($a = $amenities_result->fetch_assoc()) $amenities_arr[] = $a;
         document.getElementById('amenityModal').classList.add('show');
     }
 
-    function closeAmenityModal() { document.getElementById('amenityModal').classList.remove('show'); }
-    document.getElementById('amenityModal').addEventListener('click', e => { if (e.target === document.getElementById('amenityModal')) closeAmenityModal(); });
-
-    function openAmenityDetailModal(event, cardEl) {
-        if (!cardEl && event.target.closest('a')) return;
-        const card = cardEl || event.currentTarget;
-        currentDetailAmenityId = card.dataset.amenityId;
-        document.getElementById('detailAmenityImg').src = card.dataset.amenityImage;
-        document.getElementById('da_name').textContent  = card.dataset.amenityName;
-        document.getElementById('da_desc').textContent  = card.dataset.amenityDesc || '-';
-        document.getElementById('da_price').textContent = '₱' + Number(card.dataset.amenityPrice).toLocaleString('en-PH', {minimumFractionDigits:2});
-        document.getElementById('da_status').textContent = card.dataset.amenityStatus;
-        document.getElementById('amenityDetailModal').classList.add('show');
+    function closeAmenityModal() {
+        document.getElementById('amenityModal').classList.remove('show');
     }
 
-    function closeAmenityDetailModal() { document.getElementById('amenityDetailModal').classList.remove('show'); }
-    document.getElementById('amenityDetailModal').addEventListener('click', e => { if (e.target === document.getElementById('amenityDetailModal')) closeAmenityDetailModal(); });
+    document.getElementById('amenityModal').addEventListener('click', function(e) {
+        if (e.target === this) closeAmenityModal();
+    });
 
-    function editAmenityFromDetail() { closeAmenityDetailModal(); if (currentDetailAmenityId) openEditAmenityModal(currentDetailAmenityId); }
-    function deleteAmenityFromDetail() {
-        if (!currentDetailAmenityId) return;
-        const a = amenityData.find(x => x.id == currentDetailAmenityId);
-        if (confirm('Delete amenity ' + (a ? a.name : '') + '?'))
-            window.location.href = 'facilities.php?delete_amenity=' + currentDetailAmenityId;
-    }
-
-    
+    // ── Filter & search ──
     let activeRoomFilter = 'all';
 
     function filterRoomStatus(status, el) {
