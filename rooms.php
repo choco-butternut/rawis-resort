@@ -50,6 +50,8 @@ while ($r = $rooms->fetch_assoc()) {
                         <input type="hidden" name="room_id" id="room_id">
                         <input type="hidden" name="payment_method" id="hidden_pay_method" value="Cash">
                         <input type="hidden" name="reference_number" id="hidden_ref_number" value="">
+                        <input type="hidden" name="extra_guests" id="hidden_extra_guests" value="0">
+                        <input type="hidden" name="extra_beds" id="hidden_extra_beds" value="0">
 
                         <div class="reservation-body">
 
@@ -577,8 +579,13 @@ while ($r = $rooms->fetch_assoc()) {
             bedRow.style.display = '';
             total += bc;
         } else { bedRow.style.display = 'none'; }
+        document.getElementById('hidden_extra_guests').value = 
+            document.getElementById('modal_extra_guest').value;
+        document.getElementById('hidden_extra_beds').value = 
+            document.getElementById('modal_extra_bed').value;
 
         document.getElementById('sum-total').textContent = formatPHP(total);
+
     }
 
     function changeModalQty(id, delta) {

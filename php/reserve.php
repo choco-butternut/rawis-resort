@@ -94,10 +94,15 @@ if (!empty($_POST["amenities"])) {
         $am->close();
     }
 }
+$extra_guests    = max(0, (int) ($_POST["extra_guests"] ?? 0));
+$extra_beds      = max(0, (int) ($_POST["extra_beds"]   ?? 0));
 
-$nights = (new DateTime($check_in))->diff(new DateTime($check_out))->days;
-$total_amount = $room["price_per_night"] * $nights;
+$nights       = (new DateTime($check_in))->diff(new DateTime($check_out))->days;
+$total_amount = $room["price_per_night"] * $nights
+              + ($room["extra_guest_fee"] * $extra_guests * $nights)
+              + ($room["extra_bed_fee"]   * $extra_beds   * $nights);
 
+              
 if ($payment_method === "Cash") {
     $payment_status = "Pending";
 } else {

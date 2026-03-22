@@ -70,6 +70,8 @@ CREATE TABLE reservations (
     reservation_status ENUM('Pending','Confirmed','Cancelled','Completed') DEFAULT 'Pending',
     extra_requests TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    extra_guests INT NOT NULL DEFAULT 0,
+    extra_beds INT NOT NULL DEFAULT 0,
 
     CONSTRAINT fk_reservation_guest
         FOREIGN KEY (guest_id) REFERENCES users(id)
