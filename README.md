@@ -112,6 +112,7 @@ CREATE TABLE payments (
     reference_number  VARCHAR(100),
     notes             TEXT,
     payment_date      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    card_last4        VARCHAR(4) DEFAULT NULL,
 
     CONSTRAINT fk_payment_reservation
         FOREIGN KEY (reservation_id) REFERENCES reservations(reservation_id)
