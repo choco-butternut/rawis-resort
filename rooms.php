@@ -70,11 +70,6 @@ while ($r = $rooms->fetch_assoc()) {
                                 </div>
 
                                 <div class="form-group">
-                                    <label>Email</label>
-                                    <input type="email" name="email" id="f_email" required>
-                                </div>
-
-                                <div class="form-group">
                                     <label>Phone Number</label>
                                     <input type="text" name="phone_number" id="f_phone" required>
                                 </div>

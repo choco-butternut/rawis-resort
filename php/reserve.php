@@ -9,9 +9,7 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
 $room_id        = (int) $_POST["room_id"];
 $first_name     = sanitize_input($_POST["first_name"]);
 $last_name      = sanitize_input($_POST["last_name"]);
-$email          = sanitize_input($_POST["email"]);
 $phone_number   = sanitize_input($_POST["phone_number"]);
-$address        = sanitize_input($_POST["address"] ?? "");
 $check_in       = $_POST["check_in_date"];
 $check_out      = $_POST["check_out_date"];
 $extra_requests = sanitize_input($_POST["extra_requests"] ?? "");
@@ -39,7 +37,7 @@ if (!$room) {
     exit();
 }
 
-$userStmt = $conn->prepare("SELECT id FROM users WHERE email=?");
+$userStmt = $conn->prepare("SELECT id FROM users WHERE phone_number=?");
 $userStmt->bind_param("s", $email);
 $userStmt->execute();
 $existingUser = $userStmt->get_result()->fetch_assoc();
@@ -48,18 +46,18 @@ $userStmt->close();
 if ($existingUser) {
     $guest_id = $existingUser["id"];
     $upd = $conn->prepare(
-        "UPDATE users SET first_name=?, last_name=?, phone_number=?, address=? WHERE id=?"
+        "UPDATE users SET first_name=?, last_name=?, phone_number=? WHERE id=?"
     );
-    $upd->bind_param("ssssi", $first_name, $last_name, $phone_number, $address, $guest_id);
+    $upd->bind_param("sssi", $first_name, $last_name, $phone_number, $guest_id);
     $upd->execute();
     $upd->close();
 } else {
     $username = $first_name . " " . $last_name . "_" . time();
     $ins = $conn->prepare(
-        "INSERT INTO users (username, password, first_name, last_name, email, phone_number, address, role)
+        "INSERT INTO users (username, password, first_name, last_name, phone_number, role)
          VALUES (?, '', ?, ?, ?, ?, ?, 'guest')"
     );
-    $ins->bind_param("ssssss", $username, $first_name, $last_name, $email, $phone_number, $address);
+    $ins->bind_param("ssss", $username, $first_name, $last_name, $phone_number);
     $ins->execute();
     $guest_id = $ins->insert_id;
     $ins->close();

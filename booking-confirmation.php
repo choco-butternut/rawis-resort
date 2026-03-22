@@ -7,11 +7,10 @@ if (!isset($_GET["r"])) {
 }
 
 $reservation_id = (int) $_GET["r"];
-$token_email = base64_decode(urldecode($_GET["t"] ?? ""));
 
 $stmt = $conn->prepare("
     SELECT r.*,
-           u.first_name, u.last_name, u.email, u.phone_number,
+           u.first_name, u.last_name, u.phone_number,
            rm.room_number, rm.room_type, rm.price_per_night, rm.image_path,
            p.payment_id, p.payment_method, p.payment_status, p.reference_number, p.amount_paid
     FROM reservations r
@@ -27,14 +26,14 @@ $stmt->execute();
 $data = $stmt->get_result()->fetch_assoc();
 $stmt->close();
 
-if (!$data || strtolower($data["email"]) !== strtolower($token_email)) {
-    http_response_code(403);
-    die("Access denied.");
+if (!$data) {
+    header("Location: /rooms.php");
+    exit();
 }
 
-$nights = (new DateTime($data["check_in_date"]))->diff(new DateTime($data["check_out_date"]))->days;
+$nights    = (new DateTime($data["check_in_date"]))->diff(new DateTime($data["check_out_date"]))->days;
 $room_cost = $data["price_per_night"] * $nights;
-$total = $room_cost;
+$total     = $room_cost;
 
 $amStmt = $conn->prepare("
     SELECT ra.quantity, a.amenity_name
@@ -45,7 +44,7 @@ $amStmt = $conn->prepare("
 $amStmt->bind_param("i", $reservation_id);
 $amStmt->execute();
 $amenities_result = $amStmt->get_result();
-$amenities_list = [];
+$amenities_list   = [];
 while ($row = $amenities_result->fetch_assoc()) {
     $amenities_list[] = $row;
 }
@@ -61,9 +60,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["submit_reference"])) 
     $upd->bind_param("si", $ref, $reservation_id);
     $upd->execute();
     $upd->close();
-    header("Location: /booking-confirmation.php?r={$reservation_id}&t=" . urlencode(base64_encode($data["email"])) . "&updated=1");
+    header("Location: /booking-confirmation.php?r={$reservation_id}&updated=1");
     exit();
 }
+
 if (isset($_GET["updated"])) {
     $success_msg = "Reference number submitted. We'll verify your payment shortly.";
     $refetch = $conn->prepare("SELECT payment_status, reference_number FROM payments WHERE reservation_id=? ORDER BY payment_id DESC LIMIT 1");
@@ -79,15 +79,16 @@ if (isset($_GET["updated"])) {
 
 function reservationBadge($s) {
     $map = [
-        'Pending'    => ['#8e4a0f', '#fff8f0'],
-        'Confirmed'  => ['#334937', '#f0f7e6'],
-        'Cancelled'  => ['#9b2226', '#fdf0ee'],
-        'Completed'  => ['#531e07', '#fdf6f0'],
-        'Checked-in' => ['#2d5a27', '#e8f0d8'],
-        'Checked-out'=> ['#531e07', '#fdf6f0'],
+        'Pending'     => ['#8e4a0f', '#fff8f0'],
+        'Confirmed'   => ['#334937', '#f0f7e6'],
+        'Cancelled'   => ['#9b2226', '#fdf0ee'],
+        'Completed'   => ['#531e07', '#fdf6f0'],
+        'Checked-in'  => ['#2d5a27', '#e8f0d8'],
+        'Checked-out' => ['#531e07', '#fdf6f0'],
     ];
     $d = $map[$s] ?? ['#666', '#f5f5f5'];
-    return "<span class='status-badge' style='background:{$d[1]};color:{$d[0]};border-color:{$d[0]}'>" . htmlspecialchars($s) . "</span>";
+    return "<span class='status-badge' style='background:{$d[1]};color:{$d[0]};border-color:{$d[0]}'>"
+         . htmlspecialchars($s) . "</span>";
 }
 
 function paymentBadge($s) {
@@ -98,7 +99,8 @@ function paymentBadge($s) {
         'Refunded'              => ['#9b2226', '#fdf0ee'],
     ];
     $d = $map[$s] ?? ['#666', '#f5f5f5'];
-    return "<span class='status-badge' style='background:{$d[1]};color:{$d[0]};border-color:{$d[0]}'>" . htmlspecialchars($s) . "</span>";
+    return "<span class='status-badge' style='background:{$d[1]};color:{$d[0]};border-color:{$d[0]}'>"
+         . htmlspecialchars($s) . "</span>";
 }
 ?>
 <!DOCTYPE html>
@@ -111,14 +113,12 @@ function paymentBadge($s) {
     <link rel="stylesheet" href="assets/css/header-footer.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        /* ── Page wrapper ── */
         .confirm-page-inner {
             max-width: 1100px;
             margin: 0 auto;
             padding: 20px 20px 60px;
         }
 
-        /* ── Section intro (mirrors contacts/about) ── */
         .confirm-intro {
             display: flex;
             flex-direction: column;
@@ -184,7 +184,6 @@ function paymentBadge($s) {
             opacity: 0.85;
         }
 
-        /* ── Alert ── */
         .alert {
             padding: 14px 18px;
             border-radius: 12px;
@@ -203,7 +202,6 @@ function paymentBadge($s) {
             border-color: #dbb595;
         }
 
-        /* ── Two-column grid ── */
         .confirm-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -214,7 +212,6 @@ function paymentBadge($s) {
             grid-column: 1 / -1;
         }
 
-        /* ── Card (mirrors info-card / contact-form-card) ── */
         .card {
             background: #fff;
             border-radius: 15px;
@@ -229,7 +226,6 @@ function paymentBadge($s) {
             box-shadow: 0 14px 28px rgba(0, 0, 0, 0.09);
         }
 
-        /* ── Card title ── */
         .card-title {
             font-family: 'Poppins', sans-serif;
             font-size: 11px;
@@ -251,7 +247,6 @@ function paymentBadge($s) {
             font-size: 13px;
         }
 
-        /* ── Info rows ── */
         .info-row {
             display: flex;
             justify-content: space-between;
@@ -263,14 +258,9 @@ function paymentBadge($s) {
             gap: 16px;
         }
 
-        .info-row:last-child {
-            border-bottom: none;
-        }
+        .info-row:last-child { border-bottom: none; }
 
-        .info-row .label {
-            color: #7c746b;
-            flex-shrink: 0;
-        }
+        .info-row .label { color: #7c746b; flex-shrink: 0; }
 
         .info-row .value {
             font-weight: 600;
@@ -278,7 +268,6 @@ function paymentBadge($s) {
             text-align: right;
         }
 
-        /* ── Room inline card ── */
         .room-inline {
             display: flex;
             gap: 16px;
@@ -295,9 +284,7 @@ function paymentBadge($s) {
             border: 2px solid #e2ddd8;
         }
 
-        .room-inline-meta {
-            flex: 1;
-        }
+        .room-inline-meta { flex: 1; }
 
         .room-inline-type {
             font-family: 'The Seasons', serif;
@@ -317,12 +304,8 @@ function paymentBadge($s) {
             gap: 12px;
         }
 
-        .room-inline-sub i {
-            color: #dbb595;
-            font-size: 12px;
-        }
+        .room-inline-sub i { color: #dbb595; font-size: 12px; }
 
-        /* ── Date strip ── */
         .date-strip {
             display: flex;
             align-items: center;
@@ -361,11 +344,7 @@ function paymentBadge($s) {
             color: #aaa;
         }
 
-        .date-arrow {
-            padding: 0 14px;
-            color: #dbb595;
-            font-size: 16px;
-        }
+        .date-arrow { padding: 0 14px; color: #dbb595; font-size: 16px; }
 
         .nights-pill {
             padding: 8px 20px;
@@ -380,7 +359,6 @@ function paymentBadge($s) {
             box-shadow: 0 4px 12px rgba(93,51,15,0.2);
         }
 
-        /* ── Status badge ── */
         .status-badge {
             display: inline-block;
             padding: 4px 14px;
@@ -391,7 +369,6 @@ function paymentBadge($s) {
             border: 1.5px solid;
         }
 
-        /* ── Cost breakdown ── */
         .cost-row {
             display: flex;
             justify-content: space-between;
@@ -402,9 +379,7 @@ function paymentBadge($s) {
             border-bottom: 1px dashed #ede8e1;
         }
 
-        .cost-row:last-child {
-            border-bottom: none;
-        }
+        .cost-row:last-child { border-bottom: none; }
 
         .cost-row.total-row {
             border-top: 2px solid #ede8e1;
@@ -439,20 +414,9 @@ function paymentBadge($s) {
             gap: 8px;
         }
 
-        .amenity-included:last-of-type {
-            border-bottom: none;
-        }
-
-        .amenity-included i {
-            color: #dbb595;
-            font-size: 11px;
-            flex-shrink: 0;
-        }
-
-        .amenity-included .amenity-qty {
-            color: #aaa;
-            margin-left: 4px;
-        }
+        .amenity-included:last-of-type { border-bottom: none; }
+        .amenity-included i { color: #dbb595; font-size: 11px; flex-shrink: 0; }
+        .amenity-included .amenity-qty { color: #aaa; margin-left: 4px; }
 
         .amenities-subhead {
             font-family: 'Poppins', sans-serif;
@@ -464,7 +428,6 @@ function paymentBadge($s) {
             margin: 4px 0 8px;
         }
 
-        /* ── Payment method pill ── */
         .pm-pill {
             display: inline-flex;
             align-items: center;
@@ -480,7 +443,6 @@ function paymentBadge($s) {
         .pm-gcash { background: #eff6ff; color: #1d4ed8; }
         .pm-card  { background: #fdf6f0; color: #8e4a0f; }
 
-        /* ── Instructions box ── */
         .instructions-box {
             background: #faf8f5;
             border-radius: 12px;
@@ -499,9 +461,7 @@ function paymentBadge($s) {
             margin-bottom: 14px;
         }
 
-        .step:last-child {
-            margin-bottom: 0;
-        }
+        .step:last-child { margin-bottom: 0; }
 
         .step-num {
             width: 26px;
@@ -517,7 +477,6 @@ function paymentBadge($s) {
             flex-shrink: 0;
         }
 
-        /* ── Reference form ── */
         .ref-form {
             margin-top: 16px;
             padding: 18px 20px;
@@ -536,10 +495,7 @@ function paymentBadge($s) {
             gap: 8px;
         }
 
-        .ref-form-row {
-            display: flex;
-            gap: 10px;
-        }
+        .ref-form-row { display: flex; gap: 10px; }
 
         .ref-form input {
             flex: 1;
@@ -574,41 +530,13 @@ function paymentBadge($s) {
             text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
         }
 
-        .ref-form button:hover {
-            opacity: 0.88;
-            transform: translateY(-1px);
-        }
+        .ref-form button:hover { opacity: 0.88; transform: translateY(-1px); }
 
-        /* ── Action buttons ── */
         .confirm-actions {
             display: flex;
             gap: 12px;
             margin-top: 28px;
             flex-wrap: wrap;
-        }
-
-        .btn-primary {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 12px 26px;
-            background: linear-gradient(to right, #5d330f, #dbb595);
-            color: #fff;
-            border: none;
-            border-radius: 50px;
-            font-family: 'Poppins', sans-serif;
-            font-size: 14px;
-            font-weight: 700;
-            cursor: pointer;
-            text-decoration: none;
-            text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
-            box-shadow: 0 4px 14px rgba(93, 51, 15, 0.25);
-            transition: opacity 0.2s, transform 0.15s;
-        }
-
-        .btn-primary:hover {
-            opacity: 0.9;
-            transform: translateY(-2px);
         }
 
         .btn-secondary {
@@ -628,12 +556,8 @@ function paymentBadge($s) {
             transition: border-color 0.2s, background 0.15s;
         }
 
-        .btn-secondary:hover {
-            border-color: #dbb595;
-            background: #faf8f5;
-        }
+        .btn-secondary:hover { border-color: #dbb595; background: #faf8f5; }
 
-        /* ── Responsive ── */
         @media (max-width: 700px) {
             .confirm-grid { grid-template-columns: 1fr; }
             .date-strip { flex-direction: column; align-items: stretch; }
@@ -653,7 +577,6 @@ function paymentBadge($s) {
 
     <div class="confirm-page-inner">
 
-        <!-- Intro heading -->
         <section class="confirm-intro">
             <h1>Thank You</h1>
             <h2>Booking Received, <?= htmlspecialchars($data["first_name"]); ?></h2>
@@ -718,14 +641,10 @@ function paymentBadge($s) {
                     <span class="value"><?= htmlspecialchars($data["first_name"] . " " . $data["last_name"]); ?></span>
                 </div>
                 <div class="info-row">
-                    <span class="label">Email</span>
-                    <span class="value"><?= htmlspecialchars($data["email"]); ?></span>
-                </div>
-                <div class="info-row">
                     <span class="label">Phone</span>
                     <span class="value"><?= htmlspecialchars($data["phone_number"]); ?></span>
                 </div>
-                <?php if ($data["extra_requests"]): ?>
+                <?php if (!empty($data["extra_requests"])): ?>
                 <div class="info-row">
                     <span class="label">Special Requests</span>
                     <span class="value" style="max-width:60%"><?= htmlspecialchars($data["extra_requests"]); ?></span>
@@ -768,14 +687,14 @@ function paymentBadge($s) {
                     <span class="label">Method</span>
                     <span class="value">
                         <?php
-                        $pm = $data["payment_method"];
+                        $pm      = $data["payment_method"];
                         $pmClass = match($pm) {
                             "Cash"  => "pm-cash",
                             "GCash" => "pm-gcash",
                             "Card"  => "pm-card",
                             default => "pm-cash"
                         };
-                        $pmIcon = match($pm) {
+                        $pmIcon  = match($pm) {
                             "Cash"  => "fas fa-money-bill-wave",
                             "GCash" => "fas fa-mobile-alt",
                             "Card"  => "fas fa-credit-card",
@@ -797,7 +716,7 @@ function paymentBadge($s) {
                     <span class="label">Payment Status</span>
                     <span class="value"><?= paymentBadge($data["payment_status"]); ?></span>
                 </div>
-                <?php if ($data["reference_number"]): ?>
+                <?php if (!empty($data["reference_number"])): ?>
                 <div class="info-row">
                     <span class="label">Reference #</span>
                     <span class="value"><?= htmlspecialchars($data["reference_number"]); ?></span>
@@ -880,7 +799,6 @@ function paymentBadge($s) {
 
         </div>
 
-        <!-- Action buttons -->
         <div class="confirm-actions">
             <a href="/rooms.php" class="btn-secondary">
                 <i class="fas fa-arrow-left"></i> Browse More Rooms

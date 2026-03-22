@@ -157,7 +157,7 @@ if (isset($_GET["delete"])) {
 
 $reservations = $conn->query("
     SELECT r.*,
-           u.first_name, u.last_name, u.phone_number, u.email,
+           u.first_name, u.last_name, u.phone_number,
            rm.room_number, rm.room_type, rm.price_per_night,
            (rm.price_per_night * DATEDIFF(r.check_out_date, r.check_in_date)) AS base_amount,
            p.payment_id, p.payment_method, p.payment_status, p.reference_number, p.amount_paid
@@ -353,7 +353,6 @@ function payBadge($s) {
                            data-id="<?= $row["reservation_id"]; ?>"
                            data-name="<?= htmlspecialchars($row["first_name"] . " " . $row["last_name"]); ?>"
                            data-phone="<?= htmlspecialchars($row["phone_number"]); ?>"
-                           data-email="<?= htmlspecialchars($row["email"]); ?>"
                            data-room="<?= htmlspecialchars($row["room_number"] . " - " . $row["room_type"]); ?>"
                            data-checkin="<?= date("M d, Y", strtotime($row["check_in_date"])); ?>"
                            data-checkout="<?= date("M d, Y", strtotime($row["check_out_date"])); ?>"
@@ -365,7 +364,7 @@ function payBadge($s) {
                            onclick="openReservationModal(event)">
                             <?= htmlspecialchars($row["first_name"] . " " . $row["last_name"]); ?>
                         </a>
-                        <br><small style="color:#94a3b8"><?= htmlspecialchars($row["email"]); ?></small>
+                        <br>
                     </td>
                     <td>
                         <span class="room-type-tag"><?= htmlspecialchars($row["room_type"]); ?></span>
@@ -429,10 +428,6 @@ function payBadge($s) {
             <div class="detail-item">
                 <label>Contact</label>
                 <p id="modalPhone"></p>
-            </div>
-            <div class="detail-item">
-                <label>Email</label>
-                <p id="modalEmail"></p>
             </div>
             <div class="detail-item">
                 <label>Room</label>
@@ -501,7 +496,6 @@ function openReservationModal(event) {
     document.getElementById('modalId').textContent       = '#' + link.dataset.id;
     document.getElementById('modalName').textContent     = link.dataset.name;
     document.getElementById('modalPhone').textContent    = link.dataset.phone;
-    document.getElementById('modalEmail').textContent    = link.dataset.email;
     document.getElementById('modalRoom').textContent     = link.dataset.room;
     document.getElementById('modalCheckIn').textContent  = link.dataset.checkin;
     document.getElementById('modalCheckOut').textContent = link.dataset.checkout;
