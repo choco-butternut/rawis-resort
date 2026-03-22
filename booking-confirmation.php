@@ -12,6 +12,7 @@ $stmt = $conn->prepare("
     SELECT r.*,
            u.first_name, u.last_name, u.phone_number,
            rm.room_number, rm.room_type, rm.price_per_night, rm.image_path,
+           rm.extra_guest_fee, rm.extra_bed_fee,
            p.payment_id, p.payment_method, p.payment_status, p.reference_number, p.amount_paid
     FROM reservations r
     JOIN users u  ON r.guest_id = u.id
@@ -33,7 +34,11 @@ if (!$data) {
 
 $nights    = (new DateTime($data["check_in_date"]))->diff(new DateTime($data["check_out_date"]))->days;
 $room_cost = $data["price_per_night"] * $nights;
-$total     = $room_cost;
+
+$extra_guest_cost = ($data["extra_guest_fee"] ?? 0) * ($data["extra_guests"] ?? 0) * $nights;
+$extra_bed_cost   = ($data["extra_bed_fee"]   ?? 0) * ($data["extra_beds"]   ?? 0) * $nights;
+
+$total = $room_cost + $extra_guest_cost + $extra_bed_cost;
 
 $amStmt = $conn->prepare("
     SELECT ra.quantity, a.amenity_name
@@ -659,6 +664,18 @@ function paymentBadge($s) {
                     <span><?= htmlspecialchars($data["room_type"]); ?> &times; <?= $nights; ?> night<?= $nights > 1 ? 's' : ''; ?></span>
                     <span>&#8369;<?= number_format($room_cost, 2); ?></span>
                 </div>
+                <?php if ($extra_guest_cost > 0): ?>
+                <div class="cost-row">
+                    <span>Extra Guest &times; <?= $data["extra_guests"]; ?> &times; <?= $nights; ?> night<?= $nights > 1 ? 's' : ''; ?></span>
+                    <span>&#8369;<?= number_format($extra_guest_cost, 2); ?></span>
+                </div>
+                <?php endif; ?>
+                <?php if ($extra_bed_cost > 0): ?>
+                <div class="cost-row">
+                    <span>Extra Bed &times; <?= $data["extra_beds"]; ?> &times; <?= $nights; ?> night<?= $nights > 1 ? 's' : ''; ?></span>
+                    <span>&#8369;<?= number_format($extra_bed_cost, 2); ?></span>
+                </div>
+                <?php endif; ?>
                 <?php if (!empty($amenities_list)): ?>
                 <div class="cost-row" style="flex-direction:column; gap:4px;">
                     <div class="amenities-subhead">Included Amenities</div>

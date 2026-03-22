@@ -69,13 +69,16 @@ if ($existingUser) {
     $ins->close();
 }
 
+$extra_guests    = max(0, (int) ($_POST["extra_guests"] ?? 0));
+$extra_beds      = max(0, (int) ($_POST["extra_beds"]   ?? 0));
+
 $num_guests = 1;
 $res = $conn->prepare(
     "INSERT INTO reservations
-     (guest_id, room_id, check_in_date, check_out_date, num_guests, reservation_status, extra_requests, created_at)
-     VALUES (?, ?, ?, ?, ?, 'Pending', ?, NOW())"
+     (guest_id, room_id, check_in_date, check_out_date, num_guests, reservation_status, extra_requests, extra_guests, extra_beds, created_at)
+     VALUES (?, ?, ?, ?, ?, 'Pending', ?, ?, ?, NOW())"
 );
-$res->bind_param("iissis", $guest_id, $room_id, $check_in, $check_out, $num_guests, $extra_requests);
+$res->bind_param("iissiisi", $guest_id, $room_id, $check_in, $check_out, $num_guests, $extra_requests, $extra_guests, $extra_beds);
 $res->execute();
 $reservation_id = $res->insert_id;
 $res->close();
@@ -94,14 +97,12 @@ if (!empty($_POST["amenities"])) {
         $am->close();
     }
 }
-$extra_guests    = max(0, (int) ($_POST["extra_guests"] ?? 0));
-$extra_beds      = max(0, (int) ($_POST["extra_beds"]   ?? 0));
+
 
 $nights       = (new DateTime($check_in))->diff(new DateTime($check_out))->days;
 $total_amount = $room["price_per_night"] * $nights
               + ($room["extra_guest_fee"] * $extra_guests * $nights)
               + ($room["extra_bed_fee"]   * $extra_beds   * $nights);
-
               
 if ($payment_method === "Cash") {
     $payment_status = "Pending";
