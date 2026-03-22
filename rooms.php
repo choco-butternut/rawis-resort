@@ -156,7 +156,7 @@ while ($r = $rooms->fetch_assoc()) {
                         <div id="gcash-panel" style="display:none; padding: 0 25px 16px;">
                             <div style="background:#f0f6ff;border:1.5px solid #93c5fd;border-radius:12px;padding:20px;display:flex;flex-direction:column;align-items:center;gap:12px">
                                 <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#1d4ed8;margin:0">Scan to Pay via GCash</p>
-                                <img src="assets/images/gcash-qr.png" alt="GCash QR Code"
+                                <img src="assets/gcash-qr.jpeg" alt="GCash QR Code"
                                     onerror="this.style.display='none';document.getElementById('gcash-qr-fallback').style.display='flex'"
                                     style="width:160px;height:160px;object-fit:contain;border-radius:10px;border:2px solid #bfdbfe;display:block">
                                 <div id="gcash-qr-fallback" style="display:none;width:160px;height:160px;background:#dbeafe;border-radius:10px;border:2px dashed #93c5fd;align-items:center;justify-content:center;flex-direction:column;gap:6px">
