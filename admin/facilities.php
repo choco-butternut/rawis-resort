@@ -12,6 +12,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["form_type"]) && $_POS
     $room_status     = sanitize_input($_POST["room_status"]);
     $extra_guest_fee = (float) ($_POST["extra_guest_fee"] ?? 0);
     $extra_bed_fee   = (float) ($_POST["extra_bed_fee"]   ?? 0);
+    $num_bedrooms    = (int)   ($_POST["num_bedrooms"]    ?? 1);
+    $num_beds        = (int)   ($_POST["num_beds"]        ?? 1);
+    $bed_type        = sanitize_input($_POST["bed_type"]  ?? 'Double');
 
     $new_image = "";
     if (isset($_FILES["room_image"]) && $_FILES["room_image"]["error"] === 0) {
@@ -26,17 +29,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["form_type"]) && $_POS
     if (!empty($_POST["room_id"])) {
         $room_id = (int) $_POST["room_id"];
         if ($new_image) {
-            $stmt = $conn->prepare("UPDATE rooms SET room_number=?, room_type=?, max_capacity=?, price_per_night=?, room_status=?, image_path=?, extra_guest_fee=?, extra_bed_fee=? WHERE room_id=?");
-            $stmt->bind_param("ssidssddI", $room_number, $room_type, $max_capacity, $price_per_night, $room_status, $new_image, $extra_guest_fee, $extra_bed_fee, $room_id);
+            $stmt = $conn->prepare("UPDATE rooms SET room_number=?, room_type=?, max_capacity=?, price_per_night=?, room_status=?, image_path=?, extra_guest_fee=?, extra_bed_fee=?, num_bedrooms=?, num_beds=?, bed_type=? WHERE room_id=?");
+            $stmt->bind_param("ssidssddiisi", $room_number, $room_type, $max_capacity, $price_per_night, $room_status, $new_image, $extra_guest_fee, $extra_bed_fee, $num_bedrooms, $num_beds, $bed_type, $room_id);
         } else {
-            $stmt = $conn->prepare("UPDATE rooms SET room_number=?, room_type=?, max_capacity=?, price_per_night=?, room_status=?, extra_guest_fee=?, extra_bed_fee=? WHERE room_id=?");
-            $stmt->bind_param("ssidsddi", $room_number, $room_type, $max_capacity, $price_per_night, $room_status, $extra_guest_fee, $extra_bed_fee, $room_id);
+            $stmt = $conn->prepare("UPDATE rooms SET room_number=?, room_type=?, max_capacity=?, price_per_night=?, room_status=?, extra_guest_fee=?, extra_bed_fee=?, num_bedrooms=?, num_beds=?, bed_type=? WHERE room_id=?");
+            $stmt->bind_param("ssidsddiisi", $room_number, $room_type, $max_capacity, $price_per_night, $room_status, $extra_guest_fee, $extra_bed_fee, $num_bedrooms, $num_beds, $bed_type, $room_id);
         }
         $stmt->execute(); $stmt->close();
     } else {
         $image_path = $new_image;
-        $stmt = $conn->prepare("INSERT INTO rooms (room_number, room_type, max_capacity, price_per_night, room_status, image_path, extra_guest_fee, extra_bed_fee) VALUES (?,?,?,?,?,?,?,?)");
-        $stmt->bind_param("ssidssdd", $room_number, $room_type, $max_capacity, $price_per_night, $room_status, $image_path, $extra_guest_fee, $extra_bed_fee);
+        $stmt = $conn->prepare("INSERT INTO rooms (room_number, room_type, max_capacity, price_per_night, room_status, image_path, extra_guest_fee, extra_bed_fee, num_bedrooms, num_beds, bed_type) VALUES (?,?,?,?,?,?,?,?,?,?,?)");
+        $stmt->bind_param("ssidssddiis", $room_number, $room_type, $max_capacity, $price_per_night, $room_status, $image_path, $extra_guest_fee, $extra_bed_fee, $num_bedrooms, $num_beds, $bed_type);
         $stmt->execute(); $stmt->close();
     }
     header("Location: facilities.php?tab=rooms"); exit();
@@ -535,6 +538,9 @@ while ($a = $amenities_result->fetch_assoc()) $amenities_arr[] = $a;
         'image'         => '../' . ($r['image_path'] ?: 'assets/images/default-room.jpg'),
         'extraGuestFee' => $r['extra_guest_fee'] ?? 0,
         'extraBedFee'   => $r['extra_bed_fee']   ?? 0,
+        'numBedrooms'   => $r['num_bedrooms']    ?? 1,
+        'numBeds'       => $r['num_beds']        ?? 1,
+        'bedType'       => $r['bed_type']        ?? 'Double',
     ], $rooms_arr)); ?>;
 
     const amenityData = <?= json_encode(array_map(fn($a) => [
@@ -582,6 +588,9 @@ while ($a = $amenities_result->fetch_assoc()) $amenities_arr[] = $a;
         document.getElementById('f_status').value             = room.status;
         document.getElementById('f_extra_guest_fee').value    = room.extraGuestFee || 0;
         document.getElementById('f_extra_bed_fee').value      = room.extraBedFee   || 0;
+        document.getElementById('f_num_bedrooms').value = room.numBedrooms || 1;
+        document.getElementById('f_num_beds').value     = room.numBeds     || 1;
+        document.getElementById('f_bed_type').value     = room.bedType     || 'Double';
         document.getElementById('currentRoomImg').src         = room.image;
         document.getElementById('currentRoomImgWrap').style.display = 'block';
         document.getElementById('f_room_image').required      = false;
@@ -611,7 +620,9 @@ while ($a = $amenities_result->fetch_assoc()) $amenities_arr[] = $a;
         const extraBedFee   = room ? parseFloat(room.extraBedFee)   : 0;
         document.getElementById('d_extra_guest_fee').textContent = extraGuestFee > 0 ? '₱' + extraGuestFee.toLocaleString('en-PH', {minimumFractionDigits:2}) : 'None';
         document.getElementById('d_extra_bed_fee').textContent   = extraBedFee   > 0 ? '₱' + extraBedFee.toLocaleString('en-PH', {minimumFractionDigits:2})   : 'None';
-
+        document.getElementById('d_num_bedrooms').textContent = (room ? room.numBedrooms : 1) + ' bedroom(s)';
+        document.getElementById('d_num_beds').textContent     = (room ? room.numBeds     : 1) + ' bed(s)';
+        document.getElementById('d_bed_type').textContent     = room ? room.bedType : '-';
         document.getElementById('roomDetailModal').classList.add('show');
     }
 
