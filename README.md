@@ -53,7 +53,11 @@ CREATE TABLE rooms (
     room_status VARCHAR(20) NOT NULL,
     image_path TEXT,
     extra_guest_fee DECIMAL(10,2) NOT NULL DEFAULT 0.00,
-    extra_bed_fee   DECIMAL(10,2) NOT NULL DEFAULT 0.00
+    extra_bed_fee   DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    num_bedrooms   INT          NOT NULL DEFAULT 1,
+    num_beds       INT          NOT NULL DEFAULT 1,
+    bed_type       VARCHAR(50)  NOT NULL DEFAULT 'Double'
+
 );
 
 CREATE TABLE reservations (
