@@ -204,6 +204,10 @@ while ($a = $amenities_result->fetch_assoc()) $amenities_arr[] = $a;
                         <input type="number" step="0.01" name="extra_bed_fee" id="f_extra_bed_fee" placeholder="0.00" min="0">
                     </div>
                     <div>
+                        <label style="font-size:12px;font-weight:600;color:#64748b;display:block;margin-bottom:4px">No. of Beds *</label>
+                        <input type="number" name="num_beds" id="f_num_beds" placeholder="e.g. 2" min="1" value="1" required>
+                    </div>
+                    <div>
                         <label style="font-size:12px;font-weight:600;color:#64748b;display:block;margin-bottom:4px">Bed Type *</label>
                         <select name="bed_type" id="f_bed_type" required>
                             <option value="Double">Double</option>

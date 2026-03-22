@@ -1,0 +1,7 @@
+
+
+create instance of your db:
+mysqldump -u root -p rawis_resort_db > rawis_resort_db.sql
+
+copy the instance in your db:
+mysql -u root -p rawis_resort_db < rawis_resort_db.sql
