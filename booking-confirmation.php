@@ -65,7 +65,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["submit_reference"])) 
     exit();
 }
 if (isset($_GET["updated"])) {
-    $success_msg = "Reference number submitted! We'll verify your payment shortly.";
+    $success_msg = "Reference number submitted. We'll verify your payment shortly.";
     $refetch = $conn->prepare("SELECT payment_status, reference_number FROM payments WHERE reservation_id=? ORDER BY payment_id DESC LIMIT 1");
     $refetch->bind_param("i", $reservation_id);
     $refetch->execute();
@@ -79,25 +79,26 @@ if (isset($_GET["updated"])) {
 
 function reservationBadge($s) {
     $map = [
-        'Pending'    => ['#8e4a0f','#fff8f0','⏳'],
-        'Confirmed'  => ['#334937','#f0f7e6','✅'],
-        'Cancelled'  => ['#9b2226','#fdf0ee','✗'],
-        'Completed'  => ['#531e07','#fdf6f0','★'],
-        'Checked-in' => ['#2d5a27','#e8f0d8','🔑'],
-        'Checked-out'=> ['#531e07','#fdf6f0','👋'],
+        'Pending'    => ['#8e4a0f', '#fff8f0'],
+        'Confirmed'  => ['#334937', '#f0f7e6'],
+        'Cancelled'  => ['#9b2226', '#fdf0ee'],
+        'Completed'  => ['#531e07', '#fdf6f0'],
+        'Checked-in' => ['#2d5a27', '#e8f0d8'],
+        'Checked-out'=> ['#531e07', '#fdf6f0'],
     ];
-    $d = $map[$s] ?? ['#666','#f5f5f5','•'];
-    return "<span class='status-badge' style='background:{$d[1]};color:{$d[0]};border-color:{$d[0]}'>{$d[2]} {$s}</span>";
+    $d = $map[$s] ?? ['#666', '#f5f5f5'];
+    return "<span class='status-badge' style='background:{$d[1]};color:{$d[0]};border-color:{$d[0]}'>" . htmlspecialchars($s) . "</span>";
 }
+
 function paymentBadge($s) {
     $map = [
-        'Pending'               => ['#8e4a0f','#fff8f0'],
-        'Awaiting Verification' => ['#334937','#f0f7e6'],
-        'Completed'             => ['#2d5a27','#e8f0d8'],
-        'Refunded'              => ['#9b2226','#fdf0ee'],
+        'Pending'               => ['#8e4a0f', '#fff8f0'],
+        'Awaiting Verification' => ['#334937', '#f0f7e6'],
+        'Completed'             => ['#2d5a27', '#e8f0d8'],
+        'Refunded'              => ['#9b2226', '#fdf0ee'],
     ];
-    $d = $map[$s] ?? ['#666','#f5f5f5'];
-    return "<span class='status-badge' style='background:{$d[1]};color:{$d[0]};border-color:{$d[0]}'>{$s}</span>";
+    $d = $map[$s] ?? ['#666', '#f5f5f5'];
+    return "<span class='status-badge' style='background:{$d[1]};color:{$d[0]};border-color:{$d[0]}'>" . htmlspecialchars($s) . "</span>";
 }
 ?>
 <!DOCTYPE html>
@@ -105,156 +106,230 @@ function paymentBadge($s) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Booking Confirmation | Rawis Resort</title>
+    <title>Booking Confirmation | Rawis Resort Hotel</title>
     <link rel="stylesheet" href="assets/css/base.css">
     <link rel="stylesheet" href="assets/css/header-footer.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        * { box-sizing: border-box; }
-
-        .confirm-page {
-            max-width: 940px;
-            margin: 40px auto 80px;
-            padding: 0 18px;
+        /* ── Page wrapper ── */
+        .confirm-page-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 20px 20px 60px;
         }
 
-        .confirm-hero {
-            background: linear-gradient(to right, #bbcc81 10%, #334937 80%);
-            border-radius: 18px;
-            padding: 36px 42px;
-            color: #fff;
+        /* ── Section intro (mirrors contacts/about) ── */
+        .confirm-intro {
             display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: 24px;
-            margin-bottom: 28px;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 8px 28px rgba(51,73,55,0.3);
+            text-align: center;
+            gap: 6px;
+            margin-bottom: 36px;
         }
-        .confirm-hero::before {
-            content: '';
-            position: absolute;
-            top: -40px; right: -40px;
-            width: 220px; height: 220px;
-            background: rgba(255,255,255,0.07);
-            border-radius: 50%;
+
+        .confirm-intro h1 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #5d330f;
+            margin: 0 0 -12px;
         }
-        .confirm-hero-icon {
-            width: 68px; height: 68px;
-            background: rgba(255,255,255,0.2);
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 30px; flex-shrink: 0;
-        }
-        .confirm-hero h1 {
+
+        .confirm-intro h2 {
             font-family: 'The Seasons', serif;
-            font-size: 28px;
+            font-size: 30px;
+            background: linear-gradient(to right, #5d330f, #dbb595);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 0;
+            line-height: 1.8;
+        }
+
+        .confirm-intro p {
+            font-family: 'Poppins', sans-serif;
+            font-size: 14.5px;
+            font-weight: 300;
+            color: #7c746b;
+            max-width: 540px;
+            margin: 4px auto 0;
+            line-height: 1.7;
+        }
+
+        .booking-id-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 10px;
+            padding: 8px 22px;
+            background: linear-gradient(to right, #5d330f, #dbb595);
+            color: #fff;
+            border-radius: 50px;
+            font-family: 'The Seasons', serif;
+            font-size: 18px;
             font-weight: 400;
-            margin: 0 0 6px;
-            text-shadow: 1px 1px 4px rgba(0,0,0,0.2);
-        }
-        .confirm-hero p {
-            font-family: Poppins, sans-serif;
-            margin: 0; opacity: 0.9; font-size: 14.5px;
-        }
-        .confirm-booking-id {
-            margin-left: auto;
-            text-align: right;
-            flex-shrink: 0;
-        }
-        .confirm-booking-id .id-label {
-            font-family: Poppins, sans-serif;
-            font-size: 11px; opacity: 0.8;
-            text-transform: uppercase; letter-spacing: 0.08em;
-        }
-        .confirm-booking-id .id-value {
-            font-family: 'The Seasons', serif;
-            font-size: 30px; font-weight: 400; letter-spacing: 0.04em;
+            letter-spacing: 0.04em;
+            box-shadow: 0 4px 14px rgba(93, 51, 15, 0.22);
         }
 
-        .alert-success {
-            background: #f0f7e6;
-            border: 1px solid #bbcc81;
-            border-left: 4px solid #334937;
-            color: #2d5a27;
-            border-radius: 10px;
-            padding: 14px 18px;
-            margin-bottom: 20px;
-            font-family: Poppins, sans-serif;
-            font-size: 14px;
-            display: flex; align-items: center; gap: 10px;
-        }
-
-        .confirm-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-        .confirm-grid .full-width { grid-column: 1 / -1; }
-
-        .card {
-            background: #fff;
-            border-radius: 16px;
-            padding: 24px;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.07);
-            border-top: 3px solid #bbcc81;
-        }
-        .card-title {
-            font-family: Poppins, sans-serif;
+        .booking-id-pill span {
+            font-family: 'Poppins', sans-serif;
             font-size: 11px;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.08em;
-            color: #888;
-            margin: 0 0 16px;
-            display: flex; align-items: center; gap: 8px;
+            opacity: 0.85;
         }
-        .card-title i { color: #bbcc81; }
 
+        /* ── Alert ── */
+        .alert {
+            padding: 14px 18px;
+            border-radius: 12px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 14px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-left: 4px solid;
+        }
+
+        .alert-success {
+            background: linear-gradient(135deg, rgba(219,181,149,0.15), rgba(93,51,15,0.06));
+            color: #5d330f;
+            border-color: #dbb595;
+        }
+
+        /* ── Two-column grid ── */
+        .confirm-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 22px;
+        }
+
+        .confirm-grid .full-width {
+            grid-column: 1 / -1;
+        }
+
+        /* ── Card (mirrors info-card / contact-form-card) ── */
+        .card {
+            background: #fff;
+            border-radius: 15px;
+            padding: 26px 28px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2ddd8;
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 14px 28px rgba(0, 0, 0, 0.09);
+        }
+
+        /* ── Card title ── */
+        .card-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #7c746b;
+            margin: 0 0 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-title i {
+            background: linear-gradient(135deg, #5d330f, #dbb595);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 13px;
+        }
+
+        /* ── Info rows ── */
         .info-row {
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            align-items: flex-start;
             padding: 9px 0;
             border-bottom: 1px solid #f5f0eb;
-            font-family: Poppins, sans-serif;
+            font-family: 'Poppins', sans-serif;
             font-size: 14px;
+            gap: 16px;
         }
-        .info-row:last-child { border-bottom: none; }
-        .info-row .label { color: #888; }
-        .info-row .value { font-weight: 600; color: #341f0c; text-align: right; }
 
-        .room-card-inline {
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-row .label {
+            color: #7c746b;
+            flex-shrink: 0;
+        }
+
+        .info-row .value {
+            font-weight: 600;
+            color: #341f0c;
+            text-align: right;
+        }
+
+        /* ── Room inline card ── */
+        .room-inline {
             display: flex;
             gap: 16px;
             align-items: center;
+            margin-bottom: 20px;
         }
-        .room-card-inline img {
-            width: 100px; height: 70px;
+
+        .room-inline img {
+            width: 100px;
+            height: 72px;
             border-radius: 10px;
             object-fit: cover;
             flex-shrink: 0;
-            border: 2px solid #bbcc81;
-        }
-        .room-card-inline .room-type {
-            font-family: 'The Seasons', serif;
-            font-size: 20px;
-            font-weight: 400;
-            color: #341f0c;
-        }
-        .room-card-inline .room-meta {
-            font-family: Poppins, sans-serif;
-            font-size: 13px;
-            color: #888;
-            margin-top: 4px;
+            border: 2px solid #e2ddd8;
         }
 
+        .room-inline-meta {
+            flex: 1;
+        }
+
+        .room-inline-type {
+            font-family: 'The Seasons', serif;
+            font-size: 22px;
+            font-weight: 400;
+            color: #341f0c;
+            line-height: 1.2;
+        }
+
+        .room-inline-sub {
+            font-family: 'Poppins', sans-serif;
+            font-size: 13px;
+            color: #7c746b;
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .room-inline-sub i {
+            color: #dbb595;
+            font-size: 12px;
+        }
+
+        /* ── Date strip ── */
         .date-strip {
             display: flex;
             align-items: center;
             gap: 0;
-            margin: 18px 0 0;
+            margin-top: 4px;
         }
+
         .date-box {
             flex: 1;
             background: #faf8f5;
@@ -263,212 +338,336 @@ function paymentBadge($s) {
             text-align: center;
             border: 1px solid #ede8e1;
         }
-        .date-box .date-label {
-            font-family: Poppins, sans-serif;
-            font-size: 11px;
+
+        .date-label {
+            font-family: 'Poppins', sans-serif;
+            font-size: 10px;
             text-transform: uppercase;
             letter-spacing: 0.08em;
-            color: #aaa;
-            font-weight: 600;
+            color: #7c746b;
+            font-weight: 700;
         }
-        .date-box .date-value {
+
+        .date-value {
             font-family: 'The Seasons', serif;
             font-size: 18px;
             color: #341f0c;
             margin-top: 4px;
         }
-        .date-box .date-sub {
-            font-family: Poppins, sans-serif;
-            font-size: 12px;
-            color: #999;
-        }
-        .date-arrow {
-            padding: 0 12px;
-            color: #bbcc81;
-            font-size: 18px;
-        }
-        .nights-pill {
-            padding: 7px 18px;
-            background: linear-gradient(135deg, #bbcc81 0%, #334937 100%);
-            color: #fff;
-            border-radius: 20px;
-            font-family: Poppins, sans-serif;
-            font-size: 13px;
-            font-weight: 700;
-            text-align: center;
-            white-space: nowrap;
+
+        .date-sub {
+            font-family: 'Poppins', sans-serif;
+            font-size: 11px;
+            color: #aaa;
         }
 
+        .date-arrow {
+            padding: 0 14px;
+            color: #dbb595;
+            font-size: 16px;
+        }
+
+        .nights-pill {
+            padding: 8px 20px;
+            background: linear-gradient(135deg, #5d330f, #dbb595);
+            color: #fff;
+            border-radius: 50px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 12px;
+            font-weight: 700;
+            white-space: nowrap;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 12px rgba(93,51,15,0.2);
+        }
+
+        /* ── Status badge ── */
         .status-badge {
             display: inline-block;
             padding: 4px 14px;
-            border-radius: 20px;
-            font-family: Poppins, sans-serif;
+            border-radius: 50px;
+            font-family: 'Poppins', sans-serif;
             font-size: 12px;
             font-weight: 600;
             border: 1.5px solid;
         }
 
+        /* ── Cost breakdown ── */
         .cost-row {
             display: flex;
             justify-content: space-between;
             padding: 9px 0;
-            font-family: Poppins, sans-serif;
+            font-family: 'Poppins', sans-serif;
             font-size: 14px;
-            color: #666;
+            color: #555;
             border-bottom: 1px dashed #ede8e1;
         }
-        .cost-row:last-child { border-bottom: none; }
+
+        .cost-row:last-child {
+            border-bottom: none;
+        }
+
         .cost-row.total-row {
             border-top: 2px solid #ede8e1;
             border-bottom: none;
             padding-top: 14px;
             margin-top: 4px;
         }
-        .cost-row.total-row span:first-child { font-size: 15px; font-weight: 700; color: #341f0c; }
-        .cost-row.total-row span:last-child  { font-size: 20px; font-weight: 800; color: #334937; }
 
-        .amenity-list {
-            font-family: Poppins, sans-serif;
-            font-size: 14px;
+        .cost-row.total-row .cost-label {
+            font-size: 15px;
+            font-weight: 700;
+            color: #341f0c;
+        }
+
+        .cost-row.total-row .cost-value {
+            font-size: 20px;
+            font-weight: 800;
+            background: linear-gradient(to right, #5d330f, #dbb595);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .amenity-included {
+            font-family: 'Poppins', sans-serif;
+            font-size: 13px;
             color: #555;
-            padding: 8px 0;
+            padding: 7px 0;
             border-bottom: 1px dashed #ede8e1;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
-        .amenity-list:last-of-type { border-bottom: none; }
-        .amenity-list span { display: inline-block; margin-right: 8px; }
 
-        .pm-icon {
-            display: inline-flex; align-items: center; gap: 7px;
-            font-family: Poppins, sans-serif;
-            font-weight: 600; font-size: 14px;
+        .amenity-included:last-of-type {
+            border-bottom: none;
         }
-        .pm-icon i { font-size: 16px; }
-        .pm-cash  { color: #334937; }
-        .pm-gcash { color: #531e07; }
-        .pm-card  { color: #8e4a0f; }
 
+        .amenity-included i {
+            color: #dbb595;
+            font-size: 11px;
+            flex-shrink: 0;
+        }
+
+        .amenity-included .amenity-qty {
+            color: #aaa;
+            margin-left: 4px;
+        }
+
+        .amenities-subhead {
+            font-family: 'Poppins', sans-serif;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: #aaa;
+            margin: 4px 0 8px;
+        }
+
+        /* ── Payment method pill ── */
+        .pm-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 4px 14px;
+            border-radius: 50px;
+        }
+
+        .pm-cash  { background: #f0f7e6; color: #334937; }
+        .pm-gcash { background: #eff6ff; color: #1d4ed8; }
+        .pm-card  { background: #fdf6f0; color: #8e4a0f; }
+
+        /* ── Instructions box ── */
         .instructions-box {
             background: #faf8f5;
             border-radius: 12px;
-            padding: 18px;
-            margin-top: 16px;
+            padding: 18px 20px;
+            margin-top: 18px;
             border: 1px solid #ede8e1;
         }
-        .instructions-box .step {
-            display: flex; gap: 12px; align-items: flex-start;
-            font-family: Poppins, sans-serif;
-            font-size: 13.5px; color: #555;
-            margin-bottom: 12px;
-        }
-        .instructions-box .step:last-child { margin-bottom: 0; }
-        .step-num {
-            width: 26px; height: 26px;
-            background: linear-gradient(135deg, #bbcc81 0%, #334937 100%);
-            color: #fff;
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 12px; font-weight: 700; flex-shrink: 0;
+
+        .step {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            font-family: 'Poppins', sans-serif;
+            font-size: 13.5px;
+            color: #555;
+            margin-bottom: 14px;
         }
 
+        .step:last-child {
+            margin-bottom: 0;
+        }
+
+        .step-num {
+            width: 26px;
+            height: 26px;
+            background: linear-gradient(135deg, #5d330f, #dbb595);
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        /* ── Reference form ── */
         .ref-form {
-            margin-top: 14px;
-            padding: 16px;
+            margin-top: 16px;
+            padding: 18px 20px;
             background: #fff8f0;
-            border: 1px dashed #c87941;
-            border-radius: 10px;
+            border: 1px dashed #dbb595;
+            border-radius: 12px;
         }
+
         .ref-form p {
-            font-family: Poppins, sans-serif;
-            margin: 0 0 10px; font-size: 13px; color: #8e4a0f;
+            font-family: 'Poppins', sans-serif;
+            margin: 0 0 12px;
+            font-size: 13px;
+            color: #8e4a0f;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
-        .ref-form-row { display: flex; gap: 10px; }
+
+        .ref-form-row {
+            display: flex;
+            gap: 10px;
+        }
+
         .ref-form input {
             flex: 1;
-            padding: 9px 12px;
+            padding: 10px 14px;
             border: 1.5px solid #e2ddd8;
-            border-radius: 8px;
-            font-family: Poppins, sans-serif;
+            border-radius: 10px;
+            font-family: 'Poppins', sans-serif;
             font-size: 14px;
+            color: #341f0c;
+            background: #faf8f6;
             outline: none;
-            transition: border-color 0.2s;
+            transition: border-color 0.2s, box-shadow 0.2s;
         }
-        .ref-form input:focus { border-color: #bbcc81; }
+
+        .ref-form input:focus {
+            border-color: #dbb595;
+            box-shadow: 0 0 0 3px rgba(219, 181, 149, 0.2);
+            background: #fff;
+        }
+
         .ref-form button {
-            padding: 9px 20px;
-            background: linear-gradient(to right, #bbcc81 10%, #334937 80%);
+            padding: 10px 22px;
+            background: linear-gradient(to right, #5d330f, #dbb595);
             color: #fff;
             border: none;
-            border-radius: 8px;
-            font-family: Poppins, sans-serif;
+            border-radius: 10px;
+            font-family: 'Poppins', sans-serif;
             font-size: 14px;
             font-weight: 700;
             cursor: pointer;
-            transition: opacity 0.2s;
-        }
-        .ref-form button:hover { opacity: 0.88; }
-
-        .confirm-actions {
-            display: flex; gap: 12px; margin-top: 24px; flex-wrap: wrap;
-        }
-        .btn-primary {
-            display: inline-flex; align-items: center; gap: 8px;
-            padding: 12px 24px;
-            background: linear-gradient(to right, #bbcc81 10%, #334937 80%);
-            color: #fff; border: none; border-radius: 50px;
-            font-family: Poppins, sans-serif;
-            font-size: 14px; font-weight: 700;
-            cursor: pointer; text-decoration: none;
+            transition: opacity 0.2s, transform 0.15s;
             text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
-            box-shadow: 0 4px 14px rgba(51,73,55,0.25);
+        }
+
+        .ref-form button:hover {
+            opacity: 0.88;
+            transform: translateY(-1px);
+        }
+
+        /* ── Action buttons ── */
+        .confirm-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 28px;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 26px;
+            background: linear-gradient(to right, #5d330f, #dbb595);
+            color: #fff;
+            border: none;
+            border-radius: 50px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 14px rgba(93, 51, 15, 0.25);
             transition: opacity 0.2s, transform 0.15s;
         }
-        .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
         .btn-secondary {
-            display: inline-flex; align-items: center; gap: 8px;
-            padding: 12px 24px;
-            background: #fff; color: #531e07;
-            border: 2px solid #e2ddd8; border-radius: 50px;
-            font-family: Poppins, sans-serif;
-            font-size: 14px; font-weight: 600;
-            cursor: pointer; text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 26px;
+            background: #fff;
+            color: #5d330f;
+            border: 2px solid #e2ddd8;
+            border-radius: 50px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
             transition: border-color 0.2s, background 0.15s;
         }
+
         .btn-secondary:hover {
-            border-color: #bbcc81;
+            border-color: #dbb595;
             background: #faf8f5;
         }
 
-        @media (max-width: 640px) {
+        /* ── Responsive ── */
+        @media (max-width: 700px) {
             .confirm-grid { grid-template-columns: 1fr; }
-            .confirm-hero { flex-direction: column; text-align: center; padding: 28px 22px; }
-            .confirm-booking-id { margin-left: 0; text-align: center; }
-            .date-strip { flex-direction: column; }
-            .date-arrow { transform: rotate(90deg); }
+            .date-strip { flex-direction: column; align-items: stretch; }
+            .date-arrow { transform: rotate(90deg); text-align: center; padding: 6px 0; }
+            .nights-pill { text-align: center; }
+            .room-inline { flex-direction: column; align-items: flex-start; }
+            .room-inline img { width: 100%; height: 160px; }
         }
     </style>
 </head>
 <body class="customer-page">
     <?php require_once __DIR__ . '/php/header.php'; ?>
 
-    <div class="confirm-page">
+    <div class="page-header">
+        <h1>Booking Confirmation</h1>
+    </div>
 
-        <!-- Hero -->
-        <div class="confirm-hero">
-            <div class="confirm-hero-icon">🎉</div>
-            <div>
-                <h1>Booking Received!</h1>
-                <p>Thank you, <?= htmlspecialchars($data["first_name"]); ?>. Your reservation is being processed.</p>
+    <div class="confirm-page-inner">
+
+        <!-- Intro heading -->
+        <section class="confirm-intro">
+            <h1>Thank You</h1>
+            <h2>Booking Received, <?= htmlspecialchars($data["first_name"]); ?></h2>
+            <p>Your reservation is being processed. Please review your details below and follow the payment instructions.</p>
+            <div class="booking-id-pill">
+                <span>Booking ID</span>
+                #<?= str_pad($reservation_id, 5, '0', STR_PAD_LEFT); ?>
             </div>
-            <div class="confirm-booking-id">
-                <div class="id-label">Booking ID</div>
-                <div class="id-value">#<?= str_pad($reservation_id, 5, '0', STR_PAD_LEFT); ?></div>
-            </div>
-        </div>
+        </section>
 
         <?php if ($success_msg): ?>
-            <div class="alert-success">
-                <i class="fas fa-check-circle"></i> <?= htmlspecialchars($success_msg); ?>
+            <div class="alert alert-success">
+                <i class="fas fa-check-circle"></i>
+                <?= htmlspecialchars($success_msg); ?>
             </div>
         <?php endif; ?>
 
@@ -478,19 +677,18 @@ function paymentBadge($s) {
             <div class="card full-width">
                 <p class="card-title"><i class="fas fa-bed"></i> Room Details</p>
 
-                <div class="room-card-inline">
+                <div class="room-inline">
                     <?php if ($data["image_path"]): ?>
                         <img src="<?= htmlspecialchars($data["image_path"]); ?>" alt="Room">
                     <?php endif; ?>
-                    <div>
-                        <div class="room-type"><?= htmlspecialchars($data["room_type"]); ?></div>
-                        <div class="room-meta">
-                            <i class="fas fa-door-open"></i> Room <?= htmlspecialchars($data["room_number"]); ?>
-                            &nbsp;·&nbsp;
-                            <?= $nights; ?> night<?= $nights > 1 ? 's' : ''; ?>
+                    <div class="room-inline-meta">
+                        <div class="room-inline-type"><?= htmlspecialchars($data["room_type"]); ?></div>
+                        <div class="room-inline-sub">
+                            <span><i class="fas fa-door-open"></i> Room <?= htmlspecialchars($data["room_number"]); ?></span>
+                            <span><i class="fas fa-moon"></i> <?= $nights; ?> night<?= $nights > 1 ? 's' : ''; ?></span>
                         </div>
                     </div>
-                    <div style="margin-left:auto;text-align:right">
+                    <div>
                         <?= reservationBadge($data["reservation_status"]); ?>
                     </div>
                 </div>
@@ -539,26 +737,26 @@ function paymentBadge($s) {
             <div class="card">
                 <p class="card-title"><i class="fas fa-receipt"></i> Cost Breakdown</p>
                 <div class="cost-row">
-                    <span><?= htmlspecialchars($data["room_type"]); ?> × <?= $nights; ?> night<?= $nights > 1 ? 's' : ''; ?></span>
-                    <span>₱<?= number_format($room_cost, 2); ?></span>
+                    <span><?= htmlspecialchars($data["room_type"]); ?> &times; <?= $nights; ?> night<?= $nights > 1 ? 's' : ''; ?></span>
+                    <span>&#8369;<?= number_format($room_cost, 2); ?></span>
                 </div>
                 <?php if (!empty($amenities_list)): ?>
-                <div class="cost-row" style="flex-direction: column; gap: 4px;">
-                    <span style="color:#888; font-size:12px; text-transform:uppercase; letter-spacing:0.06em;">Included Amenities</span>
+                <div class="cost-row" style="flex-direction:column; gap:4px;">
+                    <div class="amenities-subhead">Included Amenities</div>
                     <?php foreach ($amenities_list as $a): ?>
-                        <div class="amenity-list">
-                            <i class="fas fa-check" style="color:#bbcc81; font-size:11px;"></i>
+                        <div class="amenity-included">
+                            <i class="fas fa-check"></i>
                             <span><?= htmlspecialchars($a["amenity_name"]); ?></span>
                             <?php if ($a["quantity"] > 1): ?>
-                                <span style="color:#aaa;">×<?= $a["quantity"]; ?></span>
+                                <span class="amenity-qty">&times;<?= $a["quantity"]; ?></span>
                             <?php endif; ?>
                         </div>
                     <?php endforeach; ?>
                 </div>
                 <?php endif; ?>
                 <div class="cost-row total-row">
-                    <span>Total</span>
-                    <span>₱<?= number_format($total, 2); ?></span>
+                    <span class="cost-label">Total</span>
+                    <span class="cost-value">&#8369;<?= number_format($total, 2); ?></span>
                 </div>
             </div>
 
@@ -571,17 +769,29 @@ function paymentBadge($s) {
                     <span class="value">
                         <?php
                         $pm = $data["payment_method"];
-                        $pmClass = $pm === "Cash" ? "pm-cash" : ($pm === "GCash" ? "pm-gcash" : "pm-card");
-                        $pmIcon  = $pm === "Cash" ? "fas fa-money-bill-wave" : ($pm === "GCash" ? "fas fa-mobile-alt" : "fas fa-credit-card");
+                        $pmClass = match($pm) {
+                            "Cash"  => "pm-cash",
+                            "GCash" => "pm-gcash",
+                            "Card"  => "pm-card",
+                            default => "pm-cash"
+                        };
+                        $pmIcon = match($pm) {
+                            "Cash"  => "fas fa-money-bill-wave",
+                            "GCash" => "fas fa-mobile-alt",
+                            "Card"  => "fas fa-credit-card",
+                            default => "fas fa-money-bill-wave"
+                        };
                         ?>
-                        <span class="pm-icon <?= $pmClass; ?>">
+                        <span class="pm-pill <?= $pmClass; ?>">
                             <i class="<?= $pmIcon; ?>"></i> <?= htmlspecialchars($pm); ?>
                         </span>
                     </span>
                 </div>
                 <div class="info-row">
                     <span class="label">Amount Due</span>
-                    <span class="value" style="font-size:18px;color:#334937">₱<?= number_format($total, 2); ?></span>
+                    <span class="value" style="font-size:17px; background:linear-gradient(to right,#5d330f,#dbb595); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;">
+                        &#8369;<?= number_format($total, 2); ?>
+                    </span>
                 </div>
                 <div class="info-row">
                     <span class="label">Payment Status</span>
@@ -606,7 +816,7 @@ function paymentBadge($s) {
                         </div>
                         <div class="step">
                             <div class="step-num">3</div>
-                            <div>Pay <strong>₱<?= number_format($total, 2); ?></strong> in cash upon arrival. Your reservation will be confirmed by our staff.</div>
+                            <div>Pay <strong>&#8369;<?= number_format($total, 2); ?></strong> in cash upon arrival. Your reservation will be confirmed by our staff.</div>
                         </div>
                     </div>
 
@@ -614,7 +824,7 @@ function paymentBadge($s) {
                     <div class="instructions-box">
                         <div class="step">
                             <div class="step-num">1</div>
-                            <div>Send <strong>₱<?= number_format($total, 2); ?></strong> via GCash to <strong>0977 183 7288</strong> (Rawis Resort Hotel).</div>
+                            <div>Send <strong>&#8369;<?= number_format($total, 2); ?></strong> via GCash to <strong>0977 183 7288</strong> (Rawis Resort Hotel).</div>
                         </div>
                         <div class="step">
                             <div class="step-num">2</div>
@@ -650,7 +860,7 @@ function paymentBadge($s) {
                         </div>
                         <div class="step">
                             <div class="step-num">3</div>
-                            <div>You'll receive a confirmation once verified. Contact us if you have questions.</div>
+                            <div>You'll receive a confirmation once verified. Contact us if you have any questions.</div>
                         </div>
                     </div>
                     <?php if ($data["payment_status"] === "Pending"): ?>
@@ -670,6 +880,7 @@ function paymentBadge($s) {
 
         </div>
 
+        <!-- Action buttons -->
         <div class="confirm-actions">
             <a href="/rooms.php" class="btn-secondary">
                 <i class="fas fa-arrow-left"></i> Browse More Rooms

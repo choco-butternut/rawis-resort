@@ -291,6 +291,8 @@ while ($a = $amenities_result->fetch_assoc()) $amenities_arr[] = $a;
                 <div class="detail-item"><label>Room Type</label><p id="d_type"></p></div>
                 <div class="detail-item"><label>Max Capacity</label><p id="d_capacity"></p></div>
                 <div class="detail-item"><label>Price / Night</label><p id="d_price"></p></div>
+                <div class="detail-item"><label>Extra Guest Fee / Night</label><p id="d_extra_guest_fee"></p></div>
+                <div class="detail-item"><label>Extra Bed Fee / Night</label><p id="d_extra_bed_fee"></p></div>
                 <div class="detail-item"><label>Status</label><p id="d_status"></p></div>
             </div>
             <div style="display:flex;gap:10px;margin-top:20px">
@@ -588,12 +590,21 @@ while ($a = $amenities_result->fetch_assoc()) $amenities_arr[] = $a;
         if (!cardEl && event.target.closest('a')) return;
         const card = cardEl || event.currentTarget;
         currentDetailRoomId = card.dataset.roomId;
+
+        const room = roomData.find(r => r.id == card.dataset.roomId);
+
         document.getElementById('detailRoomImg').src        = card.dataset.image;
         document.getElementById('d_number').textContent     = card.dataset.roomNumber;
         document.getElementById('d_type').textContent       = card.dataset.roomType;
         document.getElementById('d_capacity').textContent   = card.dataset.capacity + ' guests';
         document.getElementById('d_price').textContent      = '₱' + Number(card.dataset.priceRaw).toLocaleString('en-PH', {minimumFractionDigits:2});
         document.getElementById('d_status').textContent     = card.dataset.status.charAt(0).toUpperCase() + card.dataset.status.slice(1);
+
+        const extraGuestFee = room ? parseFloat(room.extraGuestFee) : 0;
+        const extraBedFee   = room ? parseFloat(room.extraBedFee)   : 0;
+        document.getElementById('d_extra_guest_fee').textContent = extraGuestFee > 0 ? '₱' + extraGuestFee.toLocaleString('en-PH', {minimumFractionDigits:2}) : 'None';
+        document.getElementById('d_extra_bed_fee').textContent   = extraBedFee   > 0 ? '₱' + extraBedFee.toLocaleString('en-PH', {minimumFractionDigits:2})   : 'None';
+
         document.getElementById('roomDetailModal').classList.add('show');
     }
 
