@@ -1,5 +1,3 @@
-
-
 <?php
 session_start();
 
@@ -13,12 +11,12 @@ $error = "";
 if ($_SERVER["REQUEST_METHOD"]==="POST"){
     require_once "../php/config.php";
 
-    $email = $_POST["email"];
+    $username = $_POST["username"];
     $password = $_POST["password"];
 
-    $sql = "SELECT * FROM users WHERE email = ?";
+    $sql = "SELECT * FROM users WHERE username = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("s", $email);
+    $stmt->bind_param("s", $username);
     $stmt->execute();
     $result = $stmt->get_result();
 
@@ -77,7 +75,7 @@ if ($_SERVER["REQUEST_METHOD"]==="POST"){
             <div class="input-group">
                 <i class="fas fa-user icon"></i>
                 <div class="divider"></div>
-                <input name="email" type="email" placeholder="Username" required>
+                <input name="username" type="text" placeholder="Username" required>
             </div>
 
             <div class="input-group">
@@ -89,7 +87,7 @@ if ($_SERVER["REQUEST_METHOD"]==="POST"){
 
             <button type="submit" class="login-button">Login</button>
             
-            <a href="#" class="forgot-link">Forgot password?</a>
+            <!-- <a href="#" class="forgot-link">Forgot password?</a> -->
         </form>
     </div>
 
