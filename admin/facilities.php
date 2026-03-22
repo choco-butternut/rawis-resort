@@ -180,13 +180,7 @@ while ($a = $amenities_result->fetch_assoc()) $amenities_arr[] = $a;
                     </div>
                     <div>
                         <label style="font-size:12px;font-weight:600;color:#64748b;display:block;margin-bottom:4px">Room Type *</label>
-                        <select name="room_type" id="f_room_type" required>
-                            <option value="">Select type…</option>
-                            <option value="Deluxe">Deluxe</option>
-                            <option value="Standard">Standard</option>
-                            <option value="Family">Family</option>
-                            <option value="BeachFront">BeachFront</option>
-                        </select>
+                        <input type="text" name="room_type" id="f_room_type" placeholder="e.g. Deluxe, BeachFront…" required>
                     </div>
                     <div>
                         <label style="font-size:12px;font-weight:600;color:#64748b;display:block;margin-bottom:4px">Max Capacity *</label>
