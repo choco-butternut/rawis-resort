@@ -1,9 +1,9 @@
 /*M!999999\- enable the sandbox mode */ 
--- MariaDB dump 10.19-11.8.6-MariaDB, for debian-linux-gnu (x86_64)
+-- MariaDB dump 10.19  Distrib 10.11.14-MariaDB, for debian-linux-gnu (x86_64)
 --
 -- Host: localhost    Database: rawis_resort_db
 -- ------------------------------------------------------
--- Server version	11.8.6-MariaDB-2 from Debian
+-- Server version	10.11.14-MariaDB-0ubuntu0.24.04.1
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -14,7 +14,7 @@
 /*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
-/*M!100616 SET @OLD_NOTE_VERBOSITY=@@NOTE_VERBOSITY, NOTE_VERBOSITY=0 */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
 -- Table structure for table `amenities`
@@ -38,7 +38,6 @@ CREATE TABLE `amenities` (
 -- Dumping data for table `amenities`
 --
 
-SET @OLD_AUTOCOMMIT=@@AUTOCOMMIT, @@AUTOCOMMIT=0;
 LOCK TABLES `amenities` WRITE;
 /*!40000 ALTER TABLE `amenities` DISABLE KEYS */;
 INSERT INTO `amenities` VALUES
@@ -53,8 +52,6 @@ INSERT INTO `amenities` VALUES
 (19,'High Powered Standby Generator','High-powered standby generator ensures uninterrupted power supply during outages.',NULL,'Available','2026-03-21 10:49:39');
 /*!40000 ALTER TABLE `amenities` ENABLE KEYS */;
 UNLOCK TABLES;
-COMMIT;
-SET AUTOCOMMIT=@OLD_AUTOCOMMIT;
 
 --
 -- Table structure for table `payments`
@@ -83,15 +80,12 @@ CREATE TABLE `payments` (
 -- Dumping data for table `payments`
 --
 
-SET @OLD_AUTOCOMMIT=@@AUTOCOMMIT, @@AUTOCOMMIT=0;
 LOCK TABLES `payments` WRITE;
 /*!40000 ALTER TABLE `payments` DISABLE KEYS */;
 INSERT INTO `payments` VALUES
 (12,16,79900.00,'Cash','Pending','',NULL,'2026-03-22 14:22:15',NULL);
 /*!40000 ALTER TABLE `payments` ENABLE KEYS */;
 UNLOCK TABLES;
-COMMIT;
-SET AUTOCOMMIT=@OLD_AUTOCOMMIT;
 
 --
 -- Table structure for table `reservation_amenities`
@@ -116,13 +110,10 @@ CREATE TABLE `reservation_amenities` (
 -- Dumping data for table `reservation_amenities`
 --
 
-SET @OLD_AUTOCOMMIT=@@AUTOCOMMIT, @@AUTOCOMMIT=0;
 LOCK TABLES `reservation_amenities` WRITE;
 /*!40000 ALTER TABLE `reservation_amenities` DISABLE KEYS */;
 /*!40000 ALTER TABLE `reservation_amenities` ENABLE KEYS */;
 UNLOCK TABLES;
-COMMIT;
-SET AUTOCOMMIT=@OLD_AUTOCOMMIT;
 
 --
 -- Table structure for table `reservations`
@@ -155,15 +146,12 @@ CREATE TABLE `reservations` (
 -- Dumping data for table `reservations`
 --
 
-SET @OLD_AUTOCOMMIT=@@AUTOCOMMIT, @@AUTOCOMMIT=0;
 LOCK TABLES `reservations` WRITE;
 /*!40000 ALTER TABLE `reservations` DISABLE KEYS */;
 INSERT INTO `reservations` VALUES
 (16,15,6,'2026-03-22','2026-04-08',1,'Pending','0','2026-03-22 14:22:15',4,4);
 /*!40000 ALTER TABLE `reservations` ENABLE KEYS */;
 UNLOCK TABLES;
-COMMIT;
-SET AUTOCOMMIT=@OLD_AUTOCOMMIT;
 
 --
 -- Table structure for table `rooms`
@@ -194,7 +182,6 @@ CREATE TABLE `rooms` (
 -- Dumping data for table `rooms`
 --
 
-SET @OLD_AUTOCOMMIT=@@AUTOCOMMIT, @@AUTOCOMMIT=0;
 LOCK TABLES `rooms` WRITE;
 /*!40000 ALTER TABLE `rooms` DISABLE KEYS */;
 INSERT INTO `rooms` VALUES
@@ -204,8 +191,6 @@ INSERT INTO `rooms` VALUES
 (9,'4','Superior Quadruple Room',4,3500.00,'available','uploads/rooms/1774187127_superior-quadruple.png',300.00,250.00,1,2,'Double');
 /*!40000 ALTER TABLE `rooms` ENABLE KEYS */;
 UNLOCK TABLES;
-COMMIT;
-SET AUTOCOMMIT=@OLD_AUTOCOMMIT;
 
 --
 -- Table structure for table `users`
@@ -232,11 +217,10 @@ CREATE TABLE `users` (
 -- Dumping data for table `users`
 --
 
-SET @OLD_AUTOCOMMIT=@@AUTOCOMMIT, @@AUTOCOMMIT=0;
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
 INSERT INTO `users` VALUES
-(1,'admin','0192023a7bbd73250516f069df18b500',NULL,NULL,NULL,'2026-01-29 11:09:54','admin'),
+(1,'admin','admin123',NULL,NULL,NULL,'2026-01-29 11:09:54','admin'),
 (2,'','','ef','dsf','23131233','2026-02-12 10:40:35','guest'),
 (6,'fdsfsdsdfsdfsdfsdzxfczxczc zxczxczxczx','','fdsfsdsdfsdfsdfsdzxfczxczc','zxczxczxczx','123213432','2026-02-12 11:05:58','guest'),
 (7,'zxczxczxc czcz','','zxczxczxc','czcz','23131233','2026-02-12 11:17:22','guest'),
@@ -250,8 +234,6 @@ INSERT INTO `users` VALUES
 (15,'asdad asdasd_1774187388','','sdasd','zdasd','09611440750','2026-03-22 13:49:48','guest');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
-COMMIT;
-SET AUTOCOMMIT=@OLD_AUTOCOMMIT;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -260,6 +242,6 @@ SET AUTOCOMMIT=@OLD_AUTOCOMMIT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
-/*M!100616 SET NOTE_VERBOSITY=@OLD_NOTE_VERBOSITY */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-03-23  7:50:23
+-- Dump completed on 2026-03-23 19:49:43
