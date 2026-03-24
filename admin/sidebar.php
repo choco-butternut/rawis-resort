@@ -12,7 +12,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
             <?php
                 $showImage = true;
                 $showText  = true;
-                require_once __DIR__ . '/../php/logo.php'; 
+                require_once __DIR__ . '/../php/logo.php';
             ?>
         </a>
     </div>

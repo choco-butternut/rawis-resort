@@ -9,7 +9,7 @@ if(isset($_SESSION["admin_logged_in"]) && $_SESSION["admin_logged_in"] === true)
 $error = "";
 
 if ($_SERVER["REQUEST_METHOD"]==="POST"){
-    require_once "../php/config.php";
+    require_once __DIR__ . "/../php/config.php";
 
     $username = $_POST["username"];
     $password = $_POST["password"];
@@ -61,7 +61,11 @@ if ($_SERVER["REQUEST_METHOD"]==="POST"){
 <body class="login">
     <div class="login-container">
         <div class="logo-header">
-            <?php include '../php/logo.php'; ?>
+            <?php
+                $showImage = true;
+                $showText  = true;
+                include __DIR__ . '/../php/logo.php';
+            ?>
             <p class="subtitle">Please enter details below.</p>
         </div>
 
@@ -87,7 +91,6 @@ if ($_SERVER["REQUEST_METHOD"]==="POST"){
 
             <button type="submit" class="login-button">Login</button>
             
-            <!-- <a href="#" class="forgot-link">Forgot password?</a> -->
         </form>
     </div>
 

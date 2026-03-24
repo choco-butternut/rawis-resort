@@ -18,7 +18,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["form_type"]) && $_POS
 
     $new_image = "";
     if (isset($_FILES["room_image"]) && $_FILES["room_image"]["error"] === 0) {
-        $upload_dir = "../uploads/rooms/";
+        $upload_dir = __DIR__ . "/../uploads/rooms/";
         if (!is_dir($upload_dir)) mkdir($upload_dir, 0777, true);
         $filename    = time() . "_" . basename($_FILES["room_image"]["name"]);
         $target_file = $upload_dir . $filename;
@@ -55,7 +55,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["form_type"]) && $_POS
 
     $new_image = "";
     if (isset($_FILES["amenity_image"]) && $_FILES["amenity_image"]["error"] === 0) {
-        $upload_dir = "../uploads/amenities/";
+        $upload_dir = __DIR__ . "/../uploads/amenities/";
         if (!is_dir($upload_dir)) mkdir($upload_dir, 0777, true);
         $filename    = time() . "_" . basename($_FILES["amenity_image"]["name"]);
         $target_file = $upload_dir . $filename;
@@ -67,7 +67,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["form_type"]) && $_POS
         $amenity_id = (int) $_POST["amenity_id"];
         if ($new_image) {
             $stmt = $conn->prepare("UPDATE amenities SET amenity_name=?, description=?, price=?, amenity_status=?, image_path=? WHERE amenity_id=?");
-            $stmt->bind_param("ssdss i", $amenity_name, $description, $price, $amenity_status, $new_image, $amenity_id);
+            $stmt->bind_param("ssdssi", $amenity_name, $description, $price, $amenity_status, $new_image, $amenity_id);
         } else {
             $stmt = $conn->prepare("UPDATE amenities SET amenity_name=?, description=?, price=?, amenity_status=? WHERE amenity_id=?");
             $stmt->bind_param("ssdsi", $amenity_name, $description, $price, $amenity_status, $amenity_id);
@@ -468,7 +468,6 @@ while ($a = $amenities_result->fetch_assoc()) $amenities_arr[] = $a;
                    onclick="filterAmenityStatus('Unavailable', this); return false;">Unavailable (<?= $count_amenities_unavailable ?>)</a>
             </div>
             
-            <!-- recycle room style -->
             <div class="rooms-grid" id="amenitiesGrid">
                 <?php foreach ($amenities_arr as $row): ?>
                     <div class="room-card"
@@ -557,11 +556,8 @@ while ($a = $amenities_result->fetch_assoc()) $amenities_arr[] = $a;
         history.replaceState(null, '', '?tab=' + tab);
     }
 
-    /* ── Room card click handler ──
-       Opens the detail modal only when clicking the card itself,
-       not when clicking an action link (edit / delete). */
     function handleRoomCardClick(event, card) {
-        if (event.target.closest('a')) return; // let links handle themselves
+        if (event.target.closest('a')) return;
         openRoomDetailModal(card);
     }
 
@@ -570,7 +566,6 @@ while ($a = $amenities_result->fetch_assoc()) $amenities_arr[] = $a;
         openAmenityDetailModal(card);
     }
 
-    // ── Room detail modal ──
     let currentDetailRoomId = null;
 
     function openRoomDetailModal(card) {
@@ -616,7 +611,6 @@ while ($a = $amenities_result->fetch_assoc()) $amenities_arr[] = $a;
             window.location.href = 'facilities.php?delete_room=' + currentDetailRoomId;
     }
 
-    // ── Room add / edit modal ──
     function openAddRoomModal() {
         document.getElementById('roomModalTitle').textContent = 'Add Room';
         document.getElementById('roomSubmitBtn').textContent  = 'Add Room';
@@ -660,7 +654,6 @@ while ($a = $amenities_result->fetch_assoc()) $amenities_arr[] = $a;
         if (e.target === this) closeRoomModal();
     });
 
-    // ── Amenity detail modal ──
     let currentDetailAmenityId = null;
 
     function openAmenityDetailModal(card) {
@@ -695,7 +688,6 @@ while ($a = $amenities_result->fetch_assoc()) $amenities_arr[] = $a;
             window.location.href = 'facilities.php?delete_amenity=' + currentDetailAmenityId;
     }
 
-    // ── Amenity add / edit modal ──
     function openAddAmenityModal() {
         document.getElementById('amenityModalTitle').textContent = 'Add Amenity';
         document.getElementById('amenitySubmitBtn').textContent  = 'Add Amenity';
@@ -734,7 +726,6 @@ while ($a = $amenities_result->fetch_assoc()) $amenities_arr[] = $a;
         if (e.target === this) closeAmenityModal();
     });
 
-    // ── Filter & search ──
     let activeRoomFilter = 'all';
 
     function filterRoomStatus(status, el) {
