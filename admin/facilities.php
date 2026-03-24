@@ -538,14 +538,21 @@ while ($a = $amenities_result->fetch_assoc()) $amenities_arr[] = $a;
         'bedType'       => $r['bed_type']        ?? 'Double',
     ], $rooms_arr)); ?>;
 
-    const amenityData = <?= json_encode(array_map(fn($a) => [
-        'id'     => $a['amenity_id'],
-        'name'   => $a['amenity_name'],
-        'desc'   => $a['description'] ?? '',
-        'price'  => $a['price'],
-        'status' => $a['amenity_status'],
-        'image'  => '../' . ($a['image_path'] ?: 'assets/images/default-room.jpg'),
-    ], $amenities_arr)); ?>;
+    <?php
+    $amenities_safe = array_map(function($a) {
+        return [
+            'id'     => $a['amenity_id'] ?? 0,
+            'name'   => $a['amenity_name'] ?? '',
+            'desc'   => $a['description'] ?? '',
+            'price'  => isset($a['price']) ? (float)$a['price'] : 0,
+            'status' => $a['amenity_status'] ?? '',
+            'image'  => '../' . (!empty($a['image_path']) ? $a['image_path'] : 'assets/images/default-room.jpg'),
+        ];
+    }, $amenities_arr);
+
+    $json_amenities = json_encode($amenities_safe, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
+    ?>
+    const amenityData = <?= $json_amenities ?: '[]' ?>;
 
     
     function switchTab(tab) {
