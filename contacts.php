@@ -1,8 +1,10 @@
 <?php
 require_once __DIR__ . '/vendor/autoload.php';
 
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
-$dotenv->load();
+if (file_exists(__DIR__ . '/.env')) {
+    $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+    $dotenv->safeLoad();
+}
 
 require_once "php/config.php";
 
@@ -17,21 +19,20 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if (empty($name) || empty($message)) {
         $error = "Please fill in all required fields.";
     } else {
-        require_once __DIR__ . '/vendor/autoload.php';
 
         $mail = new PHPMailer\PHPMailer\PHPMailer(true);
         try {
             $mail->isSMTP();
             $mail->Host       = 'smtp.gmail.com';
             $mail->SMTPAuth   = true;
-            $mail->Username   = $_ENV['MAIL_USERNAME'];
-            $mail->Password   = $_ENV['MAIL_PASSWORD'];
+            $mail->Username   = 'gabrielmontes155@gmail.com';
+            $mail->Password   = 'wihuzwpsuivpxtll';
             $mail->SMTPSecure = 'tls';
             $mail->Port       = 587;
 
-            $mail->setFrom($_ENV['MAIL_USERNAME'], 'Rawis Resort Hotel');
-            $mail->addAddress($_ENV['MAIL_USERNAME'], 'Gabriel');
-            $mail->addReplyTo($_ENV['MAIL_USERNAME'], $name);
+            $mail->setFrom('gabrielmontes155@gmail.com', 'Rawis Resort Hotel');
+            $mail->addAddress('gabrielmontes155@gmail.com', 'Gabriel');
+            $mail->addReplyTo('gabrielmontes155@gmail.com', $name);
 
             $mail->isHTML(true);
             $mail->Subject = $subject ? "Contact Form: $subject" : "New Contact Form Message";
