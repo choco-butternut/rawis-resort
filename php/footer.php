@@ -32,9 +32,9 @@
             </ul>
             
             <div class="footer-legal-links">
-                <a href="privacy.php">Privacy Policy</a> | 
-                <a href="terms.php">Terms & Conditions</a> | 
-                <a href="safety.php">Safety & Security</a>
+                <a href="#">Privacy Policy</a> | 
+                <a href="#">Terms & Conditions</a> | 
+                <a href="#">Safety & Security</a>
             </div>
             
             <p class="copyright">© 2026 Rawis Resort Hotel. All Rights Reserved.</p>
@@ -45,7 +45,7 @@
             <ul class="contact-list">
                 <li>
                     <i class="fas fa-phone"></i>
-                    <a href="tel:09771837288">0977 183 7288</a>
+                    <a href="#">0977 183 7288</a>
                 </li>
                 <li>
                     <i class="fab fa-facebook-messenger"></i>
@@ -53,7 +53,7 @@
                 </li>
                 <li>
                     <i class="fas fa-envelope"></i>
-                    <a href="mailto:rawisresorthotel@gmail.com">rawisresorthotel@gmail.com</a>
+                    <a href="#">rawisresorthotel@gmail.com</a>
                 </li>
             </ul>
         </div>

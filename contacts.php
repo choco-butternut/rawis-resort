@@ -1,11 +1,8 @@
 <?php
-require_once __DIR__ . '/vendor/autoload.php';
 
-if (file_exists(__DIR__ . '/.env')) {
-    $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
-    $dotenv->safeLoad();
-}
-
+require_once __DIR__ . '/emailer/Exception.php';
+require_once __DIR__ . '/emailer/PHPMailer.php';
+require_once __DIR__ . '/emailer/SMTP.php';
 require_once "php/config.php";
 
 $success = false;
