@@ -92,7 +92,6 @@ while ($r = $rooms->fetch_assoc()) {
                                         <button type="button" onclick="changeModalQty('modal_extra_guest',-1)" style="width:32px;height:32px;border:1px solid #ddd;border-radius:6px;background:#fff;font-size:18px;cursor:pointer;line-height:1">−</button>
                                         <input type="number" name="extra_guests" id="modal_extra_guest" value="0" min="0" readonly style="width:50px;text-align:center;border:1px solid #ddd;border-radius:6px;padding:6px">
                                         <button type="button" onclick="changeModalQty('modal_extra_guest',1)" style="width:32px;height:32px;border:1px solid #ddd;border-radius:6px;background:#fff;font-size:18px;cursor:pointer;line-height:1">+</button>
-                                        <span id="modal-guest-fee-hint" style="font-size:12px;color:#aaa"></span>
                                     </div>
                                 </div>
 
@@ -102,7 +101,7 @@ while ($r = $rooms->fetch_assoc()) {
                                         <button type="button" onclick="changeModalQty('modal_extra_bed',-1)" style="width:32px;height:32px;border:1px solid #ddd;border-radius:6px;background:#fff;font-size:18px;cursor:pointer;line-height:1">−</button>
                                         <input type="number" name="extra_beds" id="modal_extra_bed" value="0" min="0" readonly style="width:50px;text-align:center;border:1px solid #ddd;border-radius:6px;padding:6px">
                                         <button type="button" onclick="changeModalQty('modal_extra_bed',1)" style="width:32px;height:32px;border:1px solid #ddd;border-radius:6px;background:#fff;font-size:18px;cursor:pointer;line-height:1">+</button>
-                                        <span id="modal-bed-fee-hint" style="font-size:12px;color:#aaa"></span>
+
                                     </div>
                                 </div>
 

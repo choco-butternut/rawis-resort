@@ -302,7 +302,7 @@ body > * {
     z-index: 1;
 }
 
-.rooms-page .page-header::before {
+.page-header::before {
     background-image: url('../rooms-bg.jpg');
 }
 

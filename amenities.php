@@ -53,7 +53,7 @@ $result = $conn->query($sql);
         .amenity-card-img-placeholder {
             width: 100%;
             height: 200px;
-            background: linear-gradient(135deg, #bbcc81 0%, #334937 100%);
+            background: linear-gradient(135deg, #43210b 0%, #e4ae76 100%);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -178,15 +178,7 @@ $result = $conn->query($sql);
                             <h3 class="amenity-card-name"><?= htmlspecialchars($row['amenity_name']); ?></h3>
                             <p class="amenity-card-desc"><?= htmlspecialchars($row['description']); ?></p>
 
-                            <div class="amenity-card-footer">
-                                <!-- <div class="amenity-price">
-                                    ₱<?= number_format($row['price'], 2); ?>
-                                    <span>/add-on</span>
-                                </div> -->
-                                <span class="amenity-status-pill <?= strtolower($row['amenity_status']); ?>">
-                                    <?= htmlspecialchars($row['amenity_status']); ?>
-                                </span>
-                            </div>
+                            
                         </div>
                     </div>
                 <?php endwhile; ?>

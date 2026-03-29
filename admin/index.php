@@ -90,6 +90,10 @@ if ($_SERVER["REQUEST_METHOD"]==="POST"){
             </div>
 
             <button type="submit" class="login-button">Login</button>
+
+            <div class="register-link">
+                <p>Don't have an account? <a href="register.php">Register</a></p>
+            </div>
             
         </form>
     </div>

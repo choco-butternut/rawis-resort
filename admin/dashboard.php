@@ -103,20 +103,20 @@ $awaiting_count = $conn->query("
 
             <div class="stat-card">
                 <div class="stat-icon"><i class="fas fa-sign-in-alt"></i></div>
-                <span class="stat-label">Arrivals Today</span>
-                <span class="stat-value"><?= $arrivals_today; ?></span>
+                <div class="stat-label">Arrivals<br><span style="font-weight:400">Today</span></div>
+                <div class="stat-value"><?= $arrivals_today; ?></div>
             </div>
 
             <div class="stat-card">
                 <div class="stat-icon"><i class="fas fa-sign-out-alt"></i></div>
-                <span class="stat-label">Departures Today</span>
-                <span class="stat-value"><?= $departures_today; ?></span>
+                <div class="stat-label">Departures<br><span style="font-weight:400">Today</span></div>
+                <div class="stat-value"><?= $departures_today; ?></div>
             </div>
 
-            <div class="stat-card" style="cursor:pointer" onclick="window.location.href='reservation.php'">
+            <div class="stat-card">
                 <div class="stat-icon"><i class="fas fa-clock"></i></div>
-                <span class="stat-label">Pending Reservations</span>
-                <span class="stat-value"><?= $pending_count; ?></span>
+                <div class="stat-label">Pending<br><span style="font-weight:400">Reservations</span></div>
+                <div class="stat-value"><?= $pending_count; ?></div>
             </div>
 
             <?php if ($awaiting_count > 0): ?>
@@ -132,94 +132,133 @@ $awaiting_count = $conn->query("
                 <h3>Room Status</h3>
                 <hr>
                 <ul>
-                    <li>
-                        Available:
-                        <strong>
-                            <a href="rooms.php" style="color:inherit;text-decoration:none">
-                                <?= $available_rooms; ?>
-                            </a>
-                        </strong>
-                    </li>
-                    <li>
-                        Occupied:
-                        <strong><?= $occupied_rooms; ?></strong>
-                    </li>
-                    <li>
-                        Maintenance:
-                        <strong><?= $maintenance_rooms; ?></strong>
-                    </li>
+                    <li>Available Rooms: <strong><?= $available_rooms; ?></strong></li>
+                    <li>Occupied Rooms: <strong><?= $occupied_rooms; ?></strong></li>
+                    <li>Cleaning: <strong>1</strong></li>
+                    <li>Maintenance: <strong><?= $maintenance_rooms; ?></strong></li>
                 </ul>
             </div>
-
         </div>
 
-        <div class="dashboard-lower-section">
+        <div class="reservations-wrapper">
 
-            <div class="recent-res">
-                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-                    <h1 class="reservations-head">Recent Reservations</h1>
-                    <a href="reservation.php"
-                       style="font-size:13px;color:#1d4ed8;text-decoration:none;font-weight:600">
-                        View all →
-                    </a>
+            <div class="table-header-row">
+                <div class="title-add">
+                    <h2 class="reservations-head">Reservations</h2>
+
+                    <button class="btn-add">
+                        <i class="fas fa-plus"></i>
+                    </button>
                 </div>
+            
+                <div class="search-bar">
+                    <input type="text" placeholder="Search">
+                    <i class="fas fa-search"></i>
+                </div>
+            </div>
 
+            <div class="status-filters">
+                <a href="#" class="active">All</a>
+                <a href="#">Arrivals</a>
+                <a href="#">Departures</a>
+                <a href="#">Pending</a>
+            </div>
+
+            <div class="table-container">
                 <table class="custom-table">
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th>Guest</th>
-                            <th>Room</th>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Contact</th>
                             <th>Check-in</th>
+                            <th>Check-out</th>
+                            <th>Room Type</th>
+                            <th>Total Amount</th>
                             <th>Status</th>
+                            <th></th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php while ($row = $recent_res->fetch_assoc()): ?>
-                        <tr style="cursor:pointer" onclick="window.location.href='reservation.php'">
+
+                        <?php
+                        $all_res = $conn->query("
+                            SELECT r.*, u.first_name, u.last_name, u.phone_number,
+                                rm.room_type
+                            FROM reservations r
+                            JOIN users u ON r.guest_id = u.id
+                            JOIN rooms rm ON r.room_id = rm.room_id
+                            ORDER BY r.reservation_id DESC
+                            LIMIT 6
+                        ");
+                        ?>
+
+                        <?php while ($row = $all_res->fetch_assoc()): ?>
+                        <tr>
                             <td class="id-column">#<?= $row["reservation_id"]; ?></td>
-                            <td class="bold-text"><?= htmlspecialchars($row["first_name"] . " " . $row["last_name"]); ?></td>
-                            <td><?= htmlspecialchars($row["room_type"]); ?></td>
+                            <td><?= htmlspecialchars($row["first_name"]); ?></td>
+                            <td><?= htmlspecialchars($row["last_name"]); ?></td>
+                            <td><?= htmlspecialchars($row["phone_number"]); ?></td>
                             <td><?= date("M d, Y", strtotime($row["check_in_date"])); ?></td>
+                            <td><?= date("M d, Y", strtotime($row["check_out_date"])); ?></td>
+                            <td><?= htmlspecialchars($row["room_type"]); ?></td>
+                            <td>₱<?= number_format($row["total_amount"] ?? 0); ?></td>
                             <td>
-                                <span class="status-text <?= strtolower(str_replace(' ','-',$row["reservation_status"])); ?>">
+                                <span class="status-text <?= strtolower($row["reservation_status"]); ?>">
                                     <?= $row["reservation_status"]; ?>
                                 </span>
                             </td>
+                            <td>
+                                <div class="action-wrapper">
+                                    <button class="action-btn" onclick="toggleMenu(event, this)">
+                                        <i class="fas fa-ellipsis-h"></i>
+                                    </button>
+
+                                    <div class="action-menu">
+                                        <div class="action-item"><i class="fas fa-eye"></i> View details</div>
+                                        <div class="action-item"><i class="fas fa-edit"></i> Edit</div>
+                                        <div class="action-item"><i class="fas fa-envelope"></i> Send Message</div>
+                                        <div class="action-item delete"><i class="fas fa-trash"></i> Delete</div>
+                                        <div class="action-item"><i class="fas fa-sign-in-alt"></i> Mark as Checked-in</div>
+                                        <div class="action-item"><i class="fas fa-sign-out-alt"></i> Mark as Checked-out</div>
+                                    </div>
+                                </div>
+                            </td>
                         </tr>
                         <?php endwhile; ?>
+
                     </tbody>
                 </table>
             </div>
-
-            <div class="sales-overview-card">
-                <div class="sales-header">
-                    <i class="fas fa-chart-line"></i>
-                    <h3>Sales Overview</h3>
-                    <p>Completed payments, excluding cancelled reservations.</p>
-                </div>
-                <div class="sales-metrics">
-                    <div class="metric">
-                        <span>Today</span>
-                        <strong>₱<?= number_format($sales_today, 2); ?></strong>
-                    </div>
-                    <div class="metric">
-                        <span>This Week</span>
-                        <strong>₱<?= number_format($sales_week, 2); ?></strong>
-                    </div>
-                    <div class="metric">
-                        <span>This Month</span>
-                        <strong>₱<?= number_format($sales_month, 2); ?></strong>
-                    </div>
-                    <div class="metric" style="border-top:1px solid #e5e7eb;padding-top:10px;margin-top:4px">
-                        <span>All Time</span>
-                        <strong style="color:#1d4ed8">₱<?= number_format($sales_all, 2); ?></strong>
-                    </div>
-                </div>
-            </div>
-
         </div>
     </main>
 
+    <script>
+    function toggleMenu(event, btn) {
+        event.stopPropagation(); 
+
+        document.querySelectorAll('.action-menu').forEach(menu => {
+            menu.classList.remove('show');
+        });
+
+        const menu = btn.nextElementSibling;
+        menu.classList.toggle('show');
+    }
+
+    document.querySelectorAll('.action-menu').forEach(menu => {
+        menu.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+    });
+
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.action-wrapper')) {
+            document.querySelectorAll('.action-menu').forEach(menu => {
+                menu.classList.remove('show');
+            });
+        }
+    });
+    </script>
 </body>
 </html>

@@ -192,103 +192,13 @@ function payBadge($s) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reservations | Admin</title>
-    <style>
-        .pay-badge {
-            display: inline-block;
-            padding: 3px 10px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 700;
-            white-space: nowrap;
-        }
-        .pay-pending   { background:#fffbeb; color:#92400e; border:1px solid #fbbf24; }
-        .pay-awaiting  { background:#eff6ff; color:#1d4ed8; border:1px solid #93c5fd; }
-        .pay-completed { background:#ecfdf5; color:#065f46; border:1px solid #6ee7b7; }
-        .pay-rejected  { background:#fef2f2; color:#991b1b; border:1px solid #fca5a5; }
-        .pay-refunded  { background:#f5f3ff; color:#5b21b6; border:1px solid #c4b5fd; }
-
-        .btn-verify {
-            padding: 5px 12px;
-            background: #10b981;
-            color: #fff;
-            border: none;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            margin-right: 4px;
-        }
-        .btn-reject {
-            padding: 5px 12px;
-            background: #ef4444;
-            color: #fff;
-            border: none;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-        .btn-verify:hover { background: #059669; }
-        .btn-reject:hover  { background: #dc2626; }
-
-        .admin-alert {
-            padding: 12px 20px;
-            border-radius: 10px;
-            margin-bottom: 16px;
-            font-size: 14px;
-        }
-        .admin-alert.success { background:#ecfdf5; color:#065f46; border:1px solid #6ee7b7; }
-        .admin-alert.error   { background:#fef2f2; color:#991b1b; border:1px solid #fca5a5; }
-
-        tr.row-awaiting { background: #eff6ff !important; }
-
-        .pay-detail-box {
-            background: #f8fafc;
-            border-radius: 10px;
-            padding: 14px 18px;
-            margin-top: 12px;
-        }
-        .pay-detail-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 6px 0;
-            font-size: 13px;
-            border-bottom: 1px solid #e2e8f0;
-        }
-        .pay-detail-row:last-child { border-bottom: none; }
-        .pay-detail-row .pd-label { color: #64748b; }
-        .pay-detail-row .pd-value { font-weight: 600; color: #0f172a; }
-
-        .verify-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 14px;
-        }
-        .verify-actions form { flex: 1; }
-        .verify-actions .btn-verify,
-        .verify-actions .btn-reject {
-            width: 100%;
-            padding: 10px;
-            font-size: 14px;
-        }
-
-        .pm-pill {
-            display: inline-flex; align-items: center; gap: 5px;
-            font-size: 12px; font-weight: 600;
-            padding: 3px 10px;
-            border-radius: 20px;
-        }
-        .pm-cash  { background:#ecfdf5; color:#059669; }
-        .pm-gcash { background:#eff6ff; color:#1d4ed8; }
-        .pm-card  { background:#f5f3ff; color:#7c3aed; }
-    </style>
 </head>
 <body>
 <?php require_once __DIR__ . '/sidebar.php'; ?>
 
 <main class="main-content">
     <div class="section-title">
-        <h1>Reservations</h1>
+        <h1>RESERVATIONS</h1>
         <hr class="header-line">
 
         <?php if (isset($_GET["msg"])): ?>
@@ -300,12 +210,15 @@ function payBadge($s) {
         <?php endif; ?>
 
         <div class="toolbar">
-            <div class="filter-group"><i class="fas fa-bars"></i> Filter by</div>
+            <button class="btn-add" onclick=".">
+                <i class="fas fa-plus"></i> Add Booking
+            </button>
             <div class="search-add">
                 <div class="search-bar">
                     <input type="text" id="searchInput" placeholder="Search guest, room…" oninput="filterTable()">
                     <i class="fas fa-search"></i>
                 </div>
+                <div class="filter-group"><i class="fas fa-bars"></i> Filter by</div>
             </div>
         </div>
 
@@ -324,12 +237,13 @@ function payBadge($s) {
                 <tr>
                     <th>ID</th>
                     <th>Guest</th>
+                    <th>Contact</th>
                     <th>Room</th>
                     <th>Dates</th>
                     <th>Total</th>
                     <th>Payment</th>
                     <th>Status</th>
-                    <th>Actions</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -366,6 +280,7 @@ function payBadge($s) {
                         </a>
                         <br>
                     </td>
+                    <td><?= htmlspecialchars($row["phone_number"]); ?></td>
                     <td>
                         <span class="room-type-tag"><?= htmlspecialchars($row["room_type"]); ?></span>
                         <br><small>Room <?= htmlspecialchars($row["room_number"]); ?></small>
@@ -396,12 +311,20 @@ function payBadge($s) {
                             <input type="hidden" name="update_status">
                         </form>
                     </td>
-                    <td class="actions-cell">
-                        <div class="action-icons">
-                            <a href="reservation.php?delete=<?= $row["reservation_id"]; ?>"
-                               onclick="return confirm('Delete this reservation?');" class="delete-btn" title="Delete">
-                                <i class="fas fa-trash"></i>
-                            </a>
+                    <td>
+                        <div class="action-wrapper">
+                            <button class="action-btn" onclick="toggleMenu(event, this)">
+                                <i class="fas fa-ellipsis-h"></i>
+                            </button>
+
+                            <div class="action-menu">
+                                <div class="action-item"><i class="fas fa-eye"></i> View details</div>
+                                <div class="action-item"><i class="fas fa-edit"></i> Edit</div>
+                                <div class="action-item"><i class="fas fa-envelope"></i> Send Message</div>
+                                <div class="action-item delete"><i class="fas fa-trash"></i> Delete</div>
+                                <div class="action-item"><i class="fas fa-sign-in-alt"></i> Mark as Checked-in</div>
+                                <div class="action-item"><i class="fas fa-sign-out-alt"></i> Mark as Checked-out</div>
+                            </div>
                         </div>
                     </td>
                 </tr>
@@ -553,6 +476,31 @@ function filterByStatus(status, el) {
     });
     return false;
 }
+
+function toggleMenu(event, btn) {
+    event.stopPropagation(); 
+
+    document.querySelectorAll('.action-menu').forEach(menu => {
+        menu.classList.remove('show');
+    });
+
+    const menu = btn.nextElementSibling;
+    menu.classList.toggle('show');
+}
+
+document.querySelectorAll('.action-menu').forEach(menu => {
+    menu.addEventListener('click', function(e) {
+        e.stopPropagation();
+    });
+});
+
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.action-wrapper')) {
+        document.querySelectorAll('.action-menu').forEach(menu => {
+            menu.classList.remove('show');
+        });
+    }
+});
 </script>
 
 </body>

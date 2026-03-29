@@ -133,13 +133,12 @@ while ($a = $amenities_result->fetch_assoc()) $amenities_arr[] = $a;
             display: flex;
             gap: 0;
             margin-bottom: 24px;
-            border-bottom: 2px solid #e2e8f0;
         }
         .facility-tab-btn {
             padding: 10px 28px;
             font-size: 14px;
             font-weight: 600;
-            color: #64748b;
+            color: #e4ae76;
             background: none;
             border: none;
             border-bottom: 3px solid transparent;
@@ -151,12 +150,11 @@ while ($a = $amenities_result->fetch_assoc()) $amenities_arr[] = $a;
             gap: 8px;
         }
         .facility-tab-btn.active {
-            color: #1d4ed8;
-            border-bottom-color: #1d4ed8;
+            color: #43210b;
+            border-bottom-color: #43210b;
         }
         .facility-tab-btn:hover:not(.active) {
-            color: #1e40af;
-            background: #f1f5f9;
+            color: #43210b;
             border-radius: 6px 6px 0 0;
         }
         .tab-panel { display: none; }
@@ -360,15 +358,15 @@ while ($a = $amenities_result->fetch_assoc()) $amenities_arr[] = $a;
         <!-- rooms tab -->
         <div id="tab-rooms" class="tab-panel <?= $active_tab === 'rooms' ? 'active' : '' ?>">
             <div class="toolbar">
-                <div class="filter-group"><i class="fas fa-bars"></i> Filter by</div>
+                <button class="btn-add" onclick="openAddRoomModal()">
+                    <i class="fas fa-plus"></i> Add New Room
+                </button>
                 <div class="search-add">
                     <div class="search-bar">
                         <input type="text" id="roomSearch" placeholder="Search rooms…" oninput="applyRoomSearch()">
                         <i class="fas fa-search"></i>
                     </div>
-                    <button class="btn-add" onclick="openAddRoomModal()">
-                        <i class="fas fa-plus"></i> Add
-                    </button>
+                    <div class="filter-group"><i class="fas fa-bars"></i> Filter by</div>
                 </div>
             </div>
 
