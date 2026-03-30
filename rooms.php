@@ -510,10 +510,10 @@ while ($r = $rooms->fetch_assoc()) {
         document.getElementById('modal_extra_bed').value   = extraBeds || 0;
 
         // Show fee hints
-        const guestHint = document.getElementById('modal-guest-fee-hint');
-        const bedHint   = document.getElementById('modal-bed-fee-hint');
-        guestHint.textContent = extraGuestFee > 0 ? formatPHP(extraGuestFee) + '/night each' : 'No extra fee';
-        bedHint.textContent   = extraBedFee   > 0 ? formatPHP(extraBedFee)   + '/night each' : 'No extra fee';
+        //const guestHint = document.getElementById('modal-guest-fee-hint');
+        //const bedHint   = document.getElementById('modal-bed-fee-hint');
+        //guestHint.textContent = extraGuestFee > 0 ? formatPHP(extraGuestFee) + '/night each' : 'No extra fee';
+        //bedHint.textContent   = extraBedFee   > 0 ? formatPHP(extraBedFee)   + '/night each' : 'No extra fee';
 
 
         // Pre-fill dates if passed from detail modal
