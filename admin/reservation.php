@@ -192,6 +192,32 @@ function payBadge($s) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reservations | Admin</title>
+
+    <!-- grabe namain nga styles, tuhaya nala kathlyn hehe -->
+    <style>
+        .pay-badge { display:inline-block; padding:3px 10px; border-radius:20px; font-size:12px; font-weight:600; }
+        .pay-pending    { background:#fff8f0; color:#8e4a0f; border:1px solid #8e4a0f; }
+        .pay-awaiting   { background:#f0f7e6; color:#334937; border:1px solid #334937; }
+        .pay-completed  { background:#e8f0d8; color:#2d5a27; border:1px solid #2d5a27; }
+        .pay-rejected   { background:#fdf0ee; color:#9b2226; border:1px solid #9b2226; }
+        .pay-refunded   { background:#fdf0ee; color:#9b2226; border:1px solid #9b2226; }
+        .pm-pill { display:inline-flex; align-items:center; gap:5px; padding:3px 10px; border-radius:20px; font-size:12px; font-weight:600; }
+        .pm-cash  { background:#f0f7e6; color:#334937; }
+        .pm-gcash { background:#eff6ff; color:#1d4ed8; }
+        .pm-card  { background:#fdf6f0; color:#8e4a0f; }
+        .row-awaiting { background:#fffbeb; }
+        .verify-actions { display:flex; gap:10px; margin-top:16px; }
+        .btn-verify { padding:10px 22px; background:linear-gradient(to right,#5d330f,#dbb595); color:#fff; border:none; border-radius:50px; font-family:Poppins,sans-serif; font-size:14px; font-weight:700; cursor:pointer; }
+        .btn-reject { padding:10px 22px; background:#e74c3c; color:#fff; border:none; border-radius:50px; font-family:Poppins,sans-serif; font-size:14px; font-weight:700; cursor:pointer; }
+        .pay-detail-box { background:#faf8f5; border:1px solid #ede8e1; border-radius:10px; padding:16px; margin-top:16px; }
+        .pay-detail-row { display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px dashed #ede8e1; font-size:14px; }
+        .pay-detail-row:last-child { border-bottom:none; }
+        .pd-label { color:#7c746b; }
+        .pd-value { font-weight:600; color:#341f0c; }
+        .admin-alert { padding:12px 16px; border-radius:10px; font-family:Poppins,sans-serif; font-size:14px; margin-bottom:16px; display:flex; align-items:center; gap:8px; border-left:4px solid; }
+        .admin-alert.success { background:#f0f7e6; color:#334937; border-color:#5a7d5a; }
+        .admin-alert.error   { background:#fdf0ee; color:#9b2226; border-color:#9b2226; }
+    </style>
 </head>
 <body>
 <?php require_once __DIR__ . '/sidebar.php'; ?>
@@ -508,6 +534,89 @@ window.adminRooms = <?= json_encode(array_map(fn($r) => [
     'extraBedFee'  => $r['extra_bed_fee'],
 ], $conn->query("SELECT * FROM rooms ORDER BY room_type")->fetch_all(MYSQLI_ASSOC))); ?>;
 </script>
+    function openBookingModal(data = null) {
+        populateRoomSelect();
+        if (data) {
+            document.getElementById('bm-title').textContent = 'Edit Reservation';
+            document.getElementById('bm-res-id').value      = data.id;
+            document.getElementById('bm-first').value       = data.firstName;
+            document.getElementById('bm-last').value        = data.lastName;
+            document.getElementById('bm-phone').value       = data.phone;
+            document.getElementById('bm-requests').value    = data.requests;
+            document.getElementById('bm-pay').value         = data.payMethod;
+            document.getElementById('bm-room').value        = data.roomId;
+            document.getElementById('bm-checkin').value     = data.checkIn;
+            document.getElementById('bm-checkout').value    = data.checkOut;
+            document.getElementById('bm-extra-guest').value = data.extraGuests;
+            document.getElementById('bm-extra-bed').value   = data.extraBeds;
+            document.getElementById('bm-delete-btn').style.display = '';
+            document.getElementById('bm-submit-btn').textContent   = 'UPDATE';
+            recalcBookingModal();
+        } else {
+            document.getElementById('bm-title').textContent = 'Add Reservation';
+            document.getElementById('bm-res-id').value = '';
+            document.getElementById('bm-form').reset();
+            document.getElementById('bm-extra-guest').value = 0;
+            document.getElementById('bm-extra-bed').value   = 0;
+            const today    = new Date().toISOString().split('T')[0];
+            const tomorrow = new Date(Date.now()+86400000).toISOString().split('T')[0];
+            document.getElementById('bm-checkin').value  = today;
+            document.getElementById('bm-checkout').value = tomorrow;
+            document.getElementById('bm-delete-btn').style.display = 'none';
+            document.getElementById('bm-submit-btn').textContent   = 'CONFIRM';
+            recalcBookingModal();
+        }
+        document.getElementById('bookingModal').classList.add('show');
+    }
+
+    function closeBookingModal() {
+        document.getElementById('bookingModal').classList.remove('show');
+    }
+
+    function populateRoomSelect() {
+        const sel = document.getElementById('bm-room');
+        sel.innerHTML = '<option value="">Select a room…</option>';
+        (window.adminRooms || []).forEach(r => {
+            const opt = document.createElement('option');
+            opt.value = r.id;
+            opt.textContent = r.type + ' — Room ' + r.number;
+            opt.dataset.price         = r.price;
+            opt.dataset.extraGuestFee = r.extraGuestFee;
+            opt.dataset.extraBedFee   = r.extraBedFee;
+            sel.appendChild(opt);
+        });
+    }
+
+    function recalcBookingModal() {
+        const sel      = document.getElementById('bm-room');
+        const opt      = sel.options[sel.selectedIndex];
+        const price    = opt ? parseFloat(opt.dataset.price || 0) : 0;
+        const egFee    = opt ? parseFloat(opt.dataset.extraGuestFee || 0) : 0;
+        const ebFee    = opt ? parseFloat(opt.dataset.extraBedFee   || 0) : 0;
+        const ci       = document.getElementById('bm-checkin').value;
+        const co       = document.getElementById('bm-checkout').value;
+        const nights   = (ci && co) ? Math.max(0, Math.round((new Date(co)-new Date(ci))/86400000)) : 0;
+        const eg       = parseInt(document.getElementById('bm-extra-guest').value) || 0;
+        const eb       = parseInt(document.getElementById('bm-extra-bed').value)   || 0;
+        const total    = price*nights + egFee*eg*nights + ebFee*eb*nights;
+
+        document.getElementById('bm-room-price').textContent  = '₱' + price.toLocaleString('en-PH');
+        document.getElementById('bm-nights').textContent      = nights;
+        document.getElementById('bm-eg-cost').textContent     = '₱' + (egFee*eg*nights).toLocaleString('en-PH');
+        document.getElementById('bm-eb-cost').textContent     = '₱' + (ebFee*eb*nights).toLocaleString('en-PH');
+        document.getElementById('bm-total').textContent       = '₱' + total.toLocaleString('en-PH');
+    }
+
+    function changeBMQty(id, delta) {
+        const el = document.getElementById(id);
+        el.value = Math.max(0, (parseInt(el.value)||0) + delta);
+        recalcBookingModal();
+    }
+
+
+
+
+
 <?php include __DIR__ . '/booking_modal.php'; ?>
 </body>
 </html>

@@ -70,7 +70,7 @@
                         </div>
                         <div style="width:100%">
                             <label style="display:block;font-size:11px;font-weight:600;color:#666;margin-bottom:4px">GCash Reference Number</label>
-                            <input type="text" id="bm-gcash-ref" placeholder="e.g. 2024031512345678"
+                            <input type="text" id="bm-gcash-ref" placeholder="e.g. 2024031512345678" oninput="document.getElementById('bm-ref-final').value=this.value"
                                    style="width:100%;padding:9px 12px;border:1.5px solid #e2ddd8;border-radius:8px;font-family:Poppins,sans-serif;font-size:13px;box-sizing:border-box">
                         </div>
                     </div>
@@ -193,72 +193,18 @@ document.getElementById('bookingModal').style.display = 'none';
 document.getElementById('bookingModal').addEventListener('click', function(e){
     if(e.target===this) closeBookingModal();
 });
-function openBookingModal(data) {
-    const el = document.getElementById('bookingModal');
-    el.style.display = 'flex';
-    populateRoomSelect();
-    if (data) {
-        document.getElementById('bm-title').textContent = 'Edit Reservation';
-        document.getElementById('bm-res-id').value      = data.id;
-        document.getElementById('bm-first').value       = data.firstName;
-        document.getElementById('bm-last').value        = data.lastName;
-        document.getElementById('bm-phone').value       = data.phone;
-        document.getElementById('bm-requests').value    = data.requests || '';
-        document.getElementById('bm-pay').value         = data.payMethod || 'Cash';
-        document.getElementById('bm-checkin').value     = data.checkIn;
-        document.getElementById('bm-checkout').value    = data.checkOut;
-        document.getElementById('bm-extra-guest').value = data.extraGuests || 0;
-        document.getElementById('bm-extra-bed').value   = data.extraBeds   || 0;
-        setTimeout(()=>{ document.getElementById('bm-room').value = data.roomId; recalcBookingModal(); }, 50);
-        document.getElementById('bm-delete-btn').style.display = '';
-        document.getElementById('bm-submit-btn').textContent   = 'UPDATE';
-    } else {
-        document.getElementById('bm-title').textContent = 'Add Reservation';
-        document.getElementById('bm-res-id').value = '';
-        document.getElementById('bm-form').reset();
-        document.getElementById('bm-extra-guest').value = 0;
-        document.getElementById('bm-extra-bed').value   = 0;
-        const today    = new Date().toISOString().split('T')[0];
-        const tomorrow = new Date(Date.now()+86400000).toISOString().split('T')[0];
-        document.getElementById('bm-checkin').value  = today;
-        document.getElementById('bm-checkout').value = tomorrow;
-        document.getElementById('bm-delete-btn').style.display = 'none';
-        document.getElementById('bm-submit-btn').textContent   = 'CONFIRM';
-        recalcBookingModal();
-    }
-}
-function closeBookingModal() {
-    document.getElementById('bookingModal').style.display = 'none';
-}
-
 function bmSelectPayMethod(method) {
     document.getElementById('bm-gcash-panel').style.display = method === 'GCash' ? '' : 'none';
     document.getElementById('bm-card-panel').style.display  = method === 'Card'  ? '' : 'none';
     document.getElementById('bm-ref-final').value = '';
-
-    // clear fields when switching
-    if (method !== 'GCash') {
-        const r = document.getElementById('bm-gcash-ref');
-        if (r) r.value = '';
-    }
-    if (method !== 'Card') {
-        ['bm-card-number','bm-card-expiry','bm-card-cvc'].forEach(id => {
-            const el = document.getElementById(id);
-            if (el) el.value = '';
-        });
-        const cr = document.getElementById('bm-card-ref');
-        if (cr) cr.value = '';
-    }
+    if (method !== 'GCash') { const r = document.getElementById('bm-gcash-ref'); if (r) r.value = ''; }
+    if (method !== 'Card') { ['bm-card-number','bm-card-expiry','bm-card-cvc'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; }); }
 }
-
 function bmFormatCardNumber(input) {
     let v = input.value.replace(/\D/g, '').substring(0, 16);
     input.value = v.replace(/(.{4})/g, '$1 ').trim();
-    if (v.length >= 4) {
-        document.getElementById('bm-ref-final').value = 'CARD-XXXX-' + v.slice(-4);
-    }
+    if (v.length >= 4) document.getElementById('bm-ref-final').value = 'CARD-XXXX-' + v.slice(-4);
 }
-
 function bmFormatExpiry(input) {
     let v = input.value.replace(/\D/g, '').substring(0, 4);
     if (v.length >= 3) v = v.substring(0,2) + ' / ' + v.substring(2);
