@@ -1,6 +1,6 @@
 <!-- tuhaya nalain kathlyn -->
 
-<div id="bookingModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:3000;align-items:center;justify-content:center;padding:20px">
+<div id="bookingModal" class="modal" style="position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:3000;align-items:center;justify-content:center;padding:20px">
 <div style="background:#fff;border-radius:16px;width:100%;max-width:720px;max-height:90vh;overflow-y:auto;padding:30px;position:relative;font-family:Poppins,sans-serif">
 
     <button onclick="closeBookingModal()" style="position:absolute;top:15px;right:15px;background:none;border:none;font-size:22px;cursor:pointer;color:#888">&times;</button>
@@ -189,7 +189,6 @@
 </div>
 
 <script>
-document.getElementById('bookingModal').style.display = 'none';
 document.getElementById('bookingModal').addEventListener('click', function(e){
     if(e.target===this) closeBookingModal();
 });

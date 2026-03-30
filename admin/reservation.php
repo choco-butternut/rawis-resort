@@ -534,6 +534,8 @@ window.adminRooms = <?= json_encode(array_map(fn($r) => [
     'extraBedFee'  => $r['extra_bed_fee'],
 ], $conn->query("SELECT * FROM rooms ORDER BY room_type")->fetch_all(MYSQLI_ASSOC))); ?>;
 </script>
+
+<script>
     function openBookingModal(data = null) {
         populateRoomSelect();
         if (data) {
@@ -613,10 +615,7 @@ window.adminRooms = <?= json_encode(array_map(fn($r) => [
         recalcBookingModal();
     }
 
-
-
-
-
+</script>
 <?php include __DIR__ . '/booking_modal.php'; ?>
 </body>
 </html>
