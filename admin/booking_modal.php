@@ -7,6 +7,7 @@
     <h2 id="bm-title" style="margin:0 0 20px;font-family:'The Seasons',serif;background:linear-gradient(to right,#5d330f,#dbb595);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent">Add Reservation</h2>
 
     <form id="bm-form" method="POST" action="/php/reserve_admin.php">
+        <input type="hidden" name="reference_number" id="bm-ref-final" value="">
         <input type="hidden" name="reservation_id" id="bm-res-id">
 
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:30px">
@@ -43,11 +44,71 @@
                 <div>
                     <label style="font-size:11px;font-weight:600;color:#888;display:block;margin-bottom:4px">Payment Method</label>
                     <select name="payment_method" id="bm-pay"
+                            onchange="bmSelectPayMethod(this.value)"
                             style="width:100%;padding:9px 12px;border:1.5px solid #e2ddd8;border-radius:8px;font-family:Poppins,sans-serif;font-size:14px;box-sizing:border-box">
                         <option value="Cash">Cash – Pay on arrival</option>
                         <option value="GCash">GCash</option>
                         <option value="Card">Card</option>
                     </select>
+                </div>
+
+                <!-- GCash Panel -->
+                <div id="bm-gcash-panel" style="display:none;margin-top:12px">
+                    <div style="background:#f0f6ff;border:1.5px solid #93c5fd;border-radius:12px;padding:16px;display:flex;flex-direction:column;align-items:center;gap:10px">
+                        <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#1d4ed8;margin:0">Scan to Pay via GCash</p>
+                        <img src="../assets/gcash-qr.jpeg" alt="GCash QR Code"
+                             onerror="this.style.display='none';document.getElementById('bm-gcash-qr-fallback').style.display='flex'"
+                             style="width:140px;height:140px;object-fit:contain;border-radius:10px;border:2px solid #bfdbfe;display:block">
+                        <div id="bm-gcash-qr-fallback" style="display:none;width:140px;height:140px;background:#dbeafe;border-radius:10px;border:2px dashed #93c5fd;align-items:center;justify-content:center;flex-direction:column;gap:6px">
+                            <i class="fas fa-qrcode" style="font-size:40px;color:#93c5fd"></i>
+                            <span style="font-size:11px;color:#1d4ed8;font-weight:600">QR Code</span>
+                        </div>
+                        <div style="text-align:center">
+                            <p style="margin:0 0 2px;font-size:12px;color:#555">Send to GCash number</p>
+                            <p style="font-size:18px;font-weight:800;color:#1d4ed8;letter-spacing:.05em;margin:0">0977 183 7288</p>
+                            <p style="font-size:11px;color:#7c746b;margin:4px 0 0">Rawis Resort Hotel</p>
+                        </div>
+                        <div style="width:100%">
+                            <label style="display:block;font-size:11px;font-weight:600;color:#666;margin-bottom:4px">GCash Reference Number</label>
+                            <input type="text" id="bm-gcash-ref" placeholder="e.g. 2024031512345678"
+                                   style="width:100%;padding:9px 12px;border:1.5px solid #e2ddd8;border-radius:8px;font-family:Poppins,sans-serif;font-size:13px;box-sizing:border-box">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card Panel -->
+                <div id="bm-card-panel" style="display:none;margin-top:12px">
+                    <div style="background:#fdf6f0;border:1.5px solid #dbb595;border-radius:12px;padding:16px;">
+                        <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#8e4a0f;margin:0 0 12px;display:flex;align-items:center;gap:6px">
+                            <i class="fas fa-lock"></i> Card Details
+                        </p>
+                        <div style="margin-bottom:10px">
+                            <label style="display:block;font-size:11px;font-weight:600;color:#666;margin-bottom:4px">Card Number</label>
+                            <input type="text" id="bm-card-number" placeholder="1234 5678 9012 3456"
+                                   maxlength="19" autocomplete="cc-number"
+                                   oninput="bmFormatCardNumber(this)"
+                                   style="width:100%;padding:9px 12px;border:1.5px solid #e2ddd8;border-radius:8px;letter-spacing:.08em;font-size:14px;font-family:Poppins,sans-serif;box-sizing:border-box">
+                        </div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                            <div>
+                                <label style="display:block;font-size:11px;font-weight:600;color:#666;margin-bottom:4px">Expiry Date</label>
+                                <input type="text" id="bm-card-expiry" placeholder="MM / YY"
+                                       maxlength="7" autocomplete="cc-exp"
+                                       oninput="bmFormatExpiry(this)"
+                                       style="width:100%;padding:9px 12px;border:1.5px solid #e2ddd8;border-radius:8px;font-family:Poppins,sans-serif;box-sizing:border-box">
+                            </div>
+                            <div>
+                                <label style="display:block;font-size:11px;font-weight:600;color:#666;margin-bottom:4px">CVC</label>
+                                <input type="password" id="bm-card-cvc" placeholder="•••"
+                                       maxlength="4" autocomplete="cc-csc"
+                                       style="width:100%;padding:9px 12px;border:1.5px solid #e2ddd8;border-radius:8px;letter-spacing:.2em;font-family:Poppins,sans-serif;box-sizing:border-box">
+                            </div>
+                        </div>
+                        <p style="font-size:11px;color:#7c746b;margin:10px 0 0;display:flex;align-items:center;gap:5px">
+                            <i class="fas fa-shield-alt" style="color:#dbb595"></i>
+                            Card details are used only to process this reservation.
+                        </p>
+                    </div>
                 </div>
             </div>
 
@@ -168,5 +229,39 @@ function openBookingModal(data) {
 }
 function closeBookingModal() {
     document.getElementById('bookingModal').style.display = 'none';
+}
+
+function bmSelectPayMethod(method) {
+    document.getElementById('bm-gcash-panel').style.display = method === 'GCash' ? '' : 'none';
+    document.getElementById('bm-card-panel').style.display  = method === 'Card'  ? '' : 'none';
+    document.getElementById('bm-ref-final').value = '';
+
+    // clear fields when switching
+    if (method !== 'GCash') {
+        const r = document.getElementById('bm-gcash-ref');
+        if (r) r.value = '';
+    }
+    if (method !== 'Card') {
+        ['bm-card-number','bm-card-expiry','bm-card-cvc'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.value = '';
+        });
+        const cr = document.getElementById('bm-card-ref');
+        if (cr) cr.value = '';
+    }
+}
+
+function bmFormatCardNumber(input) {
+    let v = input.value.replace(/\D/g, '').substring(0, 16);
+    input.value = v.replace(/(.{4})/g, '$1 ').trim();
+    if (v.length >= 4) {
+        document.getElementById('bm-ref-final').value = 'CARD-XXXX-' + v.slice(-4);
+    }
+}
+
+function bmFormatExpiry(input) {
+    let v = input.value.replace(/\D/g, '').substring(0, 4);
+    if (v.length >= 3) v = v.substring(0,2) + ' / ' + v.substring(2);
+    input.value = v;
 }
 </script>

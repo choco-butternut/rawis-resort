@@ -75,11 +75,15 @@ $extra_beds      = max(0, (int) ($_POST["extra_beds"]   ?? 0));
 $num_guests = 1;
 $res = $conn->prepare(
     "INSERT INTO reservations
-     (guest_id, room_id, check_in_date, check_out_date, num_guests, reservation_status, extra_requests, extra_guests, extra_beds, created_at)
-     VALUES (?, ?, ?, ?, ?, 'Pending', ?, ?, ?, NOW())"
+     (guest_id, room_id, check_in_date, check_out_date, num_guests, reservation_status, extra_requests, extra_guests, extra_beds, total_amount, created_at)
+     VALUES (?, ?, ?, ?, ?, 'Pending', ?, ?, ?, ?, NOW())"
 );
-$res->bind_param("iissiisi", $guest_id, $room_id, $check_in, $check_out, $num_guests, $extra_requests, $extra_guests, $extra_beds);
-$res->execute();
+$nights_pre   = (new DateTime($check_in))->diff(new DateTime($check_out))->days;
+$total_amount_pre = $room["price_per_night"] * $nights_pre
+              + ($room["extra_guest_fee"] * $extra_guests * $nights_pre)
+              + ($room["extra_bed_fee"]   * $extra_beds   * $nights_pre);
+
+$res->bind_param("iissiisid", $guest_id, $room_id, $check_in, $check_out, $num_guests, $extra_requests, $extra_guests, $extra_beds, $total_amount_pre);$res->execute();
 $reservation_id = $res->insert_id;
 $res->close();
 

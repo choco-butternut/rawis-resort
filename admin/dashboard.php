@@ -186,10 +186,11 @@ $awaiting_count = $conn->query("
                         <?php
                         $all_res = $conn->query("
                             SELECT r.*, u.first_name, u.last_name, u.phone_number,
-                                rm.room_type
+                                rm.room_type, COALESCE(p.amount_paid, r.total_amount, 0) AS total_amount
                             FROM reservations r
                             JOIN users u ON r.guest_id = u.id
                             JOIN rooms rm ON r.room_id = rm.room_id
+                            LEFT JOIN payments p ON p.reservation_id = r.reservation_id
                             ORDER BY r.reservation_id DESC
                             LIMIT 6
                         ");
