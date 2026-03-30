@@ -832,6 +832,16 @@ while ($r = $rooms->fetch_assoc()) {
         document.getElementById(id).addEventListener('input', applyFilters)
     );
 
+    <?php foreach ($all_rooms as $room):
+    $conflict = $conn->query("SELECT 1 FROM reservations WHERE room_id={$room['room_id']} AND reservation_status IN ('Pending','Confirmed') LIMIT 1");
+    if ($conflict->num_rows > 0): ?>
+    (function(){
+        const card = document.querySelector('.room-card[data-room-id="<?= $room['room_id']; ?>"]');
+        if (!card) return;
+        const btn = card.querySelector('button');
+        if (btn) { btn.disabled = true; btn.textContent = 'Unavailable'; btn.style.opacity = '0.4'; btn.style.cursor = 'not-allowed'; }
+    })();
+    <?php endif; endforeach; ?>
     applyFilters();
     </script>
 </div>

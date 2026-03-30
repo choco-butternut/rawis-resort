@@ -353,7 +353,7 @@ $awaiting_count = $conn->query("
         'price'        => $r['price_per_night'],
         'extraGuestFee'=> $r['extra_guest_fee'],
         'extraBedFee'  => $r['extra_bed_fee'],
-    ], $conn->query("SELECT * FROM rooms WHERE room_status='available' ORDER BY room_type")->fetch_all(MYSQLI_ASSOC))); ?>;
+    ], $conn->query("SELECT * FROM rooms WHERE room_status='available' AND room_id NOT IN (SELECT room_id FROM reservations WHERE reservation_status IN ('Pending','Confirmed')) ORDER BY room_type")->fetch_all(MYSQLI_ASSOC))); ?>;
     </script>
 
     <?php include __DIR__ . '/booking_modal.php'; ?>

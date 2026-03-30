@@ -32,7 +32,7 @@ if ($check_out <= $check_in) {
     exit();
 }
 
-$roomStmt = $conn->prepare("SELECT * FROM rooms WHERE room_id=? AND room_status='available'");
+$roomStmt = $conn->prepare("SELECT * FROM rooms WHERE room_id=? AND room_status='available' AND room_id NOT IN (SELECT room_id FROM reservations WHERE reservation_status IN ('Pending','Confirmed'))");
 $roomStmt->bind_param("i", $room_id);
 $roomStmt->execute();
 $room = $roomStmt->get_result()->fetch_assoc();

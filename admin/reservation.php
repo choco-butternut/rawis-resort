@@ -147,10 +147,25 @@ if (isset($_POST["update_status"])) {
 
 if (isset($_GET["delete"])) {
     $reservation_id = (int) $_GET["delete"];
+
+    $roomFetch = $conn->prepare("SELECT room_id FROM reservations WHERE reservation_id=?");
+    $roomFetch->bind_param("i", $reservation_id);
+    $roomFetch->execute();
+    $roomRow = $roomFetch->get_result()->fetch_assoc();
+    $roomFetch->close();
+
     $stmt = $conn->prepare("DELETE FROM reservations WHERE reservation_id=?");
     $stmt->bind_param("i", $reservation_id);
     $stmt->execute();
     $stmt->close();
+
+    if ($roomRow) {
+        $sr = $conn->prepare("UPDATE rooms SET room_status='available' WHERE room_id=?");
+        $sr->bind_param("i", $roomRow["room_id"]);
+        $sr->execute();
+        $sr->close();
+    }
+
     header("Location: reservation.php");
     exit();
 }
@@ -532,7 +547,7 @@ window.adminRooms = <?= json_encode(array_map(fn($r) => [
     'price'        => $r['price_per_night'],
     'extraGuestFee'=> $r['extra_guest_fee'],
     'extraBedFee'  => $r['extra_bed_fee'],
-], $conn->query("SELECT * FROM rooms ORDER BY room_type")->fetch_all(MYSQLI_ASSOC))); ?>;
+], $conn->query("SELECT * FROM rooms WHERE room_status='available' AND room_id NOT IN (SELECT room_id FROM reservations WHERE reservation_status IN ('Pending','Confirmed')) ORDER BY room_type")->fetch_all(MYSQLI_ASSOC))); ?>;
 </script>
 
 <script>
