@@ -218,12 +218,8 @@ $awaiting_count = $conn->query("
                                     </button>
 
                                     <div class="action-menu">
-                                        <div class="action-item"><i class="fas fa-eye"></i> View details</div>
-                                        <div class="action-item"><i class="fas fa-edit"></i> Edit</div>
-                                        <div class="action-item"><i class="fas fa-envelope"></i> Send Message</div>
-                                        <div class="action-item delete"><i class="fas fa-trash"></i> Delete</div>
-                                        <div class="action-item"><i class="fas fa-sign-in-alt"></i> Mark as Checked-in</div>
-                                        <div class="action-item"><i class="fas fa-sign-out-alt"></i> Mark as Checked-out</div>
+                                        <div class="action-item" onclick="window.location.href='reservation.php?highlight=<?= $row['reservation_id']; ?>'"><i class="fas fa-eye"></i> View details</div>
+                                        <div class="action-item delete" onclick="if(confirm('Delete this reservation?')) window.location.href='reservation.php?delete=<?= $row['reservation_id']; ?>'"><i class="fas fa-trash"></i> Delete</div>
                                     </div>
                                 </div>
                             </td>
