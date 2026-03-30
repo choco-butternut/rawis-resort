@@ -50,7 +50,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["form_type"]) && $_POS
 
     $amenity_name   = sanitize_input($_POST["amenity_name"]);
     $description    = sanitize_input($_POST["description"]);
-    $price          = (float) $_POST["price"];
     $amenity_status = sanitize_input($_POST["amenity_status"]);
 
     $new_image = "";
@@ -66,11 +65,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["form_type"]) && $_POS
     if (!empty($_POST["amenity_id"])) {
         $amenity_id = (int) $_POST["amenity_id"];
         if ($new_image) {
-            $stmt = $conn->prepare("UPDATE amenities SET amenity_name=?, description=?, price=?, amenity_status=?, image_path=? WHERE amenity_id=?");
-            $stmt->bind_param("ssdssi", $amenity_name, $description, $price, $amenity_status, $new_image, $amenity_id);
+            $stmt = $conn->prepare("UPDATE amenities SET amenity_name=?, description=?, amenity_status=?, image_path=? WHERE amenity_id=?");
+            $stmt->bind_param("ssssi", $amenity_name, $description, $amenity_status, $new_image, $amenity_id);
         } else {
-            $stmt = $conn->prepare("UPDATE amenities SET amenity_name=?, description=?, price=?, amenity_status=? WHERE amenity_id=?");
-            $stmt->bind_param("ssdsi", $amenity_name, $description, $price, $amenity_status, $amenity_id);
+            $stmt = $conn->prepare("UPDATE amenities SET amenity_name=?, description=?, amenity_status=? WHERE amenity_id=?");
+            $stmt->bind_param("sssi", $amenity_name, $description, $amenity_status, $amenity_id);
         }
         $stmt->execute(); $stmt->close();
     } else {
@@ -259,10 +258,6 @@ while ($a = $amenities_result->fetch_assoc()) $amenities_arr[] = $a;
                         <textarea name="description" id="f_amenity_desc" placeholder="Short description…" rows="3" style="width:100%;padding:8px 12px;border-radius:8px;border:1px solid #e2e8f0;resize:vertical;font-size:13px"></textarea>
                     </div>
                     <div>
-                        <label style="font-size:12px;font-weight:600;color:#64748b;display:block;margin-bottom:4px">Price (₱) *</label>
-                        <input type="number" step="0.01" name="price" id="f_amenity_price" placeholder="e.g. 500.00" min="0" required>
-                    </div>
-                    <div>
                         <label style="font-size:12px;font-weight:600;color:#64748b;display:block;margin-bottom:4px">Status *</label>
                         <select name="amenity_status" id="f_amenity_status" required>
                             <option value="Available">Available</option>
@@ -324,7 +319,6 @@ while ($a = $amenities_result->fetch_assoc()) $amenities_arr[] = $a;
             <div class="detail-grid">
                 <div class="detail-item"><label>Name</label><p id="da_name"></p></div>
                 <div class="detail-item"><label>Description</label><p id="da_desc"></p></div>
-                <div class="detail-item"><label>Price</label><p id="da_price"></p></div>
                 <div class="detail-item"><label>Status</label><p id="da_status"></p></div>
             </div>
             <div style="display:flex;gap:10px;margin-top:20px">
@@ -472,7 +466,6 @@ while ($a = $amenities_result->fetch_assoc()) $amenities_arr[] = $a;
                          data-amenity-id="<?= $row["amenity_id"]; ?>"
                          data-amenity-name="<?= htmlspecialchars($row["amenity_name"]); ?>"
                          data-amenity-desc="<?= htmlspecialchars($row["description"] ?? ''); ?>"
-                         data-amenity-price="<?= $row["price"]; ?>"
                          data-amenity-status="<?= htmlspecialchars($row["amenity_status"]); ?>"
                          data-amenity-image="../<?= htmlspecialchars($row["image_path"] ?: 'assets/images/default-room.jpg'); ?>"
                          style="cursor:pointer"
@@ -486,11 +479,6 @@ while ($a = $amenities_result->fetch_assoc()) $amenities_arr[] = $a;
                                 <h3 class="room-title">
                                     <span class="main-name"><?= htmlspecialchars($row["amenity_name"]); ?></span>
                                 </h3>
-
-                                <div class="room-price">
-                                    <span class="currency">PHP</span>
-                                    <span class="amount"><?= number_format($row["price"], 0); ?></span>
-                                </div>
                             </div>
                             <div class="room-info">
                                 <span><?= htmlspecialchars($row["description"] ?? '-'); ?></span>
@@ -660,7 +648,6 @@ while ($a = $amenities_result->fetch_assoc()) $amenities_arr[] = $a;
         document.getElementById('detailAmenityImg').src  = card.dataset.amenityImage;
         document.getElementById('da_name').textContent   = card.dataset.amenityName;
         document.getElementById('da_desc').textContent   = card.dataset.amenityDesc || '-';
-        document.getElementById('da_price').textContent  = '₱' + Number(card.dataset.amenityPrice).toLocaleString('en-PH', {minimumFractionDigits:2});
         document.getElementById('da_status').textContent = card.dataset.amenityStatus;
 
         document.getElementById('amenityDetailModal').classList.add('show');
@@ -706,7 +693,6 @@ while ($a = $amenities_result->fetch_assoc()) $amenities_arr[] = $a;
         document.getElementById('formAmenityId').value           = a.id;
         document.getElementById('f_amenity_name').value          = a.name;
         document.getElementById('f_amenity_desc').value          = a.desc;
-        document.getElementById('f_amenity_price').value         = a.price;
         document.getElementById('f_amenity_status').value        = a.status;
         document.getElementById('currentAmenityImg').src         = a.image;
         document.getElementById('currentAmenityImgWrap').style.display = 'block';
