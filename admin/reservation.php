@@ -210,7 +210,7 @@ function payBadge($s) {
         <?php endif; ?>
 
         <div class="toolbar">
-            <button class="btn-add" onclick=".">
+            <button class="btn-add" onclick="openBookingModal()">
                 <i class="fas fa-plus"></i> Add Booking
             </button>
             <div class="search-add">
@@ -502,6 +502,16 @@ document.addEventListener('click', function(e) {
     }
 });
 </script>
-
+<script>
+window.adminRooms = <?= json_encode(array_map(fn($r) => [
+    'id'           => $r['room_id'],
+    'number'       => $r['room_number'],
+    'type'         => $r['room_type'],
+    'price'        => $r['price_per_night'],
+    'extraGuestFee'=> $r['extra_guest_fee'],
+    'extraBedFee'  => $r['extra_bed_fee'],
+], $conn->query("SELECT * FROM rooms ORDER BY room_type")->fetch_all(MYSQLI_ASSOC))); ?>;
+</script>
+<?php include __DIR__ . '/booking_modal.php'; ?>
 </body>
 </html>

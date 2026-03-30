@@ -146,22 +146,23 @@ $awaiting_count = $conn->query("
                 <div class="title-add">
                     <h2 class="reservations-head">Reservations</h2>
 
-                    <button class="btn-add">
+                    <button class="btn-add" onclick="openBookingModal()">
                         <i class="fas fa-plus"></i>
                     </button>
                 </div>
             
                 <div class="search-bar">
-                    <input type="text" placeholder="Search">
+                    <input type="text" id="dashSearchInput" placeholder="Search guest, room…" oninput="dashFilterTable()">
                     <i class="fas fa-search"></i>
                 </div>
             </div>
 
             <div class="status-filters">
-                <a href="#" class="active">All</a>
-                <a href="#">Arrivals</a>
-                <a href="#">Departures</a>
-                <a href="#">Pending</a>
+                <a href="#" class="active" onclick="dashFilterStatus('all',this);return false;">All</a>
+                <a href="#" onclick="dashFilterStatus('Confirmed',this);return false;">Confirmed</a>
+                <a href="#" onclick="dashFilterStatus('Pending',this);return false;">Pending</a>
+                <a href="#" onclick="dashFilterStatus('Completed',this);return false;">Completed</a>
+                <a href="#" onclick="dashFilterStatus('Cancelled',this);return false;">Cancelled</a>
             </div>
 
             <div class="table-container">
@@ -180,7 +181,7 @@ $awaiting_count = $conn->query("
                             <th></th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="dashTableBody">
 
                         <?php
                         $all_res = $conn->query("
@@ -195,7 +196,7 @@ $awaiting_count = $conn->query("
                         ?>
 
                         <?php while ($row = $all_res->fetch_assoc()): ?>
-                        <tr>
+                        <tr data-status="<?= htmlspecialchars($row['reservation_status']); ?>">
                             <td class="id-column">#<?= $row["reservation_id"]; ?></td>
                             <td><?= htmlspecialchars($row["first_name"]); ?></td>
                             <td><?= htmlspecialchars($row["last_name"]); ?></td>
@@ -235,30 +236,129 @@ $awaiting_count = $conn->query("
     </main>
 
     <script>
-    function toggleMenu(event, btn) {
-        event.stopPropagation(); 
-
-        document.querySelectorAll('.action-menu').forEach(menu => {
-            menu.classList.remove('show');
+    function dashFilterTable() {
+        const q = document.getElementById('dashSearchInput').value.toLowerCase();
+        document.querySelectorAll('#dashTableBody tr').forEach(row => {
+            row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
         });
-
-        const menu = btn.nextElementSibling;
-        menu.classList.toggle('show');
     }
 
-    document.querySelectorAll('.action-menu').forEach(menu => {
-        menu.addEventListener('click', function(e) {
-            e.stopPropagation();
+    let dashCurrentStatus = 'all';
+    function dashFilterStatus(status, el) {
+        dashCurrentStatus = status;
+        document.querySelectorAll('.status-filters a').forEach(a => a.classList.remove('active'));
+        el.classList.add('active');
+        document.querySelectorAll('#dashTableBody tr').forEach(row => {
+            row.style.display = (status === 'all' || row.dataset.status === status) ? '' : 'none';
         });
+        return false;
+    }
+
+    function openBookingModal(data = null) {
+        populateRoomSelect();
+        if (data) {
+            document.getElementById('bm-title').textContent = 'Edit Reservation';
+            document.getElementById('bm-res-id').value      = data.id;
+            document.getElementById('bm-first').value       = data.firstName;
+            document.getElementById('bm-last').value        = data.lastName;
+            document.getElementById('bm-phone').value       = data.phone;
+            document.getElementById('bm-requests').value    = data.requests;
+            document.getElementById('bm-pay').value         = data.payMethod;
+            document.getElementById('bm-room').value        = data.roomId;
+            document.getElementById('bm-checkin').value     = data.checkIn;
+            document.getElementById('bm-checkout').value    = data.checkOut;
+            document.getElementById('bm-extra-guest').value = data.extraGuests;
+            document.getElementById('bm-extra-bed').value   = data.extraBeds;
+            document.getElementById('bm-delete-btn').style.display = '';
+            document.getElementById('bm-submit-btn').textContent   = 'UPDATE';
+            recalcBookingModal();
+        } else {
+            document.getElementById('bm-title').textContent = 'Add Reservation';
+            document.getElementById('bm-res-id').value = '';
+            document.getElementById('bm-form').reset();
+            document.getElementById('bm-extra-guest').value = 0;
+            document.getElementById('bm-extra-bed').value   = 0;
+            const today    = new Date().toISOString().split('T')[0];
+            const tomorrow = new Date(Date.now()+86400000).toISOString().split('T')[0];
+            document.getElementById('bm-checkin').value  = today;
+            document.getElementById('bm-checkout').value = tomorrow;
+            document.getElementById('bm-delete-btn').style.display = 'none';
+            document.getElementById('bm-submit-btn').textContent   = 'CONFIRM';
+            recalcBookingModal();
+        }
+        document.getElementById('bookingModal').classList.add('show');
+    }
+
+    function closeBookingModal() {
+        document.getElementById('bookingModal').classList.remove('show');
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const bm = document.getElementById('bookingModal');
+        if (bm) bm.addEventListener('click', function(e){ if(e.target===this) closeBookingModal(); });
     });
 
+    function populateRoomSelect() {
+        const sel = document.getElementById('bm-room');
+        sel.innerHTML = '<option value="">Select a room…</option>';
+        (window.adminRooms || []).forEach(r => {
+            const opt = document.createElement('option');
+            opt.value = r.id;
+            opt.textContent = r.type + ' — Room ' + r.number;
+            opt.dataset.price         = r.price;
+            opt.dataset.extraGuestFee = r.extraGuestFee;
+            opt.dataset.extraBedFee   = r.extraBedFee;
+            sel.appendChild(opt);
+        });
+    }
+
+    function recalcBookingModal() {
+        const sel      = document.getElementById('bm-room');
+        const opt      = sel.options[sel.selectedIndex];
+        const price    = opt ? parseFloat(opt.dataset.price || 0) : 0;
+        const egFee    = opt ? parseFloat(opt.dataset.extraGuestFee || 0) : 0;
+        const ebFee    = opt ? parseFloat(opt.dataset.extraBedFee   || 0) : 0;
+        const ci       = document.getElementById('bm-checkin').value;
+        const co       = document.getElementById('bm-checkout').value;
+        const nights   = (ci && co) ? Math.max(0, Math.round((new Date(co)-new Date(ci))/86400000)) : 0;
+        const eg       = parseInt(document.getElementById('bm-extra-guest').value) || 0;
+        const eb       = parseInt(document.getElementById('bm-extra-bed').value)   || 0;
+        const total    = price*nights + egFee*eg*nights + ebFee*eb*nights;
+
+        document.getElementById('bm-room-price').textContent  = '₱' + price.toLocaleString('en-PH');
+        document.getElementById('bm-nights').textContent      = nights;
+        document.getElementById('bm-eg-cost').textContent     = '₱' + (egFee*eg*nights).toLocaleString('en-PH');
+        document.getElementById('bm-eb-cost').textContent     = '₱' + (ebFee*eb*nights).toLocaleString('en-PH');
+        document.getElementById('bm-total').textContent       = '₱' + total.toLocaleString('en-PH');
+    }
+
+    function changeBMQty(id, delta) {
+        const el = document.getElementById(id);
+        el.value = Math.max(0, (parseInt(el.value)||0) + delta);
+        recalcBookingModal();
+    }
+
+    function toggleMenu(event, btn) {
+        event.stopPropagation();
+        document.querySelectorAll('.action-menu').forEach(m => m.classList.remove('show'));
+        btn.nextElementSibling.classList.toggle('show');
+    }
     document.addEventListener('click', function(e) {
-        if (!e.target.closest('.action-wrapper')) {
-            document.querySelectorAll('.action-menu').forEach(menu => {
-                menu.classList.remove('show');
-            });
-        }
+        if (!e.target.closest('.action-wrapper'))
+            document.querySelectorAll('.action-menu').forEach(m => m.classList.remove('show'));
     });
+</script>
+    <script>
+    window.adminRooms = <?= json_encode(array_map(fn($r) => [
+        'id'           => $r['room_id'],
+        'number'       => $r['room_number'],
+        'type'         => $r['room_type'],
+        'price'        => $r['price_per_night'],
+        'extraGuestFee'=> $r['extra_guest_fee'],
+        'extraBedFee'  => $r['extra_bed_fee'],
+    ], $conn->query("SELECT * FROM rooms WHERE room_status='available' ORDER BY room_type")->fetch_all(MYSQLI_ASSOC))); ?>;
     </script>
+
+    <?php include __DIR__ . '/booking_modal.php'; ?>
 </body>
 </html>
