@@ -693,7 +693,7 @@ while ($a = $amenities_result->fetch_assoc()) $amenities_arr[] = $a;
         document.getElementById('amenityForm').reset();
         document.getElementById('currentAmenityImgWrap').style.display = 'none';
         document.getElementById('amenityImgNote').textContent = '*';
-        document.getElementById('f_amenity_image').required = true;
+        document.getElementById('f_amenity_image').required = false;
         document.getElementById('amenityModal').classList.add('show');
     }
 
