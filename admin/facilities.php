@@ -75,8 +75,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["form_type"]) && $_POS
         $stmt->execute(); $stmt->close();
     } else {
         $image_path = $new_image;
-        $stmt = $conn->prepare("INSERT INTO amenities (amenity_name, description, price, amenity_status, image_path) VALUES (?,?,?,?,?)");
-        $stmt->bind_param("ssdss", $amenity_name, $description, $price, $amenity_status, $image_path);
+        $stmt = $conn->prepare("INSERT INTO amenities (amenity_name, description, amenity_status, image_path) VALUES (?,?,?,?,?)");
+        $stmt->bind_param("ssdss", $amenity_name, $description, $amenity_status, $image_path);
         $stmt->execute(); $stmt->close();
     }
     header("Location: facilities.php?tab=amenities"); exit();
