@@ -524,6 +524,14 @@ while ($r = $rooms->fetch_assoc()) {
         document.getElementById('modal_checkin').min    = today;
         document.getElementById('modal_checkout').min   = today;
 
+        document.getElementById('modal_checkin').addEventListener('change', function() {
+            document.getElementById('modal_checkout').min = this.value;
+            if (document.getElementById('modal_checkout').value <= this.value) {
+                document.getElementById('modal_checkout').value = '';
+            }
+            updateReservationSummary();
+        });
+
         updateReservationSummary();
         // Reset payment panels
         document.getElementById('payment_method_ui').value = 'Cash';
@@ -539,6 +547,13 @@ while ($r = $rooms->fetch_assoc()) {
 
     document.getElementById('reserveModal').addEventListener('click', function(e) {
         if (e.target === this) closeModal();
+    });
+
+    document.getElementById('reserveForm').addEventListener('submit', function(e) {
+        const ci = document.getElementById('modal_checkin').value;
+        const co = document.getElementById('modal_checkout').value;
+        if (!ci || !co) { e.preventDefault(); alert('Please select check-in and check-out dates.'); return; }
+        if (co <= ci)   { e.preventDefault(); alert('Check-out must be after check-in.');            return; }
     });
 
     function updateReservationSummary() {
@@ -712,6 +727,11 @@ while ($r = $rooms->fetch_assoc()) {
     }
 
     function recalcDetail() {
+        const co_input = document.getElementById('inputCheckOut');
+        if (document.getElementById('inputCheckIn').value) {
+            co_input.min = document.getElementById('inputCheckIn').value;
+        }
+        
         const ci = document.getElementById('inputCheckIn').value;
         const co = document.getElementById('inputCheckOut').value;
 
