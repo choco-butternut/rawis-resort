@@ -163,7 +163,6 @@ $awaiting_count = $conn->query("
                 <ul>
                     <li>Available Rooms: <strong><?= $available_rooms; ?></strong></li>
                     <li>Occupied Rooms: <strong><?= $occupied_rooms; ?></strong></li>
-                    <li>Cleaning: <strong>1</strong></li>
                     <li>Maintenance: <strong><?= $maintenance_rooms; ?></strong></li>
                 </ul>
             </div>
