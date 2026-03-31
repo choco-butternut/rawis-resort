@@ -26,15 +26,15 @@
         <div class="footer-socials">
             <h3>Stay Connected</h3>
             <ul class="social-links">
-                <li><a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a></li>
-                <li><a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a></li>
-                <li><a href="#" aria-label="X (Twitter)"><i class="fab fa-x-twitter"></i></a></li>
+                <li><a href="https://www.facebook.com/rawisresorthotel" aria-label="Facebook"><i class="fab fa-facebook"></i></a></li>
+                <li><a href="https://www.instagram.com/explore/locations/1018207944/rawis-resort-and-restaurant-borongan-e-samar/" aria-label="Instagram"><i class="fab fa-instagram"></i></a></li>
+                <li><a href="https://x.com/Rawis_HR" aria-label="X (Twitter)"><i class="fab fa-x-twitter"></i></a></li>
             </ul>
             
             <div class="footer-legal-links">
-                <a href="#">Privacy Policy</a> | 
-                <a href="#">Terms & Conditions</a> | 
-                <a href="#">Safety & Security</a>
+                <a href="/privacy-policy.php">Privacy Policy</a> | 
+                <a href="/terms.php">Terms & Conditions</a> | 
+                <a href="/safety.php">Safety & Security</a>
             </div>
             
             <p class="copyright">© 2026 Rawis Resort Hotel. All Rights Reserved.</p>
@@ -45,7 +45,7 @@
             <ul class="contact-list">
                 <li>
                     <i class="fas fa-phone"></i>
-                    <a href="#">0977 183 7288</a>
+                    <a href="tel:09611440750">0977 183 7288</a>
                 </li>
                 <li>
                     <i class="fab fa-facebook-messenger"></i>
@@ -53,7 +53,7 @@
                 </li>
                 <li>
                     <i class="fas fa-envelope"></i>
-                    <a href="#">rawisresorthotel@gmail.com</a>
+                    <a href="/contacts.php">rawisresorthotel@gmail.com</a>
                 </li>
             </ul>
         </div>
