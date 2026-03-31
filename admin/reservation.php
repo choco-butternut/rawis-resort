@@ -22,6 +22,16 @@ $conn->query("
     AND room_status = 'occupied'
 ");
 
+$conn->query("
+    UPDATE rooms SET room_status = 'occupied'
+    WHERE room_id IN (
+        SELECT room_id FROM reservations
+        WHERE reservation_status = 'Confirmed'
+        AND check_in_date <= CURDATE()
+        AND check_out_date > CURDATE()
+    )
+");
+
 if (isset($_POST["verify_payment"])) {
     $reservation_id = (int) $_POST["reservation_id"];
 
