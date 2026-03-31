@@ -2,6 +2,26 @@
 require_once __DIR__ . "/../php/config.php";
 require_once __DIR__ . "/../php/admin_auth.php";
 
+// Auto-complete reservations past checkout date
+$conn->query("
+    UPDATE reservations r
+    JOIN payments p ON p.reservation_id = r.reservation_id
+    SET r.reservation_status = 'Completed',
+        p.payment_status = 'Completed'
+    WHERE r.check_out_date < CURDATE()
+    AND r.reservation_status = 'Confirmed'
+");
+
+// Free up those rooms
+$conn->query("
+    UPDATE rooms SET room_status = 'available'
+    WHERE room_id NOT IN (
+        SELECT room_id FROM reservations
+        WHERE reservation_status IN ('Pending','Confirmed')
+    )
+    AND room_status = 'occupied'
+");
+
 if (isset($_POST["verify_payment"])) {
     $reservation_id = (int) $_POST["reservation_id"];
 
