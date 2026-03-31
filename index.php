@@ -66,7 +66,7 @@ while ($a = $amenities->fetch_assoc()) $amenities_arr[] = $a;
                 <div class="card-item">
                     <?php foreach ($amenities_arr as $i => $amenity): ?>
                     <div class="card-image"
-                         style="background-image: url('<?= htmlspecialchars($amenity['image_path']); ?>');
+                         style="background-image: url('<?= !empty($amenity['image_path']) ? htmlspecialchars($amenity['image_path']) : 'assets/rawis-bg.jpg'; ?>');
                                 background-size: cover;
                                 background-position: center;
                                 position: absolute;
@@ -76,7 +76,7 @@ while ($a = $amenities->fetch_assoc()) $amenities_arr[] = $a;
                                 z-index: <?= count($amenities_arr) - $i; ?>;">
                     </div>
                     <?php endforeach; ?>
-                    <div class="card-image" style="position: relative; z-index: 10; background-image: url('<?= htmlspecialchars($amenities_arr[0]['image_path'] ?? ''); ?>'); background-size: cover; background-position: center;">
+                    <div class="card-image" style="position: relative; z-index: 10; background-image: url('<?= !empty($amenities_arr[0]['image_path']) ? htmlspecialchars($amenities_arr[0]['image_path']) : 'assets/rawis-bg.jpg'; ?>'); background-size: cover; background-position: center;">
                         <div class="card-overlay">
                             <h3>Amenities</h3>
                             <a href="amenities.php" class="view-details">View Details</a>
