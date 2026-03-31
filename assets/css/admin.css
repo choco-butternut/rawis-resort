@@ -473,6 +473,7 @@ body {
 }
 
 .btn-add :hover {
+    cursor: pointer;
     background-color: #e4ae76;
     color: #43210b;
     transition: background-color 0.3s, color 0.3s;
